@@ -1,0 +1,2 @@
+# FinanziAI
+a wallera
