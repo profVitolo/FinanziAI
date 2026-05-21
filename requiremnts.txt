@@ -1,0 +1,5 @@
+# Per installare le dipendenze in un sol colpo: "pip install -r requirements.txt"
+# dopo l'installazione per specificare le versioni: "pip freeze > requirements.txt"
+yfinance
+pandas
+numpy
