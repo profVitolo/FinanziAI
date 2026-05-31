@@ -194,7 +194,8 @@ FinanziAI/
 ├── data_collector/
 │ └── yahoo_collector.py
 │
-├── data_engine/
+├──data_engine/
+│ ├── data_engine.py
 │ ├── indicators.py
 │ ├── market_analysis.py
 │ └── portfolio_analysis.py
