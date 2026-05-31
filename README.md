@@ -294,13 +294,13 @@ sequenceDiagram
 ---
 
 ### Fase 2 — Data Engine (analisi numerica)
-- Implementazione `DataEngine`
-- Calcolo indicatori base:
-  - RSI
-  - medie mobili
-  - volatilità
-- Prime analisi di mercato (trend base)
-- Strutturazione output dati per livelli superiori
+- ~Implementazione `DataEngine`~
+- ~Calcolo indicatori base:~
+  - ~RSI~
+  - ~medie mobili~
+  - ~volatilità~
+- ~Prime analisi di mercato (trend base)~
+- ~Strutturazione output dati per livelli superiori~
 
 ---
 
