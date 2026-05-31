@@ -1,15 +1,19 @@
 from services.data_service import DataService
 from data_manager.asset_data_manager import AssetDataManager
+from data_engine.data_engine import DataEngine
+
 
 if __name__ == "__main__":
     db_path = "vault.db"
+
     ds = DataService(db_path)
 
     result = ds.update_asset("AAPL")
     print(result)
+
     result = ds.update_asset("^GSPC")
     print(result)
-    
+
     adm = AssetDataManager(db_path)
 
     # Test 1: recupero asset
@@ -17,6 +21,7 @@ if __name__ == "__main__":
     print("Asset:", asset)
 
     if asset:
+
         asset_id = asset[0]
 
         # Test 2: ultima data disponibile
@@ -28,10 +33,22 @@ if __name__ == "__main__":
 
         print(f"Numero record: {len(prices)}")
 
-        # Mostra primi 5 record
         for row in prices[:5]:
             print(row)
 
-        # Mostra ultimi 5 record
         for row in prices[-5:]:
             print(row)
+
+    # =====================================
+    # Test DataEngine
+    # =====================================
+    engine = DataEngine(db_path)
+
+    analysis = engine.analyze_asset("AAPL")
+
+    print("\n=== DATA ENGINE ===")
+    print(analysis)
+    
+    analysis = engine.analyze_asset("^GSPC")
+    print("\n=== S&P500 ===")
+    print(analysis)
