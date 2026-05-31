@@ -51,6 +51,7 @@ CREATE TABLE transactions (
     type TEXT NOT NULL, -- buy / sell
     quantity REAL NOT NULL,
     price REAL NOT NULL,
+	fees REAL DEFAULT 0,
 
     FOREIGN KEY (asset_id) REFERENCES assets(id)
 );
