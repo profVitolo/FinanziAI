@@ -1,5 +1,5 @@
 import sqlite3
-
+from datetime import datetime
 
 class PortfolioDataManager:
 
@@ -118,7 +118,10 @@ class PortfolioDataManager:
     # PORTFOLIO
     # ======================
 
-    def update_portfolio_position(self, asset_id, quantity, avg_price, last_update):
+    def update_portfolio_position(self, asset_id, quantity, avg_price, last_update=None):
+        if last_update is None:
+            last_update = datetime.now().strftime("%Y-%m-%d")
+        
         conn = self._connect()
         cursor = conn.cursor()
 
