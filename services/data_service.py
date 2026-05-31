@@ -31,7 +31,7 @@ class DataService:
         return self.sync_asset(symbol, start_date=start_date)
 
     def sync_asset(self, symbol, start_date, end_date=None):
-        asset_info = self.collector.get_asset_info(symbol)
+        asset_info = self.collector.fetch_asset_info(symbol)
 
         if asset_info is None:
             return False
@@ -50,7 +50,7 @@ class DataService:
         else:
             asset_id = asset[0]
 
-        prices = self.collector.get_historical_prices(symbol, start_date, end_date)
+        prices = self.collector.fetch_prices(symbol, start_date, end_date)
 
         self.asset_data_manager.save_prices(asset_id, prices)
 
