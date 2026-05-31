@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from data_manager.asset_data_manager import AssetDataManager
 from data_collector.yahoo_collector import YahooCollector
 
@@ -5,64 +7,54 @@ from data_collector.yahoo_collector import YahooCollector
 class DataService:
 
     def __init__(self, db_path):
-        self.asset_manager = AssetDataManager(db_path)
+        self.asset_data_manager = AssetDataManager(db_path)
         self.collector = YahooCollector()
 
-    def update_asset(self, symbol):
-        """
-        Aggiorna i dati di un asset:
-        - crea asset se non esiste
-        - scarica nuovi prezzi
-        - salva nel database
-        """
-
-        # ======================
-        # 1. Recupero / creazione asset
-        # ======================
-        asset = self.asset_manager.get_asset_by_symbol(symbol)
+    def update_asset(self, symbol, initial_days=365):
+        asset = self.asset_data_manager.get_asset_by_symbol(symbol)
 
         if asset is None:
-            asset_id = self.asset_manager.create_asset(symbol)
+            start_date = (date.today() - timedelta(days=initial_days)).isoformat()
+
+            return self.sync_asset(symbol, start_date=start_date)
+
+        asset_id = asset[0]
+        last_date = self.asset_data_manager.get_last_price_date(asset_id)
+
+        if last_date is None:
+            start_date = (date.today() - timedelta(days=initial_days)).isoformat()
+
+            return self.sync_asset(symbol, start_date=start_date)
+
+        start_date = (date.fromisoformat(last_date) + timedelta(days=1)).isoformat()
+
+        return self.sync_asset(symbol, start_date=start_date)
+
+    def sync_asset(self, symbol, start_date, end_date=None):
+        asset_info = self.collector.get_asset_info(symbol)
+
+        if asset_info is None:
+            return False
+
+        asset = self.asset_data_manager.get_asset_by_symbol(symbol)
+
+        if asset is None:
+            asset_id = self.asset_data_manager.create_asset(
+                symbol=symbol,
+                name=asset_info["name"],
+                type=asset_info["type"],
+                currency=asset_info["currency"],
+                exchange=asset_info["exchange"]
+            )
+
         else:
-            asset_id = asset[0]  # id è primo campo
+            asset_id = asset[0]
 
-        # ======================
-        # 2. Ultima data disponibile
-        # ======================
-        last_date = self.asset_manager.get_last_price_date(asset_id)
+        prices = self.collector.get_historical_prices(symbol, start_date, end_date)
 
-        # ======================
-        # 3. Download dati
-        # ======================
-        prices = self.collector.fetch_prices(symbol, start_date=last_date)
+        self.asset_data_manager.save_prices(asset_id, prices)
 
-        # ======================
-        # 4. Controlli minimi (no paranoia)
-        # ======================
-        if not prices:
-            # niente dati → inutile continuare
-            return {
-                "status": "warning",
-                "message": "Nessun dato scaricato"
-            }
-
-        # controllo semplice: almeno qualche punto
-        if len(prices) < 5:
-            return {
-                "status": "warning",
-                "message": "Dati sospetti (troppo pochi)"
-            }
-
-        # ======================
-        # 5. Salvataggio (batch)
-        # ======================
-        self.asset_manager.save_prices(asset_id, prices)
-
-        # ======================
-        # 6. Output
-        # ======================
         return {
-            "status": "ok",
-            "message": f"{len(prices)} prezzi aggiornati",
-            "asset_id": asset_id
+            "symbol": symbol,
+            "prices_downloaded": len(prices)
         }
