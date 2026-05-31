@@ -383,13 +383,13 @@ sequenceDiagram
 ---
 
 ### Fase 3 — Portfolio Management
-- Implementazione `PortfolioDataManager`
-- Gestione transazioni (buy/sell)
-- Calcolo posizione attuale
-- Analisi portafoglio:
-  - esposizione
-  - performance
-  - rischio base
+- ~Implementazione `PortfolioDataManager`~
+- ~Gestione transazioni (buy/sell)~
+- ~Calcolo posizione attuale~
+- ~Analisi portafoglio:~
+  - ~esposizione~
+  - ~performance~
+  - ~rischio base~
 
 ---
 
