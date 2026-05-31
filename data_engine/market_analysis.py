@@ -2,7 +2,6 @@ class MarketAnalysis:
 
     @staticmethod
     def analyze(indicators):
-
         return {
             "trend": MarketAnalysis.analyze_trend(indicators),
             "volatility_level": MarketAnalysis.analyze_volatility(indicators)
@@ -10,7 +9,6 @@ class MarketAnalysis:
 
     @staticmethod
     def analyze_trend(indicators):
-
         sma20 = indicators.get("sma20")
         sma50 = indicators.get("sma50")
 
@@ -27,7 +25,6 @@ class MarketAnalysis:
 
     @staticmethod
     def analyze_volatility(indicators):
-
         volatility = indicators.get("annualized_volatility")
 
         if volatility is None:
