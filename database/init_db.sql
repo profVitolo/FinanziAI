@@ -1,4 +1,4 @@
-CREATE TABLE assets (
+CREATE TABLE IF NOT EXISTS assets (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     symbol TEXT NOT NULL UNIQUE,
     name TEXT,
@@ -7,7 +7,7 @@ CREATE TABLE assets (
     exchange TEXT
 );
 
-CREATE TABLE prices (
+CREATE TABLE IF NOT EXISTS prices (
     asset_id INTEGER NOT NULL,
     date TEXT NOT NULL,
     open REAL,
@@ -20,7 +20,7 @@ CREATE TABLE prices (
     FOREIGN KEY (asset_id) REFERENCES assets(id)
 );
 
-CREATE TABLE indicators (
+CREATE TABLE IF NOT EXISTS indicators (
     asset_id INTEGER NOT NULL,
     date TEXT NOT NULL,
     rsi REAL,
@@ -34,7 +34,7 @@ CREATE TABLE indicators (
 );
 
 -- Sezione Personal DATA --
-CREATE TABLE portfolio (
+CREATE TABLE IF NOT EXISTS portfolio (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     asset_id INTEGER NOT NULL,
     quantity REAL NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE portfolio (
     FOREIGN KEY (asset_id) REFERENCES assets(id)
 );
 
-CREATE TABLE transactions (
+CREATE TABLE IF NOT EXISTS transactions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     asset_id INTEGER NOT NULL,
     date TEXT NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE transactions (
     FOREIGN KEY (asset_id) REFERENCES assets(id)
 );
 
-CREATE TABLE watchlist (
+CREATE TABLE IF NOT EXISTS watchlist (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     asset_id INTEGER NOT NULL UNIQUE,
 
@@ -64,7 +64,7 @@ CREATE TABLE watchlist (
 );
 
 -- Sezione AInalisys --
-CREATE TABLE analysis (
+CREATE TABLE IF NOT EXISTS analysis (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     timestamp TEXT NOT NULL,
     input_snapshot TEXT,   -- JSON
@@ -72,7 +72,7 @@ CREATE TABLE analysis (
     version TEXT           -- rule-based / llm
 );
 
-CREATE TABLE market_summary (
+CREATE TABLE IF NOT EXISTS market_summary (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     date TEXT NOT NULL,
     market_trend TEXT,
