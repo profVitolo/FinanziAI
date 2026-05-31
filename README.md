@@ -73,6 +73,9 @@ Gestione della persistenza dati tramite SQLite (file unico `.db`).
 **Nota:**
 Ogni DataManager è specializzato in una specifica area funzionale e conosce esclusivamente le tabelle di propria competenza.
 
+Il database viene inizializzato automaticamente all'avvio dell'applicazione.
+Se il file `vault.db` non esiste, viene creato utilizzando lo schema definito in `database/init_db.sql`.
+
 ---
 
 ### 2. **DataService (Orchestratore dati)**
@@ -144,6 +147,13 @@ Trasformare dati grezzi in informazioni utilizzabili dai livelli superiori.
 **Analisi attualmente supportate:**
 - trend base
 - classificazione della volatilità
+- esposizione del portafoglio
+- performance delle posizioni
+- rischio di concentrazione
+
+**Funzionalità attualmente disponibili:**
+- `analyze_asset(symbol)`
+- `analyze_portfolio()`
 
 **Quando interviene:**
 - dopo che i dati sono disponibili nel database
@@ -356,6 +366,43 @@ sequenceDiagram
 
     DataEngine-->>UI: analysis dict
 ```
+
+---
+
+## 🧪 Test Suite
+
+Il progetto include una suite di test manuali organizzata per livelli funzionali.
+
+I test seguono l'evoluzione dell'architettura e permettono di verificare in modo progressivo:
+- acquisizione dati
+- persistenza nel database
+- analisi di mercato
+- gestione del portafoglio
+- integrazione tra componenti
+
+Lo script `start_test.py` funge da launcher e consente di eseguire singolarmente un test oppure l'intera sequenza in ordine numerico.
+
+```
+tests/
+├── 01_test_data_pipeline.py
+├── 02_test_data_engine.py
+├── 03_test_asset_data_manager.py
+├── 04_test_portfolio_data_manager.py
+├── 05_test_portfolio_analysis.py
+├── 06_test_portfolio_integration.py
+└── start_test.py
+```
+
+### Descrizione test
+
+| Test	| Scopo |
+|-------|--------|
+| 01	| Download e sincronizzazione dati |
+| 02	| Analisi asset tramite DataEngine |
+| 03	| Verifica AssetDataManager |
+| 04	| Verifica PortfolioDataManager |
+| 05	| Verifica PortfolioAnalysis |
+| 06	| Integrazione completa portfolio + DataEngine |
 
 ---
 
