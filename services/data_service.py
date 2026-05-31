@@ -15,7 +15,6 @@ class DataService:
 
         if asset is None:
             start_date = (date.today() - timedelta(days=initial_days)).isoformat()
-
             return self.sync_asset(symbol, start_date=start_date)
 
         asset_id = asset[0]
@@ -23,11 +22,9 @@ class DataService:
 
         if last_date is None:
             start_date = (date.today() - timedelta(days=initial_days)).isoformat()
-
             return self.sync_asset(symbol, start_date=start_date)
 
         start_date = (date.fromisoformat(last_date) + timedelta(days=1)).isoformat()
-
         return self.sync_asset(symbol, start_date=start_date)
 
     def sync_asset(self, symbol, start_date, end_date=None):
