@@ -284,11 +284,11 @@ sequenceDiagram
 
 ### Fase 1 — Data Layer & Ingestion (fondamenta)
 - ~Implementazione database SQLite~
-- Creazione `AssetDataManager`
-- Implementazione `DataService`
-- Integrazione `DataCollector` (Yahoo Finance)
-- Download e salvataggio prezzi (con gestione duplicati)
-- Prime API di lettura dati (storico, ultimo prezzo)
+- ~Creazione `AssetDataManager`~
+- ~Implementazione `DataService`~
+- ~Integrazione `YahooCollector` (Yahoo Finance)~
+- ~Download e salvataggio prezzi (con gestione duplicati)~
+- ~Prime API di lettura dati (storico, ultimo prezzo)~
 
 ---
 
