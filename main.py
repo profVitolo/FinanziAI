@@ -7,7 +7,15 @@ if __name__ == "__main__":
     db_path = "vault.db"
 
     ds = DataService(db_path)
+    ds.sync_asset(
+        "AAPL",
+        start_date="2025-01-01"
+    )
 
+    ds.sync_asset(
+        "^GSPC",
+        start_date="2025-01-01"
+    )
     print(ds.update_asset("AAPL", initial_days=365))
     print(ds.update_asset("^GSPC", initial_days=365))
 
