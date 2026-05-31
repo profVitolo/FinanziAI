@@ -2,11 +2,16 @@ from datetime import date, timedelta
 
 from data_manager.asset_data_manager import AssetDataManager
 from data_collector.yahoo_collector import YahooCollector
+from database.database_initializer import DatabaseInitializer
 
+from pathlib import Path
+
+schema_path = (Path(__file__).resolve().parent.parent / "database" / "init_db.sql")
 
 class DataService:
 
     def __init__(self, db_path):
+        DatabaseInitializer.initialize(db_path, schema_path)
         self.asset_data_manager = AssetDataManager(db_path)
         self.collector = YahooCollector()
 
