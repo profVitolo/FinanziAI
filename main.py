@@ -8,11 +8,8 @@ if __name__ == "__main__":
 
     ds = DataService(db_path)
 
-    result = ds.update_asset("AAPL")
-    print(result)
-
-    result = ds.update_asset("^GSPC")
-    print(result)
+    print(ds.update_asset("AAPL", initial_days=365))
+    print(ds.update_asset("^GSPC", initial_days=365))
 
     adm = AssetDataManager(db_path)
 
@@ -21,21 +18,21 @@ if __name__ == "__main__":
     print("Asset:", asset)
 
     if asset:
-
         asset_id = asset[0]
 
-        # Test 2: ultima data disponibile
-        last_date = adm.get_last_price_date(asset_id)
-        print("Ultima data:", last_date)
+        print("\n=== LAST DATE ===")
+        print(adm.get_last_price_date(asset_id))
 
-        # Test 3: storico prezzi
         prices = adm.get_prices(asset_id)
 
-        print(f"Numero record: {len(prices)}")
+        print("\n=== PRICE COUNT ===")
+        print(len(prices))
 
+        print("\n=== FIRST 5 ===")
         for row in prices[:5]:
             print(row)
 
+        print("\n=== LAST 5 ===")
         for row in prices[-5:]:
             print(row)
 
@@ -44,11 +41,8 @@ if __name__ == "__main__":
     # =====================================
     engine = DataEngine(db_path)
 
-    analysis = engine.analyze_asset("AAPL")
+    print("\n=== AAPL ANALYSIS ===")
+    print(engine.analyze_asset("AAPL"))
 
-    print("\n=== DATA ENGINE ===")
-    print(analysis)
-    
-    analysis = engine.analyze_asset("^GSPC")
-    print("\n=== S&P500 ===")
-    print(analysis)
+    print("\n=== S&P500 ANALYSIS ===")
+    print(engine.analyze_asset("^GSPC"))

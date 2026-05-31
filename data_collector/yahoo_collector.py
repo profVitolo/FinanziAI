@@ -6,24 +6,20 @@ class YahooCollector:
     def __init__(self):
         pass
 
+    def fetch_asset_info(self, symbol):
+        ticker = yf.Ticker(symbol)
+
+        info = ticker.info
+
+        return {
+            "symbol": symbol,
+            "name": info.get("longName"),
+            "type": info.get("quoteType"),
+            "currency": info.get("currency"),
+            "exchange": info.get("exchange")
+        }
+        
     def fetch_prices(self, symbol, start_date=None, end_date=None):
-        """
-        Scarica dati OHLC da Yahoo Finance.
-
-        Returns:
-            lista di dict:
-            [
-                {
-                    "date": "YYYY-MM-DD",
-                    "open": float,
-                    "high": float,
-                    "low": float,
-                    "close": float,
-                    "volume": float
-                }
-            ]
-        """
-
         ticker = yf.Ticker(symbol)
 
         data = ticker.history(start=start_date, end=end_date)
