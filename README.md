@@ -44,134 +44,187 @@ Il sistema è completamente **locale**, senza server e senza database remoto.
 ## 🔧 Componenti principali
 
 ### 1. **Database (SQLite + DataManager)**
-**Ruolo:**
+**Ruolo:**  
 Gestione della persistenza dati tramite SQLite (file unico `.db`).
 
 **Componenti interni:**
+
+**Implementati**
 - `AssetDataManager`
-- `PortfolioDataManager` *(futuro)*
-- `AnalysisDataManager` *(futuro)*
+
+**Pianificati**
+- `PortfolioDataManager`
+- `AnalysisDataManager`
 
 **Responsabilità:**
 - salvare e leggere dati
-- garantire coerenza
-- gestire:
-  - assets
-  - prezzi (prices)
-  - portafoglio
-  - analisi
+- garantire la coerenza delle informazioni
+- isolare il resto dell'applicazione dai dettagli SQL
+
+**Dati gestiti:**
+- assets
+- prezzi storici (`prices`)
+- portafoglio
+- analisi e risultati elaborati
 
 **Quando interviene:**
-- ogni volta che un dato deve essere salvato o letto
+- ogni volta che un dato deve essere salvato o recuperato
+
+**Nota:**
+Ogni DataManager è specializzato in una specifica area funzionale e conosce esclusivamente le tabelle di propria competenza.
 
 ---
 
 ### 2. **DataService (Orchestratore dati)**
-**Ruolo:**
-Coordinare tutte le operazioni legate ai dati.
+**Ruolo:**  
+Coordinare tutte le operazioni legate ai dati di mercato.
 
 **Responsabilità:**
-- aggiornare dati di mercato
-- coordinare DataCollector e DataManager
-- fornire dati agli altri componenti
+- aggiornare gli asset
+- sincronizzare dati storici da fonti esterne
+- coordinare `DataCollector` e `DataManager`
+- fornire dati agli altri componenti dell'applicazione
 
 **Quando interviene:**
-- quando serve aggiornare un asset
-- quando altri componenti richiedono dati
+- durante l'aggiornamento dei dati
+- quando altri componenti richiedono dati di mercato
 
 **Nota:**
-Non contiene SQL e non esegue analisi.
+Non contiene SQL, nè esegue analisi finanziarie.
 
 ---
 
 ### 3. **DataCollector (Sorgente dati esterna)**
-**Ruolo:**
-Recuperare dati finanziari da fonti esterne (es. Yahoo Finance).
+**Ruolo:**  
+Recuperare dati finanziari da provider esterni.
+
+**Implementazione attuale:**
+- `YahooCollector`
 
 **Responsabilità:**
-- scaricare dati di mercato
-- normalizzare il formato (OHLC)
+- scaricare metadati degli asset
+- scaricare serie storiche dei prezzi
+- normalizzare i dati in un formato comune
 
 **Quando interviene:**
-- durante l’aggiornamento dei dati
+- durante le operazioni di sincronizzazione e aggiornamento
 
-**Nota importante:**
+**Nota:**
 Non salva direttamente nel database.
 
 ---
 
 ### 4. **DataEngine (Elaborazione dati)**
-**Ruolo:**
-Trasformare i dati grezzi in informazioni utili.
+**Ruolo:**  
+Trasformare dati grezzi in informazioni utilizzabili dai livelli superiori.
+
+**Componenti interni:**
+
+**Implementati**
+- `indicators.py`
+- `market_analysis.py`
+- `data_engine.py`
+
+**Pianificati**
+- `portfolio_analysis.py`
 
 **Responsabilità:**
-- calcolo indicatori:
-  - RSI
-  - trend
-  - volatilità
+- calcolo indicatori tecnici
+- analisi di mercato
 - analisi del portafoglio
+- produzione di output strutturati
+
+**Indicatori attualmente supportati:**
+- RSI
+- medie mobili (SMA)
+- volatilità giornaliera
+- volatilità annualizzata
+- escursione percentuale del periodo
+
+**Analisi attualmente supportate:**
+- trend base
+- classificazione della volatilità
 
 **Quando interviene:**
 - dopo che i dati sono disponibili nel database
 - prima della fase decisionale
 
 **Output:**
-- dati strutturati (numerici, indicatori)
+- strutture dati contenenti indicatori e analisi numeriche
 
 ---
 
 ### 5. **Advisor (Logica decisionale / AI)**
-**Ruolo:**
-Interpretare i dati e generare suggerimenti.
+**Ruolo:**  
+Interpretare le analisi prodotte dal DataEngine e generare valutazioni comprensibili.
+
+**Componenti interni:**
+- `rules_engine.py`
+- `llm_engine.py`
+- `explanation.py`
 
 **Responsabilità:**
-- applicare regole logiche (fase iniziale)
-- integrare modelli AI/LLM (fase avanzata)
-- generare output testuale comprensibile
+- applicare regole decisionali
+- produrre valutazioni e suggerimenti
+- integrare modelli AI/LLM
+- generare spiegazioni in linguaggio naturale
 
 **Quando interviene:**
 - dopo il DataEngine
 
 **Output:**
-- suggerimenti
-- spiegazioni in linguaggio naturale
+- suggerimenti operativi
+- spiegazioni testuali
+- motivazioni delle valutazioni
+
+**Nota:**
+L'Advisor non accede direttamente alle sorgenti dati esterne.
 
 ---
 
 ### 6. **UI (Frontend)**
-**Ruolo:**
-Interfaccia utente.
+**Ruolo:**  
+Interfaccia utente dell'applicazione.
 
 **Responsabilità:**
-- visualizzare dati:
-  - prezzi
-  - indicatori
-  - portafoglio
-- mostrare suggerimenti dell’Advisor
-- raccogliere input utente
+- visualizzare dati di mercato
+- visualizzare indicatori e analisi
+- mostrare il portafoglio
+- presentare i suggerimenti dell'Advisor
+- raccogliere input dell'utente
 
-**Tecnologie:**
+**Tecnologie previste:**
 - HTML
 - JavaScript
 - CSS
 
+**Quando interviene:**
+- come punto di accesso principale per l'utente
+
+**Nota:**
+La UI non contiene logica finanziaria; si limita a presentare informazioni e raccogliere input.
+
 ---
 
 ## 🔄 Flusso applicativo
-```
-Yahoo Finance
-↓
+## 🔄 Flusso logico
+
+```text
+Sorgenti dati esterne
+        ↓
 DataCollector
-↓
+        ↓
 DataService
-↓
-DataManager (SQLite)
-↓
+        ↓
+DataManager
+        ↓
+Database SQLite
+        ↓
 DataEngine
-↓
+        ↓
 Advisor
-↓
-UI (HTML/JS)
+        ↓
+UI
 ```
 
 ---
@@ -247,36 +300,61 @@ FinanziAI/
 ## 🔄 Sequenza: aggiornamento dati asset
 ```mermaid
 sequenceDiagram
+
     participant UI
     participant DataService
     participant AssetDataManager
-    participant DataCollector
+    participant YahooCollector
     participant DB
 
     UI->>DataService: update_asset(symbol)
 
     DataService->>AssetDataManager: get_asset_by_symbol(symbol)
-    
-    alt asset non esiste
-        DataService->>AssetDataManager: create_asset(symbol)
+
+    alt asset non presente
+        DataService->>YahooCollector: fetch_asset_info(symbol)
+        YahooCollector-->>DataService: asset_info
+        DataService->>AssetDataManager: create_asset(...)
     end
 
-    DataService->>AssetDataManager: get_last_price(asset_id)
+    DataService->>AssetDataManager: get_last_price_date(asset_id)
 
-    DataService->>DataCollector: fetch_prices(symbol, last_date)
+    DataService->>YahooCollector: fetch_prices(symbol, start_date, end_date)
 
-    DataCollector-->>DataService: lista prezzi OHLC
+    YahooCollector-->>DataService: prices[]
 
-    loop per ogni prezzo
-        DataService->>AssetDataManager: price_exists(asset_id, date)
-        
-        alt non esiste
-            DataService->>AssetDataManager: save_price(...)
-            AssetDataManager->>DB: INSERT
-        end
-    end
+    DataService->>AssetDataManager: save_prices(asset_id, prices)
 
-    DataService-->>UI: update completato
+    AssetDataManager->>DB: INSERT OR IGNORE
+
+    DataService-->>UI: sincronizzazione completata
+```
+
+## 🔄 Sequenza: analisi asset
+```mermaid
+sequenceDiagram
+
+    participant UI
+    participant DataEngine
+    participant AssetDataManager
+    participant Indicators
+    participant MarketAnalysis
+
+    UI->>DataEngine: analyze_asset(symbol)
+
+    DataEngine->>AssetDataManager: get_prices(...)
+
+    AssetDataManager-->>DataEngine: prices
+
+    DataEngine->>Indicators: calcolo indicatori
+
+    Indicators-->>DataEngine: RSI, SMA, Volatility
+
+    DataEngine->>MarketAnalysis: analisi trend
+
+    MarketAnalysis-->>DataEngine: risultato analisi
+
+    DataEngine-->>UI: analysis dict
 ```
 
 ---
