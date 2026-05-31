@@ -29,6 +29,24 @@ class AssetDataManager:
         result = cursor.fetchone()
         conn.close()
         return result
+    
+    def get_asset_by_id(self, asset_id):
+        conn = self._connect()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            SELECT id, symbol, name, type, currency, exchange
+            FROM assets
+            WHERE id = ?
+            """,
+            (asset_id,)
+        )
+
+        result = cursor.fetchone()
+        conn.close()
+
+        return result
 
     def create_asset(self, symbol, name=None, type=None, currency=None, exchange=None):
         conn = self._connect()
