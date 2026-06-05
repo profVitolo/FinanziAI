@@ -246,35 +246,66 @@ FinanziAI/
 ├── main.py
 ├── config.py
 │
+├── database/
+│   ├── init_db.sql
+│   ├── database_initializer.py
+│   └── vault.db
+│
+├── api/
+│   ├── app.py
+│   ├── schemas.py
+│   │
+│   └── routes/
+│       ├── assets.py
+│       ├── analysis.py
+│       └── portfolio.py
+│
 ├── data_manager/
-│ ├── asset_data_manager.py
-│ ├── portfolio_data_manager.py
-│ └── analysis_data_manager.py
+│   ├── asset_data_manager.py
+│   ├── portfolio_data_manager.py
+│   └── analysis_data_manager.py
 │
 ├── services/
-│ └── data_service.py
+│   └── data_service.py
 │
 ├── data_collector/
-│ └── yahoo_collector.py
+│   └── yahoo_collector.py
 │
-├──data_engine/
-│ ├── data_engine.py
-│ ├── indicators.py
-│ ├── market_analysis.py
-│ └── portfolio_analysis.py
+├── data_engine/
+│   ├── data_engine.py
+│   ├── indicators.py
+│   ├── market_analysis.py
+│   └── portfolio_analysis.py
 │
 ├── advisor/
-│ ├── rules_engine.py
-│ ├── llm_engine.py
-│ └── explanation.py
+│   ├── rules_engine.py
+│   ├── llm_engine.py
+│   └── explanation.py
 │
 ├── ui/
-│ ├── index.html
-│ ├── app.js
-│ └── style.css
+│   ├── index.html
+│   ├── portfolio.html
+│   ├── asset.html
+│   │
+│   ├── css/
+│   │   └── style.css
+│   │
+│   └── js/
+│       ├── app.js
+│       ├── portfolio.js
+│       └── asset.js
+│
+├── tests/
+│   ├── 01_test_data_pipeline.py
+│   ├── 02_test_data_engine.py
+│   ├── 03_test_asset_data_manager.py
+│   ├── 04_test_portfolio_data_manager.py
+│   ├── 05_test_portfolio_analysis.py
+│   ├── 06_test_portfolio_integration.py
+│   └── start_test.py
 │
 └── utils/
-└── helpers.py
+    └── helpers.py
 ```
 
 ---
