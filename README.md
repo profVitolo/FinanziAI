@@ -440,25 +440,70 @@ tests/
 
 ---
 
-### Fase 4 — Advisor (logica decisionale)
-- Implementazione `rules_engine`
-- Generazione suggerimenti semplici (rule-based)
-- Produzione output testuale leggibile
-- Prime spiegazioni “human-friendly”
+### Fase 4 — Backend REST API
+- Introduzione di FastAPI
+- Creazione endpoint REST
+- Esposizione dei servizi applicativi tramite HTTP
+- Documentazione automatica Swagger/OpenAPI
+- Test degli endpoint
+
+#### Endpoint iniziali:
+```
+GET  /assets/{symbol}
+POST /assets/{symbol}/sync
+
+GET  /analysis/{symbol}
+
+GET  /portfolio
+GET  /portfolio/analysis
+
+POST /portfolio/transactions
+
+GET  /watchlist
+POST /watchlist/{symbol}
+DELETE /watchlist/{symbol}
+```
 
 ---
 
-### Fase 5 — Integrazione AI / LLM
+#### Fase 5 — Frontend MVP
+- Creazione dashboard web HTML/CSS/JavaScript
+- Integrazione con API REST
+- Ricerca asset
+- Visualizzazione analisi
+- Gestione portafoglio
+- Gestione watchlist
+- Navigazione base tra le sezioni
+
+#### Obiettivo:
+ottenere una prima applicazione utilizzabile da browser.
+
+---
+
+### Fase 6 — Advisor (logica decisionale)
+- Implementazione rules_engine
+- Suggerimenti rule-based
+- Raccomandazioni semplici
+- Produzione output testuale leggibile
+- Prime spiegazioni human-friendly
+
+---
+
+### Fase 7 — Integrazione AI / LLM
 - Introduzione `llm_engine`
 - Integrazione con modelli locali o API
-- Miglioramento qualità suggerimenti
-- Generazione spiegazioni più avanzate e contestuali
+- Miglioramento qualità delle piegazioni
+- Analisi contestuali
+- Sitnesi automatica del portafoglio
 
 ---
 
-### Fase 6 — Evoluzione avanzata
+### Fase 8 — Evoluzione avanzata
+- Backtesting
+- Simulazioni
 - Ottimizzazione strategie
-- Simulazioni / backtesting
-- Miglioramento analisi portafoglio
-- Possibile introduzione caching e ottimizzazioni performance
+- Analisi rischio avanzata
+- Fiscal tracking (plus/minusvalenze)
+- Report esportabili
+- Caching e ottimizzazioni performance
 
