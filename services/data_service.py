@@ -5,13 +5,13 @@ from data_collector.yahoo_collector import YahooCollector
 from database.database_initializer import DatabaseInitializer
 
 from pathlib import Path
-
-schema_path = (Path(__file__).resolve().parent.parent / "database" / "init_db.sql")
+ROOT_DIR = Path(__file__).resolve().parent.parent
+from config import DB_PATH, SCHEMA_PATH
 
 class DataService:
 
-    def __init__(self, db_path):
-        DatabaseInitializer.initialize(db_path, schema_path)
+    def __init__(self, db_path=DB_PATH):
+        DatabaseInitializer.initialize(db_path, SCHEMA_PATH)
         self.asset_data_manager = AssetDataManager(db_path)
         self.collector = YahooCollector()
 

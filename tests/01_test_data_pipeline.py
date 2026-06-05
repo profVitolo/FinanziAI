@@ -1,18 +1,16 @@
 from pathlib import Path
-import sys
-
 ROOT_DIR = Path(__file__).resolve().parent.parent
+
+import sys
 sys.path.insert(0, str(ROOT_DIR))
 
 from services.data_service import DataService
 from data_manager.asset_data_manager import AssetDataManager
 from data_engine.data_engine import DataEngine
 
-DB_PATH = "vault.db"
-
 print("=== DATA PIPELINE TEST ===")
 
-ds = DataService(DB_PATH)
+ds = DataService()
 
 ds.sync_asset("AAPL", start_date="2025-01-01")
 ds.sync_asset("^GSPC", start_date="2025-01-01")
@@ -22,7 +20,7 @@ print(ds.update_asset("AAPL", initial_days=365))
 print(ds.update_asset("^GSPC", initial_days=365))
 print(ds.update_asset("MSFT", initial_days=365))
 
-adm = AssetDataManager(DB_PATH)
+adm = AssetDataManager()
 
 asset = adm.get_asset_by_symbol("AAPL")
 
@@ -48,7 +46,7 @@ if asset:
     for row in prices[-5:]:
         print(row)
 
-engine = DataEngine(DB_PATH)
+engine = DataEngine()
 
 print("\n=== AAPL ANALYSIS ===")
 print(engine.analyze_asset("AAPL"))

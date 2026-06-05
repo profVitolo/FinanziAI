@@ -1,14 +1,12 @@
 from pathlib import Path
-import sys
-
 ROOT_DIR = Path(__file__).resolve().parent.parent
+
+import sys
 sys.path.insert(0, str(ROOT_DIR))
 
 from data_manager.asset_data_manager import AssetDataManager
 
-DB_PATH = "vault.db"
-
-adm = AssetDataManager(DB_PATH)
+adm = AssetDataManager()
 
 print("=== TEST ASSET DATA MANAGER ===")
 

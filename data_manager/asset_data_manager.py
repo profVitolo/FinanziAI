@@ -1,9 +1,11 @@
 import sqlite3
-
+from pathlib import Path
+ROOT_DIR = Path(__file__).resolve().parent.parent
+from config import DB_PATH
 
 class AssetDataManager:
 
-    def __init__(self, db_path):
+    def __init__(self, db_path=DB_PATH):
         self.db_path = db_path
 
     # ======================

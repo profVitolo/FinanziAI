@@ -1,16 +1,14 @@
 from pathlib import Path
-import sys
-
 ROOT_DIR = Path(__file__).resolve().parent.parent
+
+import sys
 sys.path.insert(0, str(ROOT_DIR))
 
 from data_manager.asset_data_manager import AssetDataManager
 from data_manager.portfolio_data_manager import PortfolioDataManager
 
-DB_PATH = "vault.db"
-
-adm = AssetDataManager(DB_PATH)
-pdm = PortfolioDataManager(DB_PATH)
+adm = AssetDataManager()
+pdm = PortfolioDataManager()
 
 asset = adm.get_asset_by_symbol("AAPL")
 

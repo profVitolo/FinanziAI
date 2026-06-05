@@ -5,10 +5,14 @@ from data_engine.indicators import Indicators
 from data_engine.market_analysis import MarketAnalysis
 from data_engine.portfolio_analysis import PortfolioAnalysis
 
+from pathlib import Path
+ROOT_DIR = Path(__file__).resolve().parent.parent
+from config import DB_PATH
+
 
 class DataEngine:
 
-    def __init__(self, db_path):
+    def __init__(self, db_path=DB_PATH):
         self.asset_data_manager = AssetDataManager(db_path)
         self.portfolio_data_manager = PortfolioDataManager(db_path)
         self.portfolio_analysis = PortfolioAnalysis()

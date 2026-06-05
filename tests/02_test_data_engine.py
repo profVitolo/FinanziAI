@@ -1,14 +1,12 @@
 from pathlib import Path
-import sys
-
 ROOT_DIR = Path(__file__).resolve().parent.parent
+
+import sys
 sys.path.insert(0, str(ROOT_DIR))
 
 from data_engine.data_engine import DataEngine
 
-DB_PATH = "vault.db"
-
-engine = DataEngine(DB_PATH)
+engine = DataEngine()
 
 print("=== AAPL ANALYSIS ===")
 print(engine.analyze_asset("AAPL"))

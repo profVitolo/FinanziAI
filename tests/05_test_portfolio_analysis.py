@@ -1,7 +1,7 @@
 from pathlib import Path
-import sys
-
 ROOT_DIR = Path(__file__).resolve().parent.parent
+
+import sys
 sys.path.insert(0, str(ROOT_DIR))
 
 from data_engine.portfolio_analysis import PortfolioAnalysis

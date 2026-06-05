@@ -1,9 +1,12 @@
 import sqlite3
 from datetime import datetime
+from pathlib import Path
+ROOT_DIR = Path(__file__).resolve().parent.parent
+from config import DB_PATH
 
 class PortfolioDataManager:
 
-    def __init__(self, db_path):
+    def __init__(self, db_path=DB_PATH):
         self.db_path = db_path
 
     def _connect(self):

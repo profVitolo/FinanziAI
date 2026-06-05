@@ -1,15 +1,15 @@
 from pathlib import Path
-from pprint import pprint
-import sys
-
 ROOT_DIR = Path(__file__).resolve().parent.parent
+
+import sys
 sys.path.insert(0, str(ROOT_DIR))
 
+from pprint import pprint
 from data_engine.data_engine import DataEngine
 
 if __name__ == "__main__":
 
-    engine = DataEngine("vault.db")
+    engine = DataEngine()
 
     print("\n=== PORTFOLIO ANALYSIS ===\n")
 
