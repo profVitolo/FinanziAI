@@ -480,6 +480,7 @@ tests/
 
 #### Endpoint iniziali:
 ```
+GET  /assets
 GET  /assets/{symbol}
 POST /assets/{symbol}/sync
 
@@ -487,12 +488,10 @@ GET  /analysis/{symbol}
 
 GET  /portfolio
 GET  /portfolio/analysis
-
 POST /portfolio/transactions
-
-GET  /watchlist
-POST /watchlist/{symbol}
-DELETE /watchlist/{symbol}
+GET    /portfolio/watchlist
+POST   /portfolio/watchlist/{symbol}
+DELETE /portfolio/watchlist/{symbol}
 ```
 
 ---
