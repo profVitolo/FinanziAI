@@ -29,14 +29,7 @@ pip install -r requirements.txt
 
 ---
 
-### 4. Inizializzare il database
-```bash
-sqlite3 vault.db < init_db.sqlite3
-```
-
----
-
-### 5. Esecuzione 
+### 4. Esecuzione 
 ```bash
 python main.py
 ```
