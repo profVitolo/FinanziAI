@@ -1,5 +1,8 @@
 # Per installare le dipendenze in un sol colpo: "pip install -r requirements.txt"
 # dopo l'installazione per specificare le versioni: "pip freeze > requirements.txt"
+fastapi
+uvicorn
+pydantic
 yfinance
 pandas
 numpy
