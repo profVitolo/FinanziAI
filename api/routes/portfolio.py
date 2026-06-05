@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import datetime, date
 from fastapi import APIRouter, HTTPException, Body
 
 from data_engine.data_engine import DataEngine
 from data_manager.portfolio_data_manager import PortfolioDataManager
 from data_manager.asset_data_manager import AssetDataManager
+from api.schemas import TransactionCreate
 
 router = APIRouter(prefix="/portfolio", tags=["Portfolio"])
 
