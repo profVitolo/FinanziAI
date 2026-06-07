@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Analysis</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1 id="asset-symbol">
+            Asset
+        </h1>
+        <a href="index.html">
+            ← Dashboard
+        </a>
+    </header>
+	
+    <main>
+        <section>
+            <h2>Informazioni Asset</h2>
+
+            <p>
+                Nome:
+                <span id="asset-name">-</span>
+            </p>
+            <p>
+                Simbolo:
+                <span id="asset-symbol-info">-</span>
+            </p>
+            <p>
+                Categoria:
+                <span id="asset-type">-</span>
+            </p>
+            <p>
+				Valuta:
+				<span id="asset-currency">-</span>
+			</p>
+			<p>
+				Exchange:
+				<span id="asset-exchange">-</span>
+			</p>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>Dati di Mercato</h2>
+
+            <p>
+                Ultimo prezzo:
+                <span id="market-price">-</span>
+            </p>
+            <p>
+                Ultimo aggiornamento:
+                <span id="last-update">-</span>
+            </p>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>Indicatori</h2>
+
+            <p>
+                RSI:
+                <span id="rsi">-</span>
+            </p>
+            <p>
+                SMA 20:
+                <span id="sma20">-</span>
+            </p>
+            <p>
+                SMA 50:
+                <span id="sma50">-</span>
+            </p>
+            <p>
+                Volatilità:
+                <span id="volatility">-</span>
+            </p>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>Analisi</h2>
+
+            <p>
+                Trend:
+                <span id="trend">-</span>
+            </p>
+            <p>
+                Classificazione volatilità:
+                <span id="volatility-class">-</span>
+            </p>
+        </section>
+
+        <hr>
+
+        <section>
+            <button id="sync-btn">
+                Aggiorna Dati
+            </button>
+            <button id="watchlist-btn">
+                Aggiungi alla Watchlist
+            </button>
+        </section>
+    </main>
+
+    <script src="js/asset.js"></script>
+</body>
+</html>

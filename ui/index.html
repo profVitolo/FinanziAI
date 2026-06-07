@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanziAI</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>📈 FinanziAI</h1>
+        <p>AI-Assisted Investment Analysis</p>
+    </header>
+
+    <main>
+        <section>
+            <h2>Ricerca Asset</h2>
+
+            <input type="text" id="symbol-input" placeholder="AAPL, MSFT, BTC-USD...">
+
+            <button id="search-btn">
+                Sincronizza Asset
+            </button>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>Portfolio</h2>
+
+            <div id="portfolio-summary">
+                <p>
+                    Valore totale:
+                    <span id="portfolio-value">-</span>
+                </p>
+                <p>
+                    Posizioni:
+                    <span id="positions-count">-</span>
+                </p>
+            </div>
+
+            <a href="portfolio.html">
+                Apri Portfolio
+            </a>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>Watchlist</h2>
+
+            <ul id="watchlist">
+            </ul>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>API Status</h2>
+
+            <p id="api-status">
+                Verifica...
+            </p>
+        </section>
+
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

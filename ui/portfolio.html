@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+
+        <h1>Portfolio</h1>
+
+        <a href="index.html"> ← Dashboard</a>
+    </header>
+    <main>
+        <section>
+            <h2>Riepilogo</h2>
+            <p>
+                Valore Totale:
+                <span id="portfolio-value">-</span>
+            </p>
+            <p>
+                Livello di rischio:
+                <span id="risk-level">-</span>
+            </p>
+            <p>
+                Maggiore esposizione:
+                <span id="largest-position">-</span>
+            </p>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>Posizioni</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Asset</th>
+                        <th>Quantità</th>
+                        <th>Prezzo Medio</th>
+                        <th>Prezzo Mercato</th>
+                        <th>P/L</th>
+                    </tr>
+                </thead>
+
+                <tbody id="positions-table">
+                </tbody>
+            </table>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>Esposizione</h2>
+            <ul id="exposure-list"></ul>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>Nuova Transazione</h2>
+
+            <form id="transaction-form">
+                <input type="text" id="symbol" placeholder="AAPL" required>
+				<input type="hidden" id="asset-id">
+                <select id="transaction-type">
+                    <option value="buy">Buy</option>
+                    <option value="sell">Sell</option>
+                </select>
+
+                <input type="number" id="quantity" placeholder="Quantità" step="0.01" required>
+                <input type="number" id="price" placeholder="Prezzo" step="0.01" required>
+                <input type="number" id="fees" placeholder="Commissioni" step="0.01" required>
+				<input type="date" id="transaction-date" required>
+				
+                <button type="submit">Registra</button>
+            </form>
+        </section>
+    </main>
+
+    <script src="js/portfolio.js"></script>
+</body>
+</html>
