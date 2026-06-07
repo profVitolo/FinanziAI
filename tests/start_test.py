@@ -1,9 +1,13 @@
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 
 ROOT_DIR = Path(__file__).parent.parent
 TEST_DIR = Path(__file__).parent
+
+DB_PATH = ROOT_DIR / "database" / "vault.db"
+BACKUP_PATH = ROOT_DIR / "database" / "vault.db.bk"
 
 tests = sorted(
     [
@@ -23,21 +27,37 @@ choice = input("\nSeleziona test: ")
 
 # Tutti - default
 if choice == "0":
-    for test_file in tests:
-        print(f"\n{'=' * 60}")
-        print(f"Avvio {test_file.name}")
-        print(f"{'=' * 60}\n")
+    try:
+        if DB_PATH.exists():
+                print("\nBackup database...")
 
-        result = subprocess.run(
-            [sys.executable, str(test_file.relative_to(ROOT_DIR))],
-            cwd=ROOT_DIR
-        )
+                shutil.copy2(DB_PATH, BACKUP_PATH )
 
-        if result.returncode != 0:
-            print(f"\nTest fallito: {test_file.name}")
-            sys.exit(result.returncode)
+        for test_file in tests:
+            print(f"\n{'=' * 60}")
+            print(f"Avvio {test_file.name}")
+            print(f"{'=' * 60}\n")
 
-    print("\nTutti i test completati.")
+            result = subprocess.run(
+                [sys.executable, str(test_file.relative_to(ROOT_DIR))],
+                cwd=ROOT_DIR
+            )
+
+            if result.returncode != 0:
+                print(f"\nTest fallito: {test_file.name}")
+                sys.exit(result.returncode)
+
+        print("\nTutti i test completati.")
+    
+    finally:
+
+        if BACKUP_PATH.exists():
+            print("\nRipristino database...")
+
+            if DB_PATH.exists():
+                DB_PATH.unlink()
+
+            shutil.move(BACKUP_PATH, DB_PATH)
     sys.exit(0)
     
 try:
