@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from api.routes.assets import router as assets_router
 from api.routes.analysis import router as analysis_router
@@ -23,9 +24,13 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+app.mount("/", StaticFiles(directory="ui", html=True), name="ui")
+
+"""
 @app.get("/")
 def root():
     return {
         "application": "FinanziAI",
         "status": "running"
     }
+"""
