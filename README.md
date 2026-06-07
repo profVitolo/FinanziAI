@@ -472,11 +472,11 @@ tests/
 ---
 
 ### Fase 4 — Backend REST API
-- Introduzione di FastAPI
-- Creazione endpoint REST
-- Esposizione dei servizi applicativi tramite HTTP
-- Documentazione automatica Swagger/OpenAPI
-- Test degli endpoint
+- ~Introduzione di FastAPI~
+- ~Creazione endpoint REST~
+- ~Esposizione dei servizi applicativi tramite HTTP~
+- ~Documentazione automatica Swagger/OpenAPI~
+- ~Test degli endpoint~
 
 #### Endpoint iniziali:
 ```
