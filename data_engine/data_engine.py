@@ -18,6 +18,11 @@ class DataEngine:
         self.portfolio_analysis = PortfolioAnalysis()
         
     def analyze_asset(self, symbol, start_date=None, end_date=None):
+        asset = self._load_asset(symbol)
+
+        if not asset:
+            return None
+        
         prices = self._load_prices(symbol, start_date, end_date)
 
         if not prices:
@@ -27,8 +32,11 @@ class DataEngine:
         indicators = self._calculate_indicators(close_prices)
         analysis = MarketAnalysis.analyze(indicators)
 
-        return self._build_asset_result(symbol, prices, indicators, analysis)
+        return self._build_asset_result(asset, prices, indicators, analysis)
 
+    def _load_asset(self, symbol):
+        return (self.asset_data_manager.get_asset_by_symbol(symbol))
+    
     def _load_prices(self, symbol, start_date=None, end_date=None):
         asset = self.asset_data_manager.get_asset_by_symbol(symbol)
 
@@ -56,13 +64,20 @@ class DataEngine:
             "period_range": Indicators.calculate_period_range(close_prices)
         }
 
-    def _build_asset_result(self, symbol, prices, indicators, analysis):
+    def _build_asset_result(self, asset, prices, indicators, analysis):
         first_date = prices[0][0]
         last_date = prices[-1][0]
         last_close = prices[-1][4]
 
         return {
-            "symbol": symbol,
+             "asset": {
+                "id": asset[0],
+                "symbol": asset[1],
+                "name": asset[2],
+                "type": asset[3],
+                "currency": asset[4],
+                "exchange": asset[5]
+            },
             "period": {
                 "start": first_date,
                 "end": last_date
