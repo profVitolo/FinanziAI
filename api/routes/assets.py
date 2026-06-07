@@ -9,6 +9,22 @@ router = APIRouter(prefix="/assets", tags=["Assets"])
 data_service = DataService(DB_PATH)
 asset_data_manager = AssetDataManager(DB_PATH)
 
+@router.get("/")
+def list_assets():
+    assets = asset_data_manager.get_all_assets()
+    
+    return [
+        {
+            "id": asset[0],
+            "symbol": asset[1],
+            "name": asset[2],
+            "type": asset[3],
+            "currency": asset[4],
+            "exchange": asset[5]
+        }
+        for asset in assets
+    ]
+
 
 @router.get("/{symbol}")
 def get_asset(symbol: str):

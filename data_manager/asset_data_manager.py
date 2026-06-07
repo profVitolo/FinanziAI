@@ -18,6 +18,16 @@ class AssetDataManager:
     # ======================
     # ASSETS
     # ======================
+    
+    def get_all_assets(self):
+        conn = self._connect()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT id, symbol, name, type, currency, exchange FROM assets ORDER BY symbol")
+
+        results = cursor.fetchall()
+        conn.close()
+        return results
 
     def get_asset_by_symbol(self, symbol):
         conn = self._connect()
