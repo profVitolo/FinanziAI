@@ -122,22 +122,8 @@ class DataEngine:
 
             market_price = prices[-1][4]
 
-            market_value = (
-                self.portfolio_analysis
-                .calculate_position_value(
-                    quantity,
-                    market_price
-                )
-            )
-
-            performance = (
-                self.portfolio_analysis
-                .calculate_performance(
-                    quantity,
-                    avg_price,
-                    market_price
-                )
-            )
+            market_value = (self.portfolio_analysis.calculate_position_value(quantity, market_price))
+            performance = (self.portfolio_analysis.calculate_performance(quantity, avg_price, market_price))
 
             result.append({
                 "asset_id": asset_id,
@@ -152,26 +138,9 @@ class DataEngine:
         return result
 
     def _build_portfolio_analysis(self, positions):
-        portfolio_value = (
-            self.portfolio_analysis
-            .calculate_portfolio_value(
-                positions
-            )
-        )
-
-        exposure = (
-            self.portfolio_analysis
-            .calculate_exposure(
-                positions
-            )
-        )
-
-        risk = (
-            self.portfolio_analysis
-            .calculate_risk(
-                positions
-            )
-        )
+        portfolio_value = (self.portfolio_analysis.calculate_portfolio_value(positions))
+        exposure = (self.portfolio_analysis.calculate_exposure(positions))
+        risk = (self.portfolio_analysis.calculate_risk(positions))
 
         return {
             "portfolio_value": portfolio_value,
