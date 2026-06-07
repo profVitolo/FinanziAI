@@ -19,7 +19,7 @@ if asset:
     pdm.add_transaction(
         asset_id=asset_id, 
         date="2026-05-31", 
-        operation="buy", 
+        operation_type="buy", 
         quantity=10, 
         price=100, 
         fees=1
