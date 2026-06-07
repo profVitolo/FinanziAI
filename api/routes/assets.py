@@ -3,9 +3,10 @@ from fastapi import APIRouter, HTTPException
 from config import DB_PATH
 from services.data_service import DataService
 from data_manager.asset_data_manager import AssetDataManager
+from api.schemas import AssetSync
 
 router = APIRouter(prefix="/assets", tags=["Assets"])
-
+    
 data_service = DataService(DB_PATH)
 asset_data_manager = AssetDataManager(DB_PATH)
 
@@ -42,12 +43,15 @@ def get_asset(symbol: str):
         "exchange": asset[5]
     }
 
-
+    
 @router.post("/{symbol}/sync")
-def sync_asset(symbol: str):
+def sync_asset(symbol: str, payload: AssetSync):
     try:
-
-        result = data_service.sync_asset(symbol.upper())
+        result = data_service.sync_asset(
+            symbol.upper(), 
+            start_date=payload.start_date, 
+            end_date=payload.end_date
+        )
 
         return {
             "status": "success",
@@ -56,7 +60,6 @@ def sync_asset(symbol: str):
         }
 
     except Exception as exc:
-
         raise HTTPException(status_code=500, detail=str(exc))
         
         

@@ -28,23 +28,21 @@ def analyze_portfolio():
     return result
 	
 @router.post("/transactions")
-def create_transaction(
-    asset_id: int = Body(...),
-    transaction_type: str = Body(...),
-    quantity: float = Body(...),
-    price: float = Body(...),
-    commission: float = Body(0)
-):
-    portfolio_data_manager.create_transaction(
-        asset_id=asset_id,
-        transaction_date=datetime.now().date(),
-        transaction_type=transaction_type,
-        quantity=quantity,
-        price=price,
-        commission=commission
-    )
-
-    return {"status": "success"}
+def create_transaction(payload: TransactionCreate):  
+    try:
+        t_date = payload.transaction_date or datetime.now().date()
+        
+        portfolio_data_manager.add_transaction(
+            asset_id=payload.asset_id,
+            date=t_date,
+            operation_type=payload.operation_type.upper(),  
+            quantity=payload.quantity,
+            price=payload.price,
+            fees=payload.fees
+        )
+        return {"status": "success"}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
     
 @router.get("/watchlist")
 def get_watchlist():

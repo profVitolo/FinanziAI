@@ -16,7 +16,7 @@ class PortfolioDataManager:
     # TRANSACTIONS
     # ======================
 
-    def add_transaction(self, asset_id, date, operation, quantity, price, fees=0):
+    def add_transaction(self, asset_id, date, operation_type, quantity, price, fees=0):
         conn = self._connect()
         cursor = conn.cursor()
 
@@ -29,7 +29,7 @@ class PortfolioDataManager:
             (
                 asset_id,
                 date,
-                operation,
+                operation_type,
                 quantity,
                 price,
                 fees
