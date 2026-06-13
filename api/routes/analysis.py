@@ -12,7 +12,7 @@ data_engine = DataEngine(DB_PATH)
 @router.get("/{symbol}")
 def analyze_asset(symbol: str):
     result = data_engine.analyze_asset(symbol.upper())
-
+    
     if result is None:
 
         raise HTTPException(status_code=404, detail="Asset not found or no price data available")
