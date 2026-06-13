@@ -68,4 +68,4 @@ except (ValueError, IndexError):
 
 print(f"\nAvvio {selected.name}\n")
 
-subprocess.run([sys.executable, str(test_file.relative_to(ROOT_DIR))], cwd=ROOT_DIR)
+subprocess.run([sys.executable, str(selected.relative_to(ROOT_DIR))], cwd=ROOT_DIR)
