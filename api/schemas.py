@@ -12,3 +12,7 @@ class TransactionCreate(BaseModel):
 class AssetSync(BaseModel):
     start_date: date 
     end_date: date | None = None
+
+class TransactionsFilter(BaseModel):
+    start_date: date | None = None
+    end_date: date | None = None
