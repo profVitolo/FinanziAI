@@ -34,7 +34,7 @@ class DataService:
 
     def sync_asset(self, symbol, start_date, end_date=None):
         asset_info = self.collector.fetch_asset_info(symbol)
-
+        
         if asset_info is None:
             return False
 
