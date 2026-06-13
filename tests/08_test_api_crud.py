@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
         print("\n=== TEST PORTFOLIO ===")
 
-        response = requests.get(f"{BASE_URL}/portfolio")
+        response = requests.get(f"{BASE_URL}/portfolio/")
 
         print_response(response)
 
