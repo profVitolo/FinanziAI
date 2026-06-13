@@ -31,7 +31,7 @@ async function loadWatchlist()
 }
 
 function setupSearch()
- {
+{
     const form = document.getElementById("search-form");
 
     form.addEventListener(
@@ -49,4 +49,24 @@ function setupSearch()
 
 }
 
-document.addEventListener("DOMContentLoaded",() => { loadWatchlist(); setupSearch(); });
+async function checkHealth()
+{
+    const statusElement = document.getElementById("api-status");
+
+    try
+    {
+        const response = await fetch(`${API_BASE}/info`);
+
+        if (!response.ok)
+            throw new Error();
+
+        const data = await response.json();
+        statusElement.textContent = `${data.application} v${data.version}`;
+    }
+    catch
+    {
+        statusElement.textContent = "Server non raggiungibile";
+    }
+}
+
+document.addEventListener("DOMContentLoaded",() => {  checkHealth(); loadWatchlist(); setupSearch(); });
