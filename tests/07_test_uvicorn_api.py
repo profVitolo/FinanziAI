@@ -11,11 +11,10 @@ def wait_for_server(timeout=15):
 
     while time.time() - start < timeout:
         try:
-            response = requests.get(f"{BASE_URL}/")
+            response = requests.get(f"{BASE_URL}/info")
 
             if response.status_code == 200:
                 return True
-
         except Exception:
             pass
 
@@ -68,15 +67,16 @@ if __name__ == "__main__":
 
             server.kill()
             sys.exit(1)
-
-        print("Server avviato correttamente")
-
+            
+        info = requests.get(f"{BASE_URL}/info").json()
+        print(f"FinanziAI {info['version']} avviato correttamente")
+        
         failures = []
 
         endpoints = [
-            ("GET", "/"),
-            ("GET", "/assets"),
-            ("GET", "/portfolio"),
+            ("GET", "/info"),
+            ("GET", "/assets/"),
+            ("GET", "/portfolio/"),
             ("GET", "/portfolio/analysis"),
         ]
 
