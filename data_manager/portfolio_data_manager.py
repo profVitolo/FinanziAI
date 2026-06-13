@@ -67,12 +67,11 @@ class PortfolioDataManager:
 
         return result
 
-    def get_transactions(self):
+    def get_transactions(self, start_date=None, end_date=None):
         conn = self._connect()
         cursor = conn.cursor()
 
-        cursor.execute(
-            """
+        query = """
             SELECT
                 id,
                 asset_id,
@@ -82,9 +81,22 @@ class PortfolioDataManager:
                 price,
                 fees
             FROM transactions
-            ORDER BY date
-            """
-        )
+            WHERE 1 = 1
+        """
+
+        params = []
+
+        if start_date:
+            query += " AND date >= ?"
+            params.append(start_date)
+
+        if end_date:
+            query += " AND date <= ?"
+            params.append(end_date)
+
+        query += " ORDER BY date"
+
+        cursor.execute(query, params)
 
         results = cursor.fetchall()
         conn.close()
