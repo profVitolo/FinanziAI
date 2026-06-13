@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, Body, Depends
 from data_engine.data_engine import DataEngine
 from data_manager.portfolio_data_manager import PortfolioDataManager
 from data_manager.asset_data_manager import AssetDataManager
+from services.portfolio_service import PortfolioService
 from api.schemas import TransactionCreate, TransactionsFilter
 
 router = APIRouter(prefix="/portfolio", tags=["Portfolio"])
@@ -11,6 +12,7 @@ router = APIRouter(prefix="/portfolio", tags=["Portfolio"])
 data_engine = DataEngine()
 portfolio_data_manager = PortfolioDataManager()
 asset_data_manager = AssetDataManager()
+portfolio_service = PortfolioService()
 
 @router.get("/")
 def get_portfolio():
@@ -28,22 +30,25 @@ def analyze_portfolio():
     return result
 	
 @router.post("/transactions")
-def create_transaction(payload: TransactionCreate):  
+def create_transaction(payload: TransactionCreate):
     try:
-        t_date = payload.transaction_date or datetime.now().date()
-        
-        portfolio_data_manager.add_transaction(
+        portfolio_service.register_transaction(
             asset_id=payload.asset_id,
-            date=t_date,
-            operation_type=payload.operation_type.upper(),  
+            operation_type=payload.operation_type,
             quantity=payload.quantity,
             price=payload.price,
-            fees=payload.fees
+            fees=payload.fees,
+            transaction_date=payload.transaction_date
         )
+
         return {"status": "success"}
+
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-
+        
 @router.get("/transactions")
 def get_transactions(filters: TransactionsFilter = Depends()):
     start_date = filters.start_date
