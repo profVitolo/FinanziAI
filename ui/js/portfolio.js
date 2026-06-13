@@ -1,10 +1,21 @@
 const API_BASE = "http://127.0.0.1:8000";
 
-async function loadPortfolioAnalysis() 
+async function loadPortfolioAnalysis()
 {
-	const response = await fetch(`${API_BASE}/portfolio/analysis`);
+    const response = await fetch(`${API_BASE}/portfolio/analysis`);
 
-    if (!response.ok) throw new Error("Errore caricamento portfolio");
+    if (response.status === 404)
+    {
+        return {
+            portfolio_value: 0,
+            positions: [],
+            exposure: {},
+            risk: null
+        };
+    }
+
+    if (!response.ok)
+        throw new Error("Errore caricamento portfolio");
 
     return await response.json();
 }
