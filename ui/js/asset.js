@@ -51,15 +51,15 @@ function renderAnalysis(data)
     document.getElementById("asset-currency").textContent = data.asset.currency ?? "-";
     document.getElementById("asset-exchange").textContent = data.asset.exchange ?? "-";
 
-    document.getElementById("market-price").textContent = data.market_data.last_close ?? "-";
+    document.getElementById("market-price").textContent = data.market_data.last_close.toFixed(2) ?? "-";
     document.getElementById("last-update").textContent = data.period.end ?? "-";
 
-    document.getElementById("rsi").textContent =  data.indicators.rsi ?? "-";
-    document.getElementById("sma20").textContent = data.indicators.sma20 ?? "-";
-    document.getElementById( "sma50").textContent = data.indicators.sma50 ?? "-";
-    document.getElementById("volatility").textContent = data.indicators.annualized_volatility ?? "-";
+    document.getElementById("rsi").textContent =  data.indicators.rsi?.toFixed(2) ?? "-";
+    document.getElementById("sma20").textContent = data.indicators.sma20?.toFixed(2) ?? "-";
+    document.getElementById( "sma50").textContent = data.indicators.sma50?.toFixed(5) ?? "-";
+    document.getElementById("volatility").textContent = data.indicators.annualized_volatility?.toFixed(2) ?? "-";
     document.getElementById("trend").textContent = data.analysis.trend ?? "-";
-    document.getElementById("volatility-class").textContent = data.analysis.volatility_class ?? "-";
+    document.getElementById("volatility-class").textContent = data.analysis.volatility_level ?? "-";
 }
 
 async function init() 

@@ -29,8 +29,10 @@ async function createTransaction(transaction)
 
 function renderSummary(data) 
 {
-    document.getElementById("portfolio-value").textContent = data.portfolio_value ?? "-";
-    document.getElementById("risk-level").textContent = data.risk ?? "-";
+    document.getElementById("portfolio-value").textContent = data.portfolio_value.toFixed(2) ?? "-";
+    document.getElementById("risk-level").textContent = data.risk?.concentration_level 
+        ? `${data.risk.concentration_level} (${data.risk.largest_position_weight}%)`
+        : "-";
 
     let largestPosition = "-";
 
@@ -54,13 +56,18 @@ function renderPositions(data)
         const row =  document.createElement("tr");
 
         row.innerHTML = `
-            <td>${position.symbol}</td>
+            <td>
+				<a href="asset.html?symbol=${position.symbol}">
+					${position.symbol}
+				</a>
+			</td>
             <td>${position.quantity}</td>
-            <td>${position.avg_price}</td>
-            <td>${position.market_price}</td>
-            <td>${position.performance}</td>
+            <td>${position.avg_price.toFixed(2)}</td>
+            <td>${position.market_price.toFixed(2)}</td>
+            <td>
+				${position.performance.pnl.toFixed(2)}  (${position.performance.pnl_percent.toFixed(2)}%)
+			</td>
         `;
-
         table.appendChild(row);
     }
 }

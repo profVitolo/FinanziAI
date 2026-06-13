@@ -69,4 +69,26 @@ async function checkHealth()
     }
 }
 
-document.addEventListener("DOMContentLoaded",() => {  checkHealth(); loadWatchlist(); setupSearch(); });
+async function loadPortfolioSummary()
+{
+    try
+    {
+        const response = await fetch(`${API_BASE}/portfolio/analysis`);
+
+        if (!response.ok)
+            throw new Error();
+
+        const data = await response.json();
+
+        document.getElementById("portfolio-value").textContent = data.portfolio_value.toFixed(2) ?? "-";
+
+        document.getElementById("positions-count").textContent = data.positions?.length ?? 0;
+    }
+    catch
+    {
+        document.getElementById("portfolio-value").textContent = "-";
+        document.getElementById("positions-count").textContent = "-";
+    }
+}
+
+document.addEventListener("DOMContentLoaded",() => {  checkHealth(); loadPortfolioSummary(); loadWatchlist(); setupSearch(); });
