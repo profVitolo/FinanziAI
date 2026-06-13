@@ -229,7 +229,22 @@ class PortfolioDataManager:
         conn.close()
 
         return results
+    
+    def delete_portfolio_position(self, asset_id):
+        conn = self._connect()
+        cursor = conn.cursor()
 
+        cursor.execute(
+            """
+            DELETE FROM portfolio
+            WHERE asset_id = ?
+            """,
+            (asset_id,)
+        )
+
+        conn.commit()
+        conn.close()
+        
     # ======================
     # WATCHLIST
     # ======================
