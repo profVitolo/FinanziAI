@@ -9,27 +9,33 @@ function getSymbol()
 
 async function syncAsset(symbol) 
 {
-    const response = await fetch(`${API_BASE}/assets/${symbol}/sync`, {method: "POST"});
-
+	const today = new Date().toISOString().split('T')[0];
+  
+    const response = await fetch(`${API_BASE}/assets/${symbol}/sync`, 
+		{
+			method: "POST",
+			headers: { "Content-Type": "application/json"},
+			body: JSON.stringify({ start_date: today })
+		}
+	);
+	
     if (!response.ok) throw new Error("Errore sincronizzazione asset");
     
     return await response.json();
 }
 
-
 async function loadAnalysis(symbol) 
 {
     const response = await fetch(`${API_BASE}/analysis/${symbol}`);
-
+	
     if (!response.ok) throw new Error("Errore caricamento analisi");
 
     return await response.json();
 }
 
-
 async function addToWatchlist(symbol) 
 {
-    const response = await fetch(`${API_BASE}/watchlist/${symbol}`, {method: "POST"});
+    const response = await fetch(`${API_BASE}/portfolio/watchlist/${symbol}`, {method: "POST"});
 
     if (!response.ok) throw new Error("Errore aggiunta watchlist");
 

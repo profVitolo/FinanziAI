@@ -4,7 +4,7 @@ async function loadWatchlist()
 {
     try 
 	{
-        const response = await fetch(`${API_BASE}/watchlist`);
+        const response = await fetch(`${API_BASE}/portfolio/watchlist`);
         const data = await response.json();
         const list = document.getElementById("watchlist");
 
@@ -39,7 +39,7 @@ function setupSearch()
         event => 
 		{
             event.preventDefault();
-            const symbol = document.getElementById("symbol").value.trim().toUpperCase();
+            const symbol = document.getElementById("symbol-input").value.trim().toUpperCase();
 
             if (!symbol) return;
 
