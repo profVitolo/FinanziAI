@@ -1,6 +1,5 @@
 from datetime import date
-
-from data.portfolio_data_manager import PortfolioDataManager
+from data_manager.portfolio_data_manager import PortfolioDataManager
 
 
 class PortfolioService:
