@@ -10,8 +10,14 @@ from data_manager.portfolio_data_manager import PortfolioDataManager
 adm = AssetDataManager()
 pdm = PortfolioDataManager()
 
-asset = adm.get_asset_by_symbol("AAPL")
+transactions = pdm.get_transactions()
 
+print("All Transactions:")
+for t in transactions:
+    print(t)
+
+asset = adm.get_asset_by_symbol("AAPL")
+        
 if asset:
 
     asset_id = asset[0]
