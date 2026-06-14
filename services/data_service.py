@@ -60,3 +60,34 @@ class DataService:
             "symbol": symbol,
             "prices_downloaded": len(prices)
         }
+    
+    def sync_assets(self, asset_ids):
+        results = []
+
+        for asset_id in asset_ids:
+            asset = self.asset_data_manager.get_asset_by_id(asset_id)
+
+            if asset is None:
+                continue
+
+            symbol = asset[1]
+
+            try:
+                result = self.update_asset(symbol)
+
+                results.append({
+                    "asset_id": asset_id,
+                    "symbol": symbol,
+                    "status": "success",
+                    "result": result
+                })
+
+            except Exception as exc:
+                results.append({
+                    "asset_id": asset_id,
+                    "symbol": symbol,
+                    "status": "error",
+                    "error": str(exc)
+                })
+
+        return results
