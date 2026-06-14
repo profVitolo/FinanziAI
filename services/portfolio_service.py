@@ -89,5 +89,17 @@ class PortfolioService:
             avg_price=current_avg_price,
             last_update=transaction_date
         )
-        
-        
+    
+    def get_tracked_assets(self):
+        tracked_assets = set()
+
+        positions = self.portfolio_data_manager.get_all_positions()
+        for position in positions:
+            tracked_assets.add(position[1])  # asset_id
+
+        watchlist = self.portfolio_data_manager.get_watchlist()
+        for item in watchlist:
+            tracked_assets.add(item[1])  # asset_id
+
+        return list(tracked_assets)
+    
