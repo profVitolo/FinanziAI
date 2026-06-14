@@ -28,7 +28,13 @@ class DataService:
         if last_date is None:
             start_date = (date.today() - timedelta(days=initial_days)).isoformat()
             return self.sync_asset(symbol, start_date=start_date)
-
+        
+        if date.fromisoformat(last_date) >= date.today():
+            return {
+                "symbol": symbol,
+                "prices_downloaded": 0
+            }
+            
         start_date = (date.fromisoformat(last_date) + timedelta(days=1)).isoformat()
         return self.sync_asset(symbol, start_date=start_date)
 
