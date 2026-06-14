@@ -2,12 +2,14 @@ from fastapi import APIRouter, HTTPException
 
 from config import DB_PATH
 from services.data_service import DataService
+from services.portfolio_service import PortfolioService
 from data_manager.asset_data_manager import AssetDataManager
 from api.schemas import AssetSync
 
 router = APIRouter(prefix="/assets", tags=["Assets"])
     
 data_service = DataService(DB_PATH)
+portfolio_service = PortfolioService()
 asset_data_manager = AssetDataManager(DB_PATH)
 
 @router.get("/")
@@ -61,5 +63,19 @@ def sync_asset(symbol: str, payload: AssetSync):
 
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-        
-        
+ 
+ 
+@router.put("/sync-tracked")
+def sync_tracked_assets():
+    try:
+        tracked_assets = portfolio_service.get_tracked_assets()
+        result = data_service.sync_assets(tracked_assets)
+
+        return {
+            "status": "success",
+            "assets_processed": len(tracked_assets),
+            "results": result
+        }
+
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
