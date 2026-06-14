@@ -13,7 +13,7 @@ tests = sorted(
     [
         f
         for f in TEST_DIR.glob("*_test_*.py")
-        if f.name != "start_test.py"
+        if f.name not in  ("start_test.py", "api_test_utils.py")
     ]
 )
 
