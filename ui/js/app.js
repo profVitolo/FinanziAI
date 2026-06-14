@@ -91,4 +91,37 @@ async function loadPortfolioSummary()
     }
 }
 
-document.addEventListener("DOMContentLoaded",() => {  checkHealth(); loadPortfolioSummary(); loadWatchlist(); setupSearch(); });
+async function syncTrackedAssets()
+{
+    try
+    {
+        const response = await fetch(`${API_BASE}/assets/sync-tracked`,{method: "PUT"});
+
+        if (!response.ok)
+            throw new Error();
+
+        const data = await response.json();
+
+        console.log("Tracked assets sincronizzati:", data);
+    }
+    catch (error)
+    {
+        console.error("Errore sincronizzazione asset tracciati:", error);
+    }
+}
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async () =>
+    {
+        await checkHealth();
+		await syncTrackedAssets();
+
+		await Promise.all([
+			loadPortfolioSummary(),
+			loadWatchlist()
+		]);
+
+		setupSearch();
+    }
+);
