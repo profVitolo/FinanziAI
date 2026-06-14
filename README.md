@@ -497,16 +497,35 @@ DELETE /portfolio/watchlist/{symbol}
 ---
 
 #### Fase 5 — Frontend MVP
-- Creazione dashboard web HTML/CSS/JavaScript
-- Integrazione con API REST
-- Ricerca asset
-- Visualizzazione analisi
-- Gestione portafoglio
-- Gestione watchlist
-- Navigazione base tra le sezioni
+- ~Creazione dashboard web HTML/CSS/JavaScript~
+- ~Integrazione con API REST~
+- ~Ricerca asset~
+- ~Visualizzazione analisi~
+- ~Gestione portafoglio~
+- ~Gestione watchlist~
+- ~Navigazione base tra le sezioni~
 
 #### Obiettivo:
 ottenere una prima applicazione utilizzabile da browser.
+
+---
+
+### Fase 5.5 — Data Management & Maintenance
+- Aggiornamento automatico degli asset presenti in portfolio e watchlist
+- Gestione completa delle transazioni:
+  - consultazione
+  - modifica
+  - eliminazione
+  - filtro per asset e intervallo temporale
+- Introduzione pagina `transactions.html`
+- Gestione avanzata dello storico prezzi:
+  - visualizzazione dati disponibili
+  - individuazione e recupero di periodi mancanti
+  - sincronizzazione incrementale dei dati
+- Consolidamento della business logic tramite servizi applicativi dedicati
+
+#### Obiettivo:
+Garantire coerenza, aggiornamento e manutenzione dei dati prima dell'introduzione dell'Advisor e dei modelli AI.
 
 ---
 
