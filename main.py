@@ -4,25 +4,11 @@ import webbrowser
 
 
 def main():
-    server = subprocess.Popen(
-        [
-            sys.executable,
-            "-m",
-            "uvicorn",
-            "api.app:app"
-        ]
-    )
-
+    server = subprocess.Popen([sys.executable, "-m", "uvicorn", "api.app:app"])
     webbrowser.open("http://127.0.0.1:8000")
 
     try:
-        while True:
-            print(" - Write 'exit' to close app - ")
-            command = input("> ").strip().lower()
-
-            if command == "exit":
-                break
-
+        input("\nPremi INVIO per terminare...\n")
     finally:
         print("Chiusura backend...")
 
