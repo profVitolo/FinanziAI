@@ -511,7 +511,7 @@ ottenere una prima applicazione utilizzabile da browser.
 ---
 
 ### Fase 5.5 — Data Management & Maintenance
-- Aggiornamento automatico degli asset presenti in portfolio e watchlist
+- ~Aggiornamento automatico degli asset presenti in portfolio e watchlist~
 - Gestione completa delle transazioni:
   - consultazione
   - modifica
