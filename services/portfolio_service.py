@@ -109,12 +109,17 @@ class PortfolioService:
 
             if operation_type == "buy":
                 new_quantity = quantity + t_quantity
-
+                
+                if new_quantity <= 0:
+                    raise ValueError(f"Posizione non valida per asset {asset_id}")
+                    
                 avg_price = ((quantity * avg_price) + (t_quantity * t_price)) / new_quantity
                 quantity = new_quantity
 
             elif operation_type == "sell":
                 quantity -= t_quantity
+                if quantity < 0:
+                    raise ValueError(f"Posizione negativa per asset {asset_id}")
 
             last_update = t_date
 
