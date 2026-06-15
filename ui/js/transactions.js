@@ -71,7 +71,7 @@ function renderTransactions(transactions)
     const table = document.getElementById("transactions-table");
 
     table.innerHTML = "";
-console.log(transactions[0]);
+
     for (const transaction of transactions)
     {
         const row = document.createElement("tr");
@@ -94,10 +94,14 @@ console.log(transactions[0]);
             <td>${Number(transaction.fees).toFixed(2)}</td>
 
             <td>
-                <button class="edit" data-id="${transaction.id}">Modifica</button>
+				<button class="edit" data-id="${transaction.id}" title="Modifica">
+					✏️
+				</button>
 
-                <button class="delete" data-id="${transaction.id}">Elimina</button>
-            </td>
+				<button class="delete" data-id="${transaction.id}" title="Elimina" >
+					🗑️
+				</button>
+			</td>
         `;
 
         table.appendChild(row);
@@ -209,6 +213,65 @@ async function init()
         console.error(error);
         alert("Errore caricamento transazioni");
     }
+	
+	document.getElementById("filter-form").addEventListener("submit", handleFilters);
+	document.getElementById("reset-filters").addEventListener("click", handleResetFilters);
 }
+
+function buildFiltersFromForm()
+{
+    const filters = {};
+
+    const symbol = document.getElementById("filter-symbol").value.trim();
+    const startDate = document.getElementById("filter-start-date").value;
+    const endDate = document.getElementById("filter-end-date").value;
+
+    if (symbol)
+    {
+        const asset = Object.values(assetsMap).find(asset => asset.symbol === symbol);
+
+        if (asset)
+            filters.asset_id = asset.id;
+    }
+
+    if (startDate)
+        filters.start_date = startDate;
+
+    if (endDate)
+        filters.end_date = endDate;
+
+    return filters;
+}
+
+async function handleFilters(event)
+{
+    event.preventDefault();
+
+    const filters = buildFiltersFromForm();
+
+    const params = new URLSearchParams(filters);
+
+    window.history.replaceState(
+        {},
+        "",
+        `transactions.html?${params.toString()}`
+    );
+
+    await refreshTransactions();
+}
+
+async function handleResetFilters()
+{
+    window.history.replaceState(
+        {},
+        "",
+        "transactions.html"
+    );
+
+    document.getElementById("filter-form").reset();
+
+    await refreshTransactions();
+}
+
 
 document.addEventListener("DOMContentLoaded", init);
