@@ -22,41 +22,6 @@ if __name__ == "__main__":
 
         print("Server pronto")
 
-        print("\n=== RECUPERO ASSET ===")
-
-        response = requests.get(f"{BASE_URL}/assets/AAPL")
-
-        print_response(response)
-        if response.status_code >= 400:
-            raise Exception("Get asset fallita")
-
-        asset_id = response.json()["id"]
-
-        print("\n=== TEST TRANSACTION CREATE ===")
-
-        response = requests.post(
-            f"{BASE_URL}/portfolio/transactions",
-            json={
-                "asset_id": asset_id,
-                "operation_type": "buy",
-                "quantity": 1,
-                "price": 100,
-                "fees": 0
-            }
-        )
-
-        print_response(response)
-        if response.status_code >= 400:
-            raise Exception("Transaction fallita")
-
-        print("\n=== TEST GET TRANSACTIONS ===")
-
-        response = requests.get(f"{BASE_URL}/portfolio/transactions")
-
-        print_response(response)
-        if response.status_code >= 400:
-            raise Exception("Transactions get fallita")
-
         print("\n=== TEST PORTFOLIO ===")
 
         response = requests.get(f"{BASE_URL}/portfolio/")
