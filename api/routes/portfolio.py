@@ -5,7 +5,7 @@ from data_engine.data_engine import DataEngine
 from data_manager.portfolio_data_manager import PortfolioDataManager
 from data_manager.asset_data_manager import AssetDataManager
 from services.portfolio_service import PortfolioService
-from api.schemas import TransactionCreate, TransactionsFilter
+from api.schemas import TransactionCreate
 
 router = APIRouter(prefix="/portfolio", tags=["Portfolio"])
 
@@ -49,13 +49,6 @@ def create_transaction(payload: TransactionCreate):
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
         
-@router.get("/transactions")
-def get_transactions(filters: TransactionsFilter = Depends()):
-    start_date = filters.start_date
-    end_date = filters.end_date
-    
-    return portfolio_data_manager.get_transactions(start_date, end_date)
-
 @router.get("/watchlist")
 def get_watchlist():
     watchlist = (portfolio_data_manager.get_watchlist())
