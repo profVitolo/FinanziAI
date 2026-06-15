@@ -1,4 +1,12 @@
+/* ==========================================================
+ * STATE
+ * ========================================================== */
 let assetsMap = {};
+
+
+/* ==========================================================
+ * API
+ * ========================================================== */
 
 async function loadTransactions(filters = {})
 {
@@ -17,6 +25,24 @@ async function loadTransactions(filters = {})
 
     if (!response.ok)
         throw new Error("Errore caricamento transazioni");
+
+    return await response.json();
+}
+
+async function createTransaction(transaction) 
+{
+    const response = await fetch(
+        `${API_BASE}/transactions/`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(transaction)
+        }
+    );
+
+    if (!response.ok) throw new Error("Errore registrazione transazione");
 
     return await response.json();
 }
@@ -49,6 +75,23 @@ async function deleteTransaction(transactionId)
 
     return await response.json();
 }
+
+async function getTransaction(transactionId)
+{
+    const response = await fetch(
+        `${API_BASE}/transactions/${transactionId}`
+    );
+
+    if (!response.ok)
+        throw new Error("Errore caricamento transazione");
+
+    return await response.json();
+}
+
+
+/* ==========================================================
+ * RENDERING
+ * ========================================================== */
 
 function renderAsset(assetId)
 {
@@ -112,87 +155,180 @@ function renderTransactions(transactions)
 
 function attachActionHandlers()
 {
-    document.querySelectorAll("button.delete").forEach(
-		button =>
-        {
-            button.addEventListener("click", handleDelete);
-        });
+    document
+        .querySelectorAll("button.edit")
+        .forEach(
+            button =>
+                button.addEventListener(
+                    "click",
+                    handleEdit
+                )
+        );
 
-    document.querySelectorAll("button.edit").forEach(
-		button =>
-        {
-            button.addEventListener("click", handleEdit);
-        });
+    document
+        .querySelectorAll("button.delete")
+        .forEach(
+            button =>
+                button.addEventListener(
+                    "click",
+                    handleDelete
+                )
+        );
 }
 
-async function handleDelete(event)
+
+/* ==========================================================
+ * EDIT MODAL
+ * ========================================================== */
+
+function openEditModal()
 {
-    const transactionId = event.target.dataset.id;
+    document
+        .getElementById("edit-modal")
+        .classList.remove("hidden");
+}
 
-    if (!confirm(`Eliminare la transazione ${transactionId}?`))
-        return;
+function closeEditModal()
+{
+    document
+        .getElementById("edit-modal")
+        .classList.add("hidden");
+}
 
-    try
-    {
-        await deleteTransaction(transactionId);
-        await refreshTransactions();
-    }
-    catch (error)
-    {
-        console.error(error);
-        alert("Errore eliminazione transazione");
-    }
+function populateEditModal(transaction)
+{
+    const asset = assetsMap[transaction.asset_id];
+
+    document.getElementById("edit-transaction-id").value =
+        transaction.id;
+
+    document.getElementById("edit-asset-id").value =
+        transaction.asset_id;
+
+    document.getElementById("edit-symbol").value =
+        asset ? asset.symbol : transaction.asset_id;
+
+    document.getElementById("edit-operation-type").value =
+        transaction.type;
+
+    document.getElementById("edit-quantity").value =
+        transaction.quantity;
+
+    document.getElementById("edit-price").value =
+        transaction.price;
+
+    document.getElementById("edit-fees").value =
+        transaction.fees;
+
+    document.getElementById("edit-transaction-date").value =
+        transaction.date;
 }
 
 async function handleEdit(event)
 {
-    const transactionId = event.target.dataset.id;
+    const transactionId = event.currentTarget.dataset.id;
 
     try
     {
-        const response = await fetch(`${API_BASE}/transactions/${transactionId}`);
+        const transaction =
+            await getTransaction(transactionId);
 
-        if (!response.ok)
-            throw new Error();
+        populateEditModal(transaction);
 
-        const transaction = await response.json();
+        openEditModal();
+    }
+    catch(error)
+    {
+        console.error(error);
+        alert("Errore caricamento transazione");
+    }
+}
 
-        const quantity = prompt("Quantità", transaction.quantity);
+async function handleEditSubmit(event)
+{
+    event.preventDefault();
 
-        if (quantity === null)
-            return;
+    const transactionId =
+        document.getElementById("edit-transaction-id").value;
 
-        const price = prompt("Prezzo", transaction.price);
+    const payload =
+    {
+        asset_id: parseInt(
+            document.getElementById("edit-asset-id").value
+        ),
 
-        if (price === null)
-            return;
+        operation_type:
+            document.getElementById("edit-operation-type").value,
 
-        const fees = prompt("Commissioni", transaction.fees);
+        quantity: parseFloat(
+            document.getElementById("edit-quantity").value
+        ),
 
-        if (fees === null)
-            return;
+        price: parseFloat(
+            document.getElementById("edit-price").value
+        ),
 
+        fees: parseFloat(
+            document.getElementById("edit-fees").value
+        ),
+
+        transaction_date:
+            document.getElementById("edit-transaction-date").value
+    };
+
+    try
+    {
         await updateTransaction(
             transactionId,
-            {
-                asset_id: transaction.asset_id,
-                operation_type: transaction.type,
-                quantity: parseFloat(quantity),
-                price: parseFloat(price),
-                fees: parseFloat(fees),
-                transaction_date: transaction.date
-            }
+            payload
         );
+
+        closeEditModal();
 
         await refreshTransactions();
     }
-    catch (error)
+    catch(error)
     {
         console.error(error);
         alert("Errore modifica transazione");
     }
 }
 
+
+/* ==========================================================
+ * DELETE ACTIONS
+ * ========================================================== */
+
+async function handleDelete(event)
+{
+    const transactionId =
+        event.currentTarget.dataset.id;
+
+    if (!confirm(
+        `Eliminare la transazione ${transactionId}?`
+    ))
+    {
+        return;
+    }
+
+    try
+    {
+        await deleteTransaction(transactionId);
+
+        await refreshTransactions();
+    }
+    catch(error)
+    {
+        console.error(error);
+        alert("Errore eliminazione transazione");
+    }
+}
+
+
+/* ==========================================================
+ * PAGE REFRESH
+ * ========================================================== */
+ 
 async function refreshTransactions()
 {
     const filters = getFiltersFromQueryString();
@@ -201,31 +337,11 @@ async function refreshTransactions()
     renderTransactions(transactions);
 }
 
-async function init()
-{
-	const symbolInput = document.getElementById("symbol");
-	symbolInput.addEventListener("blur",handleSymbolBlur);
-	symbolInput.addEventListener("input", clearAssetSelection);
-	
-	initializeTransactionDate();
 
-	
-    try
-    {
-        assetsMap = await loadAssetsMap();
-        await refreshTransactions();
-    }
-    catch (error)
-    {
-        console.error(error);
-        alert("Errore caricamento transazioni");
-    }
-	
-	document.getElementById("filter-form").addEventListener("submit", handleFilters);
-	document.getElementById("reset-filters").addEventListener("click", handleResetFilters);
-	document.getElementById("transaction-form").addEventListener("submit", handleTransaction);
-}
-
+/* ==========================================================
+ * FILTERS
+ * ========================================================== */
+ 
 function buildFiltersFromForm()
 {
     const filters = {};
@@ -282,25 +398,10 @@ async function handleResetFilters()
 }
 
 
-async function createTransaction(transaction) 
-{
-    const response = await fetch(
-        `${API_BASE}/transactions/`,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(transaction)
-        }
-    );
-
-    if (!response.ok) throw new Error("Errore registrazione transazione");
-
-    return await response.json();
-}
-
-
+/* ==========================================================
+ * TRANSACTION FORM
+ * ========================================================== */
+ 
 async function handleTransaction(event) 
 {
     event.preventDefault();
@@ -335,7 +436,6 @@ async function handleTransaction(event)
         alert("Errore registrazione transazione");
     }
 }
-
 
 async function resolveAsset(symbol) 
 {
@@ -378,7 +478,6 @@ async function handleSymbolBlur()
     document.getElementById("asset-id").value = asset.id;
 }
 
-
 function clearAssetSelection()
 {
     document.getElementById("asset-id").value = "";
@@ -397,5 +496,70 @@ function initializeTransactionDate()
     document.getElementById("transaction-date").value = today;
 }
 
+
+/* ==========================================================
+ * INITIALIZATION
+ * ========================================================== */
+ 
+async function init()
+{
+	const symbolInput = document.getElementById("symbol");
+	symbolInput.addEventListener("blur",handleSymbolBlur);
+	symbolInput.addEventListener("input", clearAssetSelection);
+	
+	initializeTransactionDate();
+
+	
+    try
+    {
+        assetsMap = await loadAssetsMap();
+        await refreshTransactions();
+    }
+    catch (error)
+    {
+        console.error(error);
+        alert("Errore caricamento transazioni");
+    }
+	
+	document.getElementById("filter-form").addEventListener("submit", handleFilters);
+	document.getElementById("reset-filters").addEventListener("click", handleResetFilters);
+	document.getElementById("transaction-form").addEventListener("submit", handleTransaction);
+	
+	document
+		.getElementById("edit-transaction-form")
+		.addEventListener(
+			"submit",
+			handleEditSubmit
+		);
+
+	document
+		.getElementById("close-modal")
+		.addEventListener(
+			"click",
+			closeEditModal
+		);
+
+	document
+		.getElementById("cancel-edit")
+		.addEventListener(
+			"click",
+			closeEditModal
+		);
+	
+	document
+		.getElementById("edit-modal")
+		.addEventListener(
+			"click",
+			event =>
+			{
+				if (
+					event.target.id === "edit-modal"
+				)
+				{
+					closeEditModal();
+				}
+			}
+		);
+}
 
 document.addEventListener("DOMContentLoaded", init);
