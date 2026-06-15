@@ -7,6 +7,7 @@
 
     <link rel="stylesheet" href="css/transactions.css">
     <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/modal.css">
 
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 x=%22-.1em%22 font-size=%2290%22>📈</text></svg>"
@@ -46,7 +47,6 @@
             <input type="number" id="fees" placeholder="Commissioni" step="0.01" value="0" required>
 			<input type="date" id="transaction-date" required>
             <button type="submit" id="save-button">Registra</button>
-            <button type="button" id="cancel-edit" hidden >Annulla Modifica</button>
         </form>
     </section>
 	
@@ -89,6 +89,104 @@
     </section>
 
 </main>
+<!-- Modale modifica transazione -->
+<div id="edit-modal" class="modal hidden">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+            <h2>Modifica Transazione</h2>
+            <button
+                type="button"
+                id="close-modal"
+                class="modal-close"
+                title="Chiudi"
+            >
+                ✖
+            </button>
+        </div>
+
+        <form id="edit-transaction-form">
+
+            <input type="hidden" id="edit-transaction-id">
+            <input type="hidden" id="edit-asset-id">
+
+            <label>
+                Simbolo
+                <input
+                    type="text"
+                    id="edit-symbol"
+                    readonly
+                >
+            </label>
+
+            <label>
+                Operazione
+                <select id="edit-operation-type">
+                    <option value="buy">Buy</option>
+                    <option value="sell">Sell</option>
+                </select>
+            </label>
+
+            <label>
+                Quantità
+                <input
+                    type="number"
+                    id="edit-quantity"
+                    step="0.000001"
+                    required
+                >
+            </label>
+
+            <label>
+                Prezzo
+                <input
+                    type="number"
+                    id="edit-price"
+                    step="0.01"
+                    required
+                >
+            </label>
+
+            <label>
+                Commissioni
+                <input
+                    type="number"
+                    id="edit-fees"
+                    step="0.01"
+                    required
+                >
+            </label>
+
+            <label>
+                Data
+                <input
+                    type="date"
+                    id="edit-transaction-date"
+                    required
+                >
+            </label>
+
+            <div class="modal-actions">
+                <button
+                    type="button"
+                    id="cancel-edit"
+                >
+                    Annulla
+                </button>
+
+                <button
+                    type="submit"
+                >
+                    Salva
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
 
 <script src="js/helper.js"></script>
 <script src="js/transactions.js"></script>
