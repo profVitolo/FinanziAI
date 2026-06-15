@@ -8,7 +8,10 @@ class TransactionCreate(BaseModel):
     price: float = Field(gt=0)
     fees: float = Field(default=0, ge=0)
     transaction_date: date | None = None
-
+    
+class TransactionUpdate(TransactionCreate):
+    pass
+    
 class AssetSync(BaseModel):
     start_date: date 
     end_date: date | None = None
@@ -16,3 +19,4 @@ class AssetSync(BaseModel):
 class TransactionsFilter(BaseModel):
     start_date: date | None = None
     end_date: date | None = None
+    asset_id: int | None = None
