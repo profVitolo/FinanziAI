@@ -47,6 +47,7 @@ p
     display: flex;
     justify-content: space-between;
     margin: 8px 0;
+    gap: 10px;
 }
 
 span
@@ -73,4 +74,62 @@ button:hover
 hr
 {
     display: none;
+}
+
+@media (max-width: 700px)
+{
+    body
+    {
+        padding: 15px;
+    }
+
+    header
+    {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    p
+    {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+
+    span
+    {
+        font-size: 1rem;
+    }
+
+    button
+    {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 480px)
+{
+    body
+    {
+        padding: 10px;
+    }
+
+    section
+    {
+        padding: 12px;
+    }
+
+    h2
+    {
+        font-size: 1.1rem;
+    }
+
+    button
+    {
+        padding: 12px;
+    }
 }
