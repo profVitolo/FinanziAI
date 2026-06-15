@@ -102,7 +102,7 @@ async function syncTrackedAssets()
 
         const data = await response.json();
 
-        console.log("Tracked assets sincronizzati:", data);
+        //console.log("Tracked assets sincronizzati:", data);
     }
     catch (error)
     {
