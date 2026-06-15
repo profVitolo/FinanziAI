@@ -28,27 +28,7 @@ def analyze_portfolio():
         raise HTTPException(status_code=404, detail="Portfolio is empty")
 
     return result
-	
-@router.post("/transactions")
-def create_transaction(payload: TransactionCreate):
-    try:
-        portfolio_service.register_transaction(
-            asset_id=payload.asset_id,
-            operation_type=payload.operation_type,
-            quantity=payload.quantity,
-            price=payload.price,
-            fees=payload.fees,
-            transaction_date=payload.transaction_date
-        )
 
-        return {"status": "success"}
-
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
-
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
-        
 @router.get("/watchlist")
 def get_watchlist():
     watchlist = (portfolio_data_manager.get_watchlist())
