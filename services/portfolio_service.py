@@ -26,7 +26,7 @@ class PortfolioService:
             if quantity > current_quantity:
                 raise ValueError(f"Quantità insufficiente. Disponibili: {current_quantity}")
 
-        self.transaction_data_manager.add_transaction(
+        transaction_id = self.transaction_data_manager.add_transaction(
             asset_id=asset_id,
             date=transaction_date,
             operation_type=operation_type,
@@ -36,6 +36,8 @@ class PortfolioService:
         )
 
         self._recalculate_asset_position(asset_id)
+        
+        return transaction_id
     
     def get_tracked_assets(self):
         tracked_assets = set()
