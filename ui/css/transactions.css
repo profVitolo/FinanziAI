@@ -107,12 +107,12 @@ button.delete:hover
     background-color: #b71c1c;
 }
 
-button.secondary
+button.edit
 {
     background-color: #757575;
 }
 
-button.secondary:hover
+button.edit:hover
 {
     background-color: #616161;
 }
