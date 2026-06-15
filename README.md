@@ -512,11 +512,11 @@ ottenere una prima applicazione utilizzabile da browser.
 
 ### Fase 5.5 — Data Management & Maintenance
 - ~Aggiornamento automatico degli asset presenti in portfolio e watchlist~
-- Gestione completa delle transazioni:
-  - consultazione
-  - modifica
-  - eliminazione
-  - filtro per asset e intervallo temporale
+- ~Gestione completa delle transazioni:~
+  - ~consultazione~
+  - ~modifica~
+  - ~eliminazione~
+  - ~filtro per asset e intervallo temporale~
 - Introduzione pagina `transactions.html`
 - Gestione avanzata dello storico prezzi:
   - visualizzazione dati disponibili
