@@ -23,7 +23,7 @@ async function loadPortfolioAnalysis()
 async function createTransaction(transaction) 
 {
     const response = await fetch(
-        `${API_BASE}/portfolio/transactions`,
+        `${API_BASE}/transactions/`,
         {
             method: "POST",
             headers: {
