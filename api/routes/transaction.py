@@ -36,7 +36,7 @@ def get_transaction(transaction_id: int):
 @router.post("/")
 def create_transaction(payload: TransactionCreate):
     try:
-        portfolio_service.register_transaction(
+        transaction_id = portfolio_service.register_transaction(
             asset_id=payload.asset_id,
             operation_type=payload.operation_type,
             quantity=payload.quantity,
@@ -45,7 +45,7 @@ def create_transaction(payload: TransactionCreate):
             transaction_date=payload.transaction_date
         )
 
-        return {"status": "success"}
+        return {"status": "success", "transaction_id": transaction_id}
 
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
