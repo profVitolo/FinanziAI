@@ -203,6 +203,13 @@ async function refreshTransactions()
 
 async function init()
 {
+	const symbolInput = document.getElementById("symbol");
+	symbolInput.addEventListener("blur",handleSymbolBlur);
+	symbolInput.addEventListener("input", clearAssetSelection);
+	
+	initializeTransactionDate();
+
+	
     try
     {
         assetsMap = await loadAssetsMap();
@@ -216,6 +223,7 @@ async function init()
 	
 	document.getElementById("filter-form").addEventListener("submit", handleFilters);
 	document.getElementById("reset-filters").addEventListener("click", handleResetFilters);
+	document.getElementById("transaction-form").addEventListener("submit", handleTransaction);
 }
 
 function buildFiltersFromForm()
@@ -271,6 +279,122 @@ async function handleResetFilters()
     document.getElementById("filter-form").reset();
 
     await refreshTransactions();
+}
+
+
+async function createTransaction(transaction) 
+{
+    const response = await fetch(
+        `${API_BASE}/transactions/`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(transaction)
+        }
+    );
+
+    if (!response.ok) throw new Error("Errore registrazione transazione");
+
+    return await response.json();
+}
+
+
+async function handleTransaction(event) 
+{
+    event.preventDefault();
+	
+	const assetId = document.getElementById("asset-id").value;
+
+	if (!assetId)
+	{
+		alert("Selezionare un asset valido");
+		return;
+	}
+	
+    const transaction = {
+        asset_id: parseInt(assetId),
+        operation_type: document.getElementById("transaction-type").value,
+        quantity: parseFloat(document.getElementById("quantity").value),
+        price: parseFloat(document.getElementById("price").value),
+        fees: parseFloat(document.getElementById("fees").value),
+		transaction_date: document.getElementById("transaction-date").value
+    };
+
+    try 
+	{
+        await createTransaction(transaction);
+        await refreshTransactions();
+		resetTransactionForm(event.target);
+    }
+    catch (error) 
+	{
+        console.error(error);
+		clearAssetSelection();
+        alert("Errore registrazione transazione");
+    }
+}
+
+
+async function resolveAsset(symbol) 
+{
+    try 
+	{
+        let response = await fetch(`${API_BASE}/assets/${symbol}`);
+
+        if (!response.ok) 
+		{
+            const syncResponse = await fetch(`${API_BASE}/assets/${symbol}/sync`, {method: "POST"});
+			
+			if (!syncResponse.ok)
+                throw new Error("Errore sincronizzazione asset");
+            
+            response = await fetch(`${API_BASE}/assets/${symbol}`);
+        }
+
+        if (!response.ok)throw new Error("Asset non trovato");
+
+        return await response.json();
+    }
+    catch 
+	{
+	    clearAssetSelection();
+		alert(`Asset '${symbol}' non valido`);
+        return null;
+    }
+}
+
+async function handleSymbolBlur()
+{
+    const symbol = document.getElementById("symbol").value.trim().toUpperCase();
+    if (!symbol) 
+		return;
+	
+	const asset = await resolveAsset(symbol);
+    if (!asset)
+        return;
+
+    document.getElementById("asset-id").value = asset.id;
+}
+
+
+function clearAssetSelection()
+{
+    document.getElementById("asset-id").value = "";
+}
+
+function resetTransactionForm(form)
+{
+    form.reset();
+    clearAssetSelection();
+    initializeTransactionDate();
+}
+
+function initializeTransactionDate()
+{
+    const today = new Date().toISOString().split("T")[0];
+    document.getElementById("transaction-date").value = today;
 }
 
 
