@@ -1,11 +1,6 @@
 body
 {
-    font-family: Arial, sans-serif;
     max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f5f7fa;
-    color: #222;
 }
 
 header
@@ -14,113 +9,6 @@ header
     justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
-}
-
-header h1
-{
-    margin: 0;
-}
-
-header a
-{
-    text-decoration: none;
-    color: #1976d2;
-}
-
-section
-{
-    background: white;
-    padding: 20px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-}
-
-h2
-{
-    margin-top: 0;
-    color: #1976d2;
-}
-
-table
-{
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th
-{
-    background-color: #1976d2;
-    color: white;
-}
-
-th,
-td
-{
-    padding: 10px;
-    border: 1px solid #ddd;
-    text-align: left;
-}
-
-tr:nth-child(even)
-{
-    background-color: #f8f9fa;
-}
-
-form
-{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-input,
-select
-{
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-button
-{
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-
-    transition:
-        opacity 0.2s ease,
-        transform 0.2s ease;
-}
-
-button
-{
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    background-color: #1976d2;
-    color: white;
-    cursor: pointer;
-}
-button:hover
-{
-    background-color: #1565c0;
-}
-
-button.edit:hover,button.delete:hover
-{
-    opacity: 0.8;
-    transform: scale(1.05);
-}
-
-button.edit,
-button.delete
-{
-    min-width: 40px;
-    padding: 6px 10px;
-    font-size: 1rem;
-	border:0.1em solid lightgray;
-	border-radius: 20%;
 }
 
 button.edit
@@ -139,70 +27,7 @@ td.actions
     gap: 5px;
 }
 
-#transactions-table a
-{
-    color: #1976d2;
-    text-decoration: none;
-}
-
-#transactions-table a:hover
-{
-    text-decoration: underline;
-}
-
-#transaction-form
-{
-    margin-top: 10px;
-}
-
 #filter-form
 {
     align-items: center;
-}
-
-#form-title
-{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-hr
-{
-    display: none;
-}
-
-@media (max-width: 900px)
-{
-    table
-    {
-        font-size: 0.9rem;
-    }
-
-    th,
-    td
-    {
-        padding: 6px;
-    }
-}
-
-@media (max-width: 700px)
-{
-    form
-    {
-        flex-direction: column;
-    }
-
-    input,
-    select,
-    button
-    {
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    td.actions
-    {
-        flex-direction: column;
-    }
 }
