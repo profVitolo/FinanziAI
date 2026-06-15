@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions</title>
+
+    <link rel="stylesheet" href="css/transactions.css">
+
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 x=%22-.1em%22 font-size=%2290%22>📈</text></svg>"
+    >
+</head>
+<body>
+
+<header>
+    <h1>Transactions</h1>
+    <a href="index.html">← Dashboard</a>
+</header>
+
+<main>
+
+    <section>
+        <h2>Filtri</h2>
+        <form id="filter-form">
+            <input type="text" id="filter-symbol" placeholder="AAPL">
+            <input type="date" id="filter-start-date">
+            <input type="date" id="filter-end-date">
+            <button type="submit">Filtra</button>
+            <button type="button" id="reset-filters">Reset</button>
+        </form>
+    </section>
+
+    <hr>
+
+    <section>
+        <h2>Transazioni</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Data</th>
+                    <th>Asset</th>
+                    <th>Operazione</th>
+                    <th>Quantità</th>
+                    <th>Prezzo</th>
+                    <th>Commissioni</th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+
+            <tbody id="transactions-table">
+            </tbody>
+
+        </table>
+    </section>
+
+    <hr>
+
+    <section>
+        <h2 id="form-title">
+            Nuova Transazione
+        </h2>
+
+        <form id="transaction-form">
+            <input type="hidden" id="transaction-id">
+            <input type="hidden" id="asset-id">
+            <input type="text" id="symbol" placeholder="AAPL" required>
+            <select id="transaction-type">
+                <option value="buy">Buy</option>
+                <option value="sell">Sell</option>
+            </select>
+            <input type="number" id="quantity" placeholder="Quantità" step="0.000001" required>
+            <input type="number" id="price" placeholder="Prezzo" step="0.01" required>
+            <input type="number" id="fees" placeholder="Commissioni" step="0.01" value="0" required>
+			<input type="date" id="transaction-date" required>
+            <button type="submit" id="save-button">Salva</button>
+            <button type="button" id="cancel-edit" hidden >Annulla Modifica</button>
+        </form>
+    </section>
+
+</main>
+
+<script src="js/transactions.js"></script>
+
+</body>
+</html>
