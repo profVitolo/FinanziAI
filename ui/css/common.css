@@ -73,6 +73,11 @@ hr
     display: none;
 }
 
+.hidden
+{
+    display: none;
+}
+
 /* ===== LINKS ===== */
 
 a
