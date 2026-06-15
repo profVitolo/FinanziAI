@@ -84,6 +84,17 @@ select
 
 button
 {
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+}
+
+button
+{
     padding: 8px 16px;
     border: none;
     border-radius: 4px;
@@ -91,30 +102,35 @@ button
     color: white;
     cursor: pointer;
 }
-
 button:hover
 {
     background-color: #1565c0;
 }
 
-button.delete
+button.edit:hover,button.delete:hover
 {
-    background-color: #d32f2f;
+    opacity: 0.8;
+    transform: scale(1.05);
 }
 
-button.delete:hover
+button.edit,
+button.delete
 {
-    background-color: #b71c1c;
+    min-width: 40px;
+    padding: 6px 10px;
+    font-size: 1rem;
+	border:0.1em solid lightgray;
+	border-radius: 20%;
 }
 
 button.edit
 {
-    background-color: #757575;
+    background-color: #ffe8a1;
 }
 
-button.edit:hover
+button.delete
 {
-    background-color: #616161;
+    background-color: #f5b7b1;
 }
 
 td.actions
