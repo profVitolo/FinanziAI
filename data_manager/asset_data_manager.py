@@ -2,21 +2,13 @@ import sqlite3
 from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent.parent
 from config import DB_PATH
+from data_manager.base_data_manager import BaseDataManager
 
-class AssetDataManager:
+class AssetDataManager(BaseDataManager):
 
-    def __init__(self, db_path=DB_PATH):
-        self.db_path = db_path
-
-    # ======================
-    # INTERNAL
-    # ======================
-
-    def _connect(self):
-        conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row
-        return conn
-
+    def __init__(self, database):
+        super().__init__(database)
+        
     # ======================
     # ASSETS
     # ======================
