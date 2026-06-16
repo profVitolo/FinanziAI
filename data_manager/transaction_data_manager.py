@@ -7,20 +7,50 @@ from config import DB_PATH
 
 
 class TransactionDataManager:
+    
     def __init__(self, db_path=DB_PATH):
         self.db_path = db_path
+        self.conn = None
 
     def _connect(self):
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         return conn
 
+    def begin_transaction(self):
+        if self.conn is not None:
+            raise RuntimeError("Transazione già aperta")
+
+        self.conn = self._connect()
+        self.conn.execute("BEGIN")
+        
+    def commit(self):
+        if self.conn is None:
+            raise RuntimeError("Nessuna transazione aperta")
+
+        try:
+            self.conn.commit()
+        finally:
+            self.conn.close()
+            self.conn = None
+            
+    def rollback(self):
+        if self.conn is None:
+            raise RuntimeError("Nessuna transazione aperta")
+
+        try:
+            self.conn.rollback()
+        finally:
+            self.conn.close()
+            self.conn = None
+    
     # ======================
     # COMMANDS
     # ======================
 
     def add_transaction(self, asset_id, date, operation_type, quantity, price, fees=0):
-        conn = self._connect()
+        conn = self.conn if self.conn is not None else self._connect()
+
         cursor = conn.cursor()
 
         cursor.execute(
@@ -32,14 +62,17 @@ class TransactionDataManager:
             (asset_id, date, operation_type, quantity, price, fees)
         )
 
-        conn.commit()
         transaction_id = cursor.lastrowid
-        conn.close()
+
+        if self.conn is None:
+            conn.commit()
+            conn.close()
 
         return transaction_id
 
     def update_transaction(self, transaction_id, asset_id, date, operation_type, quantity, price, fees=0):
-        conn = self._connect()
+        conn = self.conn if self.conn is not None else self._connect()
+
         cursor = conn.cursor()
 
         cursor.execute(
@@ -57,14 +90,17 @@ class TransactionDataManager:
             (asset_id, date, operation_type, quantity, price, fees, transaction_id)
         )
 
-        conn.commit()
         affected_rows = cursor.rowcount
-        conn.close()
+
+        if self.conn is None:
+            conn.commit()
+            conn.close()
 
         return affected_rows > 0
 
     def delete_transaction(self, transaction_id):
-        conn = self._connect()
+        conn = self.conn if self.conn is not None else self._connect()
+
         cursor = conn.cursor()
 
         cursor.execute(
@@ -75,11 +111,14 @@ class TransactionDataManager:
             (transaction_id,)
         )
 
-        conn.commit()
         affected_rows = cursor.rowcount
-        conn.close()
+
+        if self.conn is None:
+            conn.commit()
+            conn.close()
 
         return affected_rows > 0
+
 
     # ======================
     # QUERIES
