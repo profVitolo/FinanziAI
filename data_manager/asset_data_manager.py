@@ -1,12 +1,9 @@
 import sqlite3
-from pathlib import Path
-ROOT_DIR = Path(__file__).resolve().parent.parent
-from config import DB_PATH
 from data_manager.base_data_manager import BaseDataManager
 
 class AssetDataManager(BaseDataManager):
 
-    def __init__(self, database):
+    def __init__(self, database=None):
         super().__init__(database)
         
     # ======================
@@ -20,7 +17,7 @@ class AssetDataManager(BaseDataManager):
         cursor.execute("SELECT id, symbol, name, type, currency, exchange FROM assets ORDER BY symbol")
 
         results = cursor.fetchall()
-        conn.close()
+
         return results
 
     def get_asset_by_symbol(self, symbol):
@@ -33,7 +30,7 @@ class AssetDataManager(BaseDataManager):
         )
 
         result = cursor.fetchone()
-        conn.close()
+
         return result
     
     def get_asset_by_id(self, asset_id):
@@ -50,7 +47,6 @@ class AssetDataManager(BaseDataManager):
         )
 
         result = cursor.fetchone()
-        conn.close()
 
         return result
 
@@ -66,9 +62,9 @@ class AssetDataManager(BaseDataManager):
             (symbol, name, type, currency, exchange)
         )
 
-        conn.commit()
+        #conn.commit()
         asset_id = cursor.lastrowid
-        conn.close()
+
         return asset_id
 
     # ======================
@@ -85,7 +81,7 @@ class AssetDataManager(BaseDataManager):
         )
 
         result = cursor.fetchone()
-        conn.close()
+
         return result[0] if result else None
 
     def price_exists(self, asset_id, date):
@@ -98,7 +94,7 @@ class AssetDataManager(BaseDataManager):
         )
 
         exists = cursor.fetchone() is not None
-        conn.close()
+
         return exists
 
     def save_price(self, asset_id, price):
@@ -121,8 +117,6 @@ class AssetDataManager(BaseDataManager):
             )
         )
 
-        conn.commit()
-        conn.close()
 
     def save_prices(self, asset_id, prices_list):
         conn = self._connect()
@@ -147,8 +141,6 @@ class AssetDataManager(BaseDataManager):
             ]
         )
 
-        conn.commit()
-        conn.close()
 
     def get_prices(self, asset_id, start_date=None, end_date=None):
         conn = self._connect()
@@ -170,5 +162,4 @@ class AssetDataManager(BaseDataManager):
         cursor.execute(query, tuple(params))
         results = cursor.fetchall()
 
-        conn.close()
         return results

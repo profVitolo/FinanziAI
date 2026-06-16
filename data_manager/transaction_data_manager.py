@@ -1,9 +1,4 @@
 import sqlite3
-from pathlib import Path
-
-ROOT_DIR = Path(__file__).resolve().parent.parent
-
-from config import DB_PATH
 from data_manager.base_data_manager import BaseDataManager
 
 

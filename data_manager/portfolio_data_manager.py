@@ -1,13 +1,10 @@
 import sqlite3
 from datetime import datetime
-from pathlib import Path
-ROOT_DIR = Path(__file__).resolve().parent.parent
-from config import DB_PATH
 from data_manager.base_data_manager import BaseDataManager
 
 class PortfolioDataManager(BaseDataManager):
 
-    def __init__(self, database):
+    def __init__(self, database=None):
         super().__init__(database)
 
     # ======================
@@ -63,8 +60,6 @@ class PortfolioDataManager(BaseDataManager):
                 )
             )
 
-        conn.commit()
-        conn.close()
 
     def get_position(self, asset_id):
         conn = self._connect()
@@ -85,7 +80,6 @@ class PortfolioDataManager(BaseDataManager):
         )
 
         result = cursor.fetchone()
-        conn.close()
 
         return result
 
@@ -107,7 +101,6 @@ class PortfolioDataManager(BaseDataManager):
         )
 
         results = cursor.fetchall()
-        conn.close()
 
         return results
     
@@ -123,8 +116,6 @@ class PortfolioDataManager(BaseDataManager):
             (asset_id,)
         )
 
-        conn.commit()
-        conn.close()
         
     # ======================
     # WATCHLIST
@@ -142,8 +133,6 @@ class PortfolioDataManager(BaseDataManager):
             (asset_id,)
         )
 
-        conn.commit()
-        conn.close()
 
     def remove_from_watchlist(self, asset_id):
         conn = self._connect()
@@ -157,8 +146,6 @@ class PortfolioDataManager(BaseDataManager):
             (asset_id,)
         )
 
-        conn.commit()
-        conn.close()
 
     def get_watchlist(self):
         conn = self._connect()
@@ -175,6 +162,5 @@ class PortfolioDataManager(BaseDataManager):
         )
 
         results = cursor.fetchall()
-        conn.close()
 
         return results
