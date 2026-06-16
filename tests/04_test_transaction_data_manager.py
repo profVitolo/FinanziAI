@@ -7,21 +7,24 @@ sys.path.insert(0, str(ROOT_DIR))
 
 from data_manager.asset_data_manager import AssetDataManager
 from data_manager.transaction_data_manager import TransactionDataManager
+from database.database_manager import DatabaseManager
 
-adm = AssetDataManager()
-tdm = TransactionDataManager()
+database = DatabaseManager()
+
+adm = AssetDataManager(database)
+tdm = TransactionDataManager(database)
 
 print("=== ALL TRANSACTIONS ===")
 
 transactions = tdm.get_transactions()
 
 for transaction in transactions:
-    print(transaction)
+    print(dict(transaction))
 
 asset = adm.get_asset_by_symbol("AAPL")
 
 if asset:
-    asset_id = asset[0]
+    asset_id = asset["id"]
 
     transaction_id = tdm.add_transaction(
         asset_id=asset_id,
@@ -33,14 +36,14 @@ if asset:
     )
 
     print("\n=== CREATED TRANSACTION ===")
-    print(tdm.get_transaction(transaction_id))
+    print(dict(tdm.get_transaction(transaction_id)))
 
     print("\n=== TRANSACTIONS BY ASSET ===")
 
     transactions = tdm.get_transactions_by_asset(asset_id)
 
     for transaction in transactions:
-        print(transaction)
+        print(dict(transaction))
 
     print("\n=== UPDATE TRANSACTION ===")
 
@@ -54,12 +57,12 @@ if asset:
         fees=2
     )
 
-    print(tdm.get_transaction(transaction_id))
+    print(dict(tdm.get_transaction(transaction_id)))
 
     print("\n=== DELETE TRANSACTION ===")
 
     tdm.delete_transaction(transaction_id)
 
-    print(tdm.get_transaction(transaction_id))
+    print("Last deleted transaction id [None]: ", tdm.get_transaction(transaction_id))
     
     

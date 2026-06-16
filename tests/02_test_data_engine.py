@@ -5,8 +5,10 @@ import sys
 sys.path.insert(0, str(ROOT_DIR))
 
 from data_engine.data_engine import DataEngine
+from database.database_manager import DatabaseManager
 
-engine = DataEngine()
+database = DatabaseManager()
+engine = DataEngine(database)
 
 print("=== AAPL ANALYSIS ===")
 print(engine.analyze_asset("AAPL"))

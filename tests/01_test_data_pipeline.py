@@ -7,10 +7,13 @@ sys.path.insert(0, str(ROOT_DIR))
 from services.data_service import DataService
 from data_manager.asset_data_manager import AssetDataManager
 from data_engine.data_engine import DataEngine
+from database.database_manager import DatabaseManager
+
+database = DatabaseManager()
 
 print("=== DATA PIPELINE TEST ===")
 
-ds = DataService()
+ds = DataService(database)
 
 ds.sync_asset("AAPL", start_date="2025-01-01")
 ds.sync_asset("^GSPC", start_date="2025-01-01")
@@ -20,12 +23,12 @@ print(ds.update_asset("AAPL", initial_days=365))
 print(ds.update_asset("^GSPC", initial_days=365))
 print(ds.update_asset("MSFT", initial_days=365))
 
-adm = AssetDataManager()
+adm = AssetDataManager(database)
 
 asset = adm.get_asset_by_symbol("AAPL")
 
 print("\n=== ASSET ===")
-print(asset)
+print(dict(asset))
 
 if asset:
     asset_id = asset[0]
@@ -40,11 +43,11 @@ if asset:
 
     print("\n=== FIRST 5 ===")
     for row in prices[:5]:
-        print(row)
+        print(dict(row))
 
     print("\n=== LAST 5 ===")
     for row in prices[-5:]:
-        print(row)
+        print(dict(row))
 
 engine = DataEngine()
 

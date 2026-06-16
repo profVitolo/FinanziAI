@@ -6,10 +6,13 @@ sys.path.insert(0, str(ROOT_DIR))
 
 from pprint import pprint
 from data_engine.data_engine import DataEngine
+from database.database_manager import DatabaseManager
+
+database = DatabaseManager()
 
 if __name__ == "__main__":
 
-    engine = DataEngine()
+    engine = DataEngine(database)
 
     print("\n=== PORTFOLIO ANALYSIS ===\n")
 

@@ -9,14 +9,16 @@ from data_manager.asset_data_manager import AssetDataManager
 from data_manager.portfolio_data_manager import PortfolioDataManager
 from data_manager.transaction_data_manager import TransactionDataManager
 from services.portfolio_service import PortfolioService
+from database.database_manager import DatabaseManager
 
+database = DatabaseManager()
 
 if __name__ == "__main__":
 
-    adm = AssetDataManager()
-    pdm = PortfolioDataManager()
-    tdm = TransactionDataManager()
-    service = PortfolioService()
+    adm = AssetDataManager(database)
+    pdm = PortfolioDataManager(database)
+    tdm = TransactionDataManager(database)
+    service = PortfolioService(database)
 
     asset = adm.get_asset_by_symbol("AAPL")
 
@@ -24,34 +26,34 @@ if __name__ == "__main__":
         print("Asset AAPL non trovato")
         sys.exit(1)
 
-    asset_id = asset[0]
+    asset_id = asset["id"]
 
     print("\n=== INITIAL POSITION ===\n")
-    print(pdm.get_position(asset_id))
+    print((pdm.get_position(asset_id)))
 
     print("\n=== INITIAL TRANSACTIONS ===\n")
     transactions = tdm.get_transactions_by_asset(asset_id)
 
     for transaction in transactions:
-        print(transaction)
+        print(dict(transaction))
 
     print("\n=== BUY 10 @ 100 ===\n")
 
     service.register_transaction(asset_id=asset_id, operation_type="buy", quantity=10, price=100, fees=1 )
 
-    print(pdm.get_position(asset_id))
+    print(dict(pdm.get_position(asset_id)))
 
     print("\n=== BUY 5 @ 120 ===\n")
 
     service.register_transaction(asset_id=asset_id, operation_type="buy", quantity=5, price=120, fees=1)
 
-    print(pdm.get_position(asset_id))
+    print(dict(pdm.get_position(asset_id)))
 
     print("\n=== SELL 3 ===\n")
 
     service.register_transaction(asset_id=asset_id, operation_type="sell", quantity=3, price=130, fees=1)
 
-    print(pdm.get_position(asset_id))
+    print(dict(pdm.get_position(asset_id)))
 
     print("\n=== SELL ALL REMAINING ===\n")
 
@@ -68,7 +70,7 @@ if __name__ == "__main__":
             fees=1
         )
 
-    print(pdm.get_position(asset_id))
+    print("Position after sell it all [None]:", pdm.get_position(asset_id))
 
     print("\n=== INVALID SELL ===\n")
 
@@ -84,7 +86,7 @@ if __name__ == "__main__":
     transactions = tdm.get_transactions_by_asset(asset_id)
 
     for transaction in transactions:
-        print(transaction)
+        print(dict(transaction))
     
         print("\n=== UPDATE LAST TRANSACTION ===\n")
 
@@ -103,11 +105,11 @@ if __name__ == "__main__":
             fees=2
         )
 
-        print(tdm.get_transaction(transaction_id))
+        print(dict(tdm.get_transaction(transaction_id)))
 
         print("\n=== POSITION AFTER UPDATE ===\n")
 
-        print(pdm.get_position(asset_id))
+        print(dict(pdm.get_position(asset_id)))
 
     print("\n=== DELETE LAST TRANSACTION ===\n")
 
@@ -119,14 +121,14 @@ if __name__ == "__main__":
         service.delete_transaction(transaction_id)
 
         print(tdm.get_transaction(transaction_id))
-
+        
         print("\n=== POSITION AFTER DELETE ===\n")
 
-        print(pdm.get_position(asset_id))
+        print(dict(pdm.get_position(asset_id)))
         
     print("\n=== REBUILD PORTFOLIO ===\n")
 
     service.rebuild_portfolio()
 
-    print(pdm.get_position(asset_id))
+    print(dict(pdm.get_position(asset_id)))
     
