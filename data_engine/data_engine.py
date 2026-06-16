@@ -1,38 +1,41 @@
 from data_manager.asset_data_manager import AssetDataManager
 from data_manager.portfolio_data_manager import PortfolioDataManager
+from database.database_manager import DatabaseManager
 
 from data_engine.indicators import Indicators
 from data_engine.market_analysis import MarketAnalysis
 from data_engine.portfolio_analysis import PortfolioAnalysis
 
-from pathlib import Path
-ROOT_DIR = Path(__file__).resolve().parent.parent
-from config import DB_PATH
-
+## un solo DataManager → chiudo il DataManager; 
+## più DataManager condivisi → chiudo il DatabaseManager (self.database)
 
 class DataEngine:
 
-    def __init__(self, db_path=DB_PATH):
-        self.asset_data_manager = AssetDataManager(db_path)
-        self.portfolio_data_manager = PortfolioDataManager(db_path)
+    def __init__(self):
+        self.database = DatabaseManager()
+        self.asset_data_manager = AssetDataManager(self.database)
+        self.portfolio_data_manager = PortfolioDataManager(self.database)
         self.portfolio_analysis = PortfolioAnalysis()
         
     def analyze_asset(self, symbol, start_date=None, end_date=None):
-        asset = self._load_asset(symbol)
+        try:
+            asset = self._load_asset(symbol)
 
-        if not asset:
-            return None
-        
-        prices = self._load_prices(symbol, start_date, end_date)
+            if not asset:
+                return None
+            
+            prices = self._load_prices(symbol, start_date, end_date)
 
-        if not prices:
-            return None
+            if not prices:
+                return None
 
-        close_prices = self._extract_close_prices(prices)
-        indicators = self._calculate_indicators(close_prices)
-        analysis = MarketAnalysis.analyze(indicators)
+            close_prices = self._extract_close_prices(prices)
+            indicators = self._calculate_indicators(close_prices)
+            analysis = MarketAnalysis.analyze(indicators)
 
-        return self._build_asset_result(asset, prices, indicators, analysis)
+            return self._build_asset_result(asset, prices, indicators, analysis)
+        finally:
+            self.database.close()
 
     def _load_asset(self, symbol):
         return (self.asset_data_manager.get_asset_by_symbol(symbol))
@@ -91,15 +94,18 @@ class DataEngine:
         }
 
     def analyze_portfolio(self):
-        positions = self.portfolio_data_manager.get_all_positions()
+        try:
+            positions = self.portfolio_data_manager.get_all_positions()
 
-        if not positions:
-            return None
+            if not positions:
+                return None
 
-        portfolio_positions = self._build_portfolio_positions(positions)
+            portfolio_positions = self._build_portfolio_positions(positions)
 
-        return self._build_portfolio_analysis(portfolio_positions)
-        
+            return self._build_portfolio_analysis(portfolio_positions)
+        finally:
+            self.database.close()
+            
     def _build_portfolio_positions(self, positions):
         result = []
 

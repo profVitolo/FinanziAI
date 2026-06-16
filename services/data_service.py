@@ -3,16 +3,14 @@ from datetime import date, timedelta
 from data_manager.asset_data_manager import AssetDataManager
 from data_collector.yahoo_collector import YahooCollector
 from database.database_initializer import DatabaseInitializer
+from database.database_manager import DatabaseManager
 
-from pathlib import Path
-ROOT_DIR = Path(__file__).resolve().parent.parent
-from config import DB_PATH, SCHEMA_PATH
 
 class DataService:
 
-    def __init__(self, db_path=DB_PATH):
-        DatabaseInitializer.initialize(db_path, SCHEMA_PATH)
-        self.asset_data_manager = AssetDataManager(db_path)
+    def __init__(self):
+        database = DatabaseManager()
+        self.asset_data_manager = AssetDataManager(database)
         self.collector = YahooCollector()
 
     def update_asset(self, symbol, initial_days=365):
@@ -43,29 +41,38 @@ class DataService:
         
         if asset_info is None:
             return False
+            
+        self.asset_data_manager.begin_transaction()
+        try:
+            asset = self.asset_data_manager.get_asset_by_symbol(symbol)
 
-        asset = self.asset_data_manager.get_asset_by_symbol(symbol)
+            if asset is None:
+                asset_id = self.asset_data_manager.create_asset(
+                    symbol=symbol,
+                    name=asset_info["name"],
+                    type=asset_info["type"],
+                    currency=asset_info["currency"],
+                    exchange=asset_info["exchange"]
+                )
 
-        if asset is None:
-            asset_id = self.asset_data_manager.create_asset(
-                symbol=symbol,
-                name=asset_info["name"],
-                type=asset_info["type"],
-                currency=asset_info["currency"],
-                exchange=asset_info["exchange"]
-            )
+            else:
+                asset_id = asset[0]
 
-        else:
-            asset_id = asset[0]
+            prices = self.collector.fetch_prices(symbol, start_date, end_date)
 
-        prices = self.collector.fetch_prices(symbol, start_date, end_date)
+            self.asset_data_manager.save_prices(asset_id, prices)
 
-        self.asset_data_manager.save_prices(asset_id, prices)
-
-        return {
-            "symbol": symbol,
-            "prices_downloaded": len(prices)
-        }
+            self.asset_data_manager.commit()
+            
+            return {
+                "symbol": symbol,
+                "prices_downloaded": len(prices)
+            }
+        except Exception:
+            self.asset_data_manager.rollback()
+            raise
+        finally:
+            self.asset_data_manager.close()
     
     def sync_assets(self, asset_ids):
         results = []

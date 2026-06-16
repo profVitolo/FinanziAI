@@ -1,13 +1,17 @@
 from datetime import date
 from data_manager.portfolio_data_manager import PortfolioDataManager
 from data_manager.transaction_data_manager import TransactionDataManager
+from database.database_manager import DatabaseManager
 
+## un solo DataManager → chiudo il DataManager; 
+## più DataManager condivisi → chiudo il DatabaseManager (self.database)
 
 class PortfolioService:
 
     def __init__(self):
-        self.portfolio_data_manager = PortfolioDataManager()
-        self.transaction_data_manager = TransactionDataManager()
+        self.database = DatabaseManager()
+        self.portfolio_data_manager = PortfolioDataManager(self.database)
+        self.transaction_data_manager = TransactionDataManager(self.database)
 
     def register_transaction(self, asset_id, operation_type, quantity, price, fees=0, transaction_date=None):
         if transaction_date is None:
@@ -17,7 +21,7 @@ class PortfolioService:
         
         self.transaction_data_manager.begin_transaction()
 
-         try:
+        try:
             transaction_id = self.transaction_data_manager.add_transaction(
                 asset_id=asset_id,
                 date=transaction_date,
@@ -34,9 +38,11 @@ class PortfolioService:
 
             return transaction_id
 
-        except:
+        except Exception:
             self.transaction_data_manager.rollback()
             raise
+        finally:
+            self.transaction_data_manager.close()
     
     def update_transaction(self,transaction_id, asset_id, operation_type, quantity, price, fees=0, transaction_date=None):
         old_transaction = self.transaction_data_manager.get_transaction(transaction_id)
@@ -77,6 +83,8 @@ class PortfolioService:
         except Exception:
             self.transaction_data_manager.rollback()
             raise
+        finally:
+            self.transaction_data_manager.close()
             
     def delete_transaction(self, transaction_id):
         transaction = self.transaction_data_manager.get_transaction(transaction_id)
@@ -96,6 +104,8 @@ class PortfolioService:
         except Exception:
             self.transaction_data_manager.rollback()
             raise
+        finally:
+            self.transaction_data_manager.close()
         
     def _validate_asset_transactions(self, asset_id):
         transactions = self.transaction_data_manager.get_transactions_by_asset(asset_id)
@@ -134,9 +144,6 @@ class PortfolioService:
 
             if operation_type == "buy":
                 new_quantity = quantity + t_quantity
-                
-                if new_quantity <= 0:
-                    raise RuntimeError(f"Inconsistenza rilevata durante rebuild asset {asset_id}") #Inutile
 
                 avg_price = ((quantity * avg_price) + (t_quantity * t_price)) / new_quantity
                 quantity = new_quantity
@@ -153,28 +160,44 @@ class PortfolioService:
         self.portfolio_data_manager.update_portfolio_position(asset_id=asset_id, quantity=quantity, avg_price=avg_price, last_update=last_update)
         
     def rebuild_portfolio(self):
-        positions = self.portfolio_data_manager.get_all_positions()
+        self.transaction_data_manager.begin_transaction()
 
-        for position in positions:
-            self.portfolio_data_manager.delete_portfolio_position(position["asset_id"])
+        try:
+            positions = self.portfolio_data_manager.get_all_positions()
 
-        transactions = self.transaction_data_manager.get_transactions()
+            for position in positions:
+                self.portfolio_data_manager.delete_portfolio_position(position["asset_id"])
 
-        asset_ids = {transaction["asset_id"] for transaction in transactions}
+            transactions = self.transaction_data_manager.get_transactions()
 
-        for asset_id in asset_ids:
-            self._rebuild_asset_position(asset_id)
+            asset_ids = {transaction["asset_id"] for transaction in transactions}
+
+            for asset_id in asset_ids:
+                self._rebuild_asset_position(asset_id)
+            
+            self.transaction_data_manager.commit()
+
+        except Exception:
+            self.transaction_data_manager.rollback()
+            raise
+
+        finally:
+            self.database.close()
     
     def get_tracked_assets(self):
-        tracked_assets = set()
+        try:
+            tracked_assets = set()
 
-        positions = self.portfolio_data_manager.get_all_positions()
-        for position in positions:
-            tracked_assets.add(position[1])  # asset_id
+            positions = self.portfolio_data_manager.get_all_positions()
+            for position in positions:
+                tracked_assets.add(position["asset_id"])  # asset_id
 
-        watchlist = self.portfolio_data_manager.get_watchlist()
-        for item in watchlist:
-            tracked_assets.add(item[1])  # asset_id
+            watchlist = self.portfolio_data_manager.get_watchlist()
+            for item in watchlist:
+                tracked_assets.add(item["asset_id"])  # asset_id
 
-        return list(tracked_assets)
+            return list(tracked_assets)
+            
+        finally:
+            self.portfolio_data_manager.close()
     
