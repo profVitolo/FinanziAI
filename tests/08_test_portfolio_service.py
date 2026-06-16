@@ -29,7 +29,7 @@ if __name__ == "__main__":
     asset_id = asset["id"]
 
     print("\n=== INITIAL POSITION ===\n")
-    print((pdm.get_position(asset_id)))
+    print(dict(pdm.get_position(asset_id)))
 
     print("\n=== INITIAL TRANSACTIONS ===\n")
     transactions = tdm.get_transactions_by_asset(asset_id)
