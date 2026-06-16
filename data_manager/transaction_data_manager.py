@@ -32,10 +32,6 @@ class TransactionDataManager(BaseDataManager):
 
         transaction_id = cursor.lastrowid
 
-        """if not self.shared_connection:
-            conn.commit()
-            conn.close()
-        """
         return transaction_id
 
     def update_transaction(self, transaction_id, asset_id, date, operation_type, quantity, price, fees=0):
@@ -59,11 +55,7 @@ class TransactionDataManager(BaseDataManager):
         )
 
         affected_rows = cursor.rowcount
-        """
-        if not self.shared_connection:
-            conn.commit()
-            conn.close()
-        """
+
         return affected_rows > 0
 
     def delete_transaction(self, transaction_id):
@@ -80,11 +72,7 @@ class TransactionDataManager(BaseDataManager):
         )
 
         affected_rows = cursor.rowcount
-        """
-        if not self.shared_connection:
-            conn.commit()
-            conn.close()
-        """
+
         return affected_rows > 0
 
 
@@ -106,10 +94,7 @@ class TransactionDataManager(BaseDataManager):
         )
 
         result = cursor.fetchone()
-        """
-        if not self.shared_connection:
-            conn.close()
-        """
+
         return result
 
     def get_transactions(self, start_date=None, end_date=None):
@@ -148,10 +133,7 @@ class TransactionDataManager(BaseDataManager):
         cursor.execute(query, params)
 
         results = cursor.fetchall()
-        """
-        if not self.shared_connection:
-            conn.close()
-        """
+
         return results
 
     def get_transactions_by_asset(self, asset_id, start_date=None, end_date=None):
@@ -179,10 +161,7 @@ class TransactionDataManager(BaseDataManager):
         cursor.execute(query, params)
 
         results = cursor.fetchall()
-        """
-        if not self.shared_connection:
-            conn.close()
-        """
+
         return results
         
         
