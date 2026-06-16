@@ -4,52 +4,20 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent.parent
 
 from config import DB_PATH
+from data_manager.base_data_manager import BaseDataManager
 
 
-class TransactionDataManager:
+class TransactionDataManager(BaseDataManager):
     
-    def __init__(self, db_path=DB_PATH):
-        self.db_path = db_path
-        self.conn = None
-
-    def _connect(self):
-        conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row
-        return conn
-
-    def begin_transaction(self):
-        if self.conn is not None:
-            raise RuntimeError("Transazione già aperta")
-
-        self.conn = self._connect()
-        self.conn.execute("BEGIN")
-        
-    def commit(self):
-        if self.conn is None:
-            raise RuntimeError("Nessuna transazione aperta")
-
-        try:
-            self.conn.commit()
-        finally:
-            self.conn.close()
-            self.conn = None
-            
-    def rollback(self):
-        if self.conn is None:
-            raise RuntimeError("Nessuna transazione aperta")
-
-        try:
-            self.conn.rollback()
-        finally:
-            self.conn.close()
-            self.conn = None
+    def __init__(self, database=None):
+        super().__init__(database)
     
     # ======================
     # COMMANDS
     # ======================
 
     def add_transaction(self, asset_id, date, operation_type, quantity, price, fees=0):
-        conn = self.conn if self.conn is not None else self._connect()
+        conn = self._connect()
 
         cursor = conn.cursor()
 
@@ -64,14 +32,14 @@ class TransactionDataManager:
 
         transaction_id = cursor.lastrowid
 
-        if self.conn is None:
+        """if not self.shared_connection:
             conn.commit()
             conn.close()
-
+        """
         return transaction_id
 
     def update_transaction(self, transaction_id, asset_id, date, operation_type, quantity, price, fees=0):
-        conn = self.conn if self.conn is not None else self._connect()
+        conn = self._connect()
 
         cursor = conn.cursor()
 
@@ -91,15 +59,15 @@ class TransactionDataManager:
         )
 
         affected_rows = cursor.rowcount
-
-        if self.conn is None:
+        """
+        if not self.shared_connection:
             conn.commit()
             conn.close()
-
+        """
         return affected_rows > 0
 
     def delete_transaction(self, transaction_id):
-        conn = self.conn if self.conn is not None else self._connect()
+        conn = self._connect()
 
         cursor = conn.cursor()
 
@@ -112,11 +80,11 @@ class TransactionDataManager:
         )
 
         affected_rows = cursor.rowcount
-
-        if self.conn is None:
+        """
+        if not self.shared_connection:
             conn.commit()
             conn.close()
-
+        """
         return affected_rows > 0
 
 
@@ -130,14 +98,7 @@ class TransactionDataManager:
 
         cursor.execute(
             """
-            SELECT
-                id,
-                asset_id,
-                date,
-                type,
-                quantity,
-                price,
-                fees
+            SELECT id, asset_id, date, type, quantity, price, fees 
             FROM transactions
             WHERE id = ?
             """,
@@ -145,8 +106,10 @@ class TransactionDataManager:
         )
 
         result = cursor.fetchone()
-        conn.close()
-
+        """
+        if not self.shared_connection:
+            conn.close()
+        """
         return result
 
     def get_transactions(self, start_date=None, end_date=None):
@@ -185,8 +148,10 @@ class TransactionDataManager:
         cursor.execute(query, params)
 
         results = cursor.fetchall()
-        conn.close()
-
+        """
+        if not self.shared_connection:
+            conn.close()
+        """
         return results
 
     def get_transactions_by_asset(self, asset_id, start_date=None, end_date=None):
@@ -194,14 +159,7 @@ class TransactionDataManager:
         cursor = conn.cursor()
 
         query = """
-            SELECT
-                id,
-                asset_id,
-                date,
-                type,
-                quantity,
-                price,
-                fees
+            SELECT id, asset_id, date, type, quantity, price, fees 
             FROM transactions
             WHERE asset_id = ?
         """
@@ -221,8 +179,10 @@ class TransactionDataManager:
         cursor.execute(query, params)
 
         results = cursor.fetchall()
-        conn.close()
-
+        """
+        if not self.shared_connection:
+            conn.close()
+        """
         return results
         
         
