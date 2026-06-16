@@ -1,10 +1,9 @@
 from database.database_manager import DatabaseManager
-from config import DB_PATH
 
 class BaseDataManager:
 
     def __init__(self, database=None):
-        self.database = database or DatabaseManager(DB_PATH)
+        self.database = database or DatabaseManager()
 
     def _connect(self):
         return self.database.connect()
