@@ -10,9 +10,9 @@ from data_engine.portfolio_analysis import PortfolioAnalysis
 ## più DataManager condivisi → chiudo il DatabaseManager (self.database)
 
 class DataEngine:
-
-    def __init__(self):
-        self.database = DatabaseManager()
+   
+    def __init__(self, database=None):
+        self.database = database or DatabaseManager()
         self.asset_data_manager = AssetDataManager(self.database)
         self.portfolio_data_manager = PortfolioDataManager(self.database)
         self.portfolio_analysis = PortfolioAnalysis()

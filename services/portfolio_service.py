@@ -8,8 +8,8 @@ from database.database_manager import DatabaseManager
 
 class PortfolioService:
 
-    def __init__(self):
-        self.database = DatabaseManager()
+    def __init__(self, database=None):
+        self.database = database or DatabaseManager()
         self.portfolio_data_manager = PortfolioDataManager(self.database)
         self.transaction_data_manager = TransactionDataManager(self.database)
 

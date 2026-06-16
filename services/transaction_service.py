@@ -3,8 +3,8 @@ from database.database_manager import DatabaseManager
 
 class TransactionService:
 
-    def __init__(self):
-        database = DatabaseManager()
+    def __init__(self, database=None):
+        database = database or DatabaseManager()
         self.transaction_data_manager = TransactionDataManager(database)
 
     def get_transaction(self, transaction_id):

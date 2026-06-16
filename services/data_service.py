@@ -2,14 +2,13 @@ from datetime import date, timedelta
 
 from data_manager.asset_data_manager import AssetDataManager
 from data_collector.yahoo_collector import YahooCollector
-from database.database_initializer import DatabaseInitializer
 from database.database_manager import DatabaseManager
 
 
 class DataService:
 
-    def __init__(self):
-        database = DatabaseManager()
+    def __init__(self, database=None):
+        database = database or DatabaseManager()
         self.asset_data_manager = AssetDataManager(database)
         self.collector = YahooCollector()
 
