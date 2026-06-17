@@ -37,3 +37,17 @@ class YahooCollector:
             })
 
         return prices
+        
+    def fetch_exchange_rate(self, from_currency, to_currency):
+        if from_currency == to_currency:
+            return 1.0
+
+        symbol = f"{from_currency.upper()}{to_currency.upper()}=X"
+
+        ticker = yf.Ticker(symbol)
+        data = ticker.history(period="1d")
+
+        if data.empty:
+            return None
+
+        return float(data["Close"].iloc[-1])
