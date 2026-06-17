@@ -19,10 +19,10 @@ class ExchangeDataManager:
             )
             VALUES (?, ?, ?, ?)
             """,
-            (from_currency, to_currency, rate_date, rate)
+            (from_currency.upper(), to_currency.upper(), rate_date, rate)
         )
 
-    def get_rate(self, from_currency, to_currency, rate_date):
+    def get_latest_rate_before(self, from_currency, to_currency, rate_date):
         conn = self._connect()
         cursor = conn.cursor()
 
@@ -36,7 +36,9 @@ class ExchangeDataManager:
             FROM exchange_rates
             WHERE from_currency = ?
               AND to_currency = ?
-              AND rate_date = ?
+              AND rate_date <= ?
+            ORDER BY rate_date DESC
+            LIMIT 1
             """,
             (from_currency, to_currency, rate_date)
         )
