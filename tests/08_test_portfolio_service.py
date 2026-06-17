@@ -93,7 +93,7 @@ if __name__ == "__main__":
     transactions = tdm.get_transactions_by_asset(asset_id)
 
     if transactions:
-        transaction_id = transactions[-1][0]
+        transaction_id = transactions[-1]["id"]
 
         service.update_transaction(
             transaction_id=transaction_id,
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     transactions = tdm.get_transactions_by_asset(asset_id)
 
     if transactions:
-        transaction_id = transactions[-1][0]
+        transaction_id = transactions[-1]["id"]
 
         service.delete_transaction(transaction_id)
 

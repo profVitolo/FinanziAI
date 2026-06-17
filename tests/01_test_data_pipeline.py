@@ -31,7 +31,7 @@ print("\n=== ASSET ===")
 print(dict(asset))
 
 if asset:
-    asset_id = asset[0]
+    asset_id = asset["id"]
 
     print("\n=== LAST DATE ===")
     print(adm.get_last_price_date(asset_id))

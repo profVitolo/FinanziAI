@@ -19,7 +19,7 @@ class DataService:
             start_date = (date.today() - timedelta(days=initial_days)).isoformat()
             return self.sync_asset(symbol, start_date=start_date)
 
-        asset_id = asset[0]
+        asset_id = asset["id"]
         last_date = self.asset_data_manager.get_last_price_date(asset_id)
 
         if last_date is None:
@@ -55,7 +55,7 @@ class DataService:
                 )
 
             else:
-                asset_id = asset[0]
+                asset_id = asset["id"]
 
             prices = self.collector.fetch_prices(symbol, start_date, end_date)
 

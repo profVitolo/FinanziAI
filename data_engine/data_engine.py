@@ -46,7 +46,7 @@ class DataEngine:
         if asset is None:
             return None
 
-        asset_id = asset[0]
+        asset_id = asset["id"]
 
         return self.asset_data_manager.get_prices(asset_id, start_date, end_date)
 
@@ -68,18 +68,18 @@ class DataEngine:
         }
 
     def _build_asset_result(self, asset, prices, indicators, analysis):
-        first_date = prices[0][0]
-        last_date = prices[-1][0]
-        last_close = prices[-1][4]
+        first_date = prices[0]["date"]
+        last_date = prices[-1]["date"]
+        last_close = prices[-1]["close"]
 
         return {
              "asset": {
-                "id": asset[0],
-                "symbol": asset[1],
-                "name": asset[2],
-                "type": asset[3],
-                "currency": asset[4],
-                "exchange": asset[5]
+                "id": asset["id"],
+                "symbol": asset["symbol"],
+                "name": asset["name"],
+                "type": asset["type"],
+                "currency": asset["currency"],
+                "exchange": asset["exchange"]
             },
             "period": {
                 "start": first_date,

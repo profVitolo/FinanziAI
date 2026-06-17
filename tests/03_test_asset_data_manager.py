@@ -17,7 +17,7 @@ asset = adm.get_asset_by_symbol("AAPL")
 print("AAPL:", dict(asset))
 
 if asset:
-    asset_id = asset[0]
+    asset_id = asset["id"]
 
     asset_by_id = adm.get_asset_by_id(asset_id)
     print("Asset by id:", dict(asset_by_id))
