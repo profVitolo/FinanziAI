@@ -1,5 +1,5 @@
 import yfinance as yf
-
+from datetime import datetime, timedelta
 
 class YahooCollector:
 
@@ -38,14 +38,21 @@ class YahooCollector:
 
         return prices
         
-    def fetch_exchange_rate(self, from_currency, to_currency):
+    def fetch_exchange_rate(self, from_currency, to_currency, rate_date=None):
         if from_currency == to_currency:
             return 1.0
-
+  
         symbol = f"{from_currency.upper()}{to_currency.upper()}=X"
 
         ticker = yf.Ticker(symbol)
-        data = ticker.history(period="1d")
+        
+        if rate_date is None:
+            data = ticker.history(period="1d")
+        else:
+            start = rate_date
+            end = (datetime.strptime(rate_date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+
+            data = ticker.history(start=start, end=end)
 
         if data.empty:
             return None
