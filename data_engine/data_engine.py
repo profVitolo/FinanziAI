@@ -1,10 +1,14 @@
 from data_manager.asset_data_manager import AssetDataManager
 from data_manager.portfolio_data_manager import PortfolioDataManager
+from data_manager.exchange_data_manager import ExchangeDataManager
 from database.database_manager import DatabaseManager
 
 from data_engine.indicators import Indicators
 from data_engine.market_analysis import MarketAnalysis
 from data_engine.portfolio_analysis import PortfolioAnalysis
+
+from data_collector.exchanger import Exchanger
+
 
 ## un solo DataManager → chiudo il DataManager; 
 ## più DataManager condivisi → chiudo il DatabaseManager (self.database)
@@ -16,6 +20,9 @@ class DataEngine:
         self.asset_data_manager = AssetDataManager(self.database)
         self.portfolio_data_manager = PortfolioDataManager(self.database)
         self.portfolio_analysis = PortfolioAnalysis()
+        
+        exchange_data_manager = ExchangeDataManager(self.database)
+        self.exchanger = Exchanger(exchange_data_manager)
         
     def analyze_asset(self, symbol, start_date=None, end_date=None):
         try:
@@ -120,6 +127,7 @@ class DataEngine:
                 continue
 
             symbol = asset["symbol"]
+            currency = asset["currency"]
 
             prices = self.asset_data_manager.get_prices(asset_id)
 
@@ -130,15 +138,17 @@ class DataEngine:
 
             market_value = (self.portfolio_analysis.calculate_position_value(quantity, market_price))
             performance = (self.portfolio_analysis.calculate_performance(quantity, avg_price, market_price))
-
+            market_value_base = self.exchanger.convert(market_value, currency)
+            
             result.append({
                 "asset_id": asset_id,
                 "symbol": symbol,
                 "quantity": quantity,
-                "currency": asset["currency"],
+                "currency": currency,
                 "avg_price": avg_price,
                 "market_price": market_price,
                 "market_value": market_value,
+                "market_value_base": market_value_base,
                 "performance": performance
             })
 
