@@ -17,11 +17,13 @@ print(pa.calculate_performance(quantity=10, avg_price=100, market_price=120))
 positions = [
     {
         "symbol": "AAPL",
-        "market_value": 1200
+        "market_value": 1200,
+        "market_value_base": 1200
     },
     {
         "symbol": "MSFT",
-        "market_value": 800
+        "market_value": 800,
+        "market_value_base": 800
     }
 ]
 
