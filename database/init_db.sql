@@ -21,11 +21,11 @@ CREATE TABLE IF NOT EXISTS prices (
 );
 
 CREATE TABLE IF NOT EXISTS exchange_rates (
-    base_currency TEXT NOT NULL,
-    quote_currency TEXT NOT NULL,
+    from_currency TEXT NOT NULL,
+    to_currency TEXT NOT NULL,
+	rate REAL NOT NULL,
     rate_date TEXT NOT NULL,
-    rate REAL NOT NULL,
-    PRIMARY KEY (base_currency, quote_currency, rate_date)
+    PRIMARY KEY (from_currency, to_currency, rate_date)
 );
 
 CREATE TABLE IF NOT EXISTS indicators (
