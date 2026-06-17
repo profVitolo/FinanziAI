@@ -60,8 +60,8 @@ def add_to_watchlist(symbol: str):
     if asset is None:
         raise HTTPException(status_code=404, detail="Asset not found")
 
-    portfolio_service.add_to_watchlist(asset[0])
-
+    portfolio_service.add_to_watchlist(asset["id"])
+    
     return {
         "status": "success",
         "symbol": symbol.upper()
