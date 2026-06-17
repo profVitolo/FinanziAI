@@ -20,6 +20,14 @@ CREATE TABLE IF NOT EXISTS prices (
     FOREIGN KEY (asset_id) REFERENCES assets(id)
 );
 
+CREATE TABLE exchange_rates (
+    base_currency TEXT NOT NULL,
+    quote_currency TEXT NOT NULL,
+    rate_date TEXT NOT NULL,
+    rate REAL NOT NULL,
+    PRIMARY KEY (base_currency, quote_currency, rate_date)
+);
+
 CREATE TABLE IF NOT EXISTS indicators (
     asset_id INTEGER NOT NULL,
     date TEXT NOT NULL,
