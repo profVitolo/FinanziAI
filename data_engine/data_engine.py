@@ -119,14 +119,14 @@ class DataEngine:
             if not asset:
                 continue
 
-            symbol = asset[1]
+            symbol = asset["symbol"]
 
             prices = self.asset_data_manager.get_prices(asset_id)
 
             if not prices:
                 continue
 
-            market_price = prices[-1][4]
+            market_price = prices[-1]["close"]
 
             market_value = (self.portfolio_analysis.calculate_position_value(quantity, market_price))
             performance = (self.portfolio_analysis.calculate_performance(quantity, avg_price, market_price))
@@ -135,6 +135,7 @@ class DataEngine:
                 "asset_id": asset_id,
                 "symbol": symbol,
                 "quantity": quantity,
+                "currency": asset["currency"],
                 "avg_price": avg_price,
                 "market_price": market_price,
                 "market_value": market_value,
