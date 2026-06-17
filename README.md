@@ -517,7 +517,8 @@ ottenere una prima applicazione utilizzabile da browser.
   - ~modifica~
   - ~eliminazione~
   - ~filtro per asset e intervallo temporale~
-- Introduzione pagina `transactions.html`
+- ~Introduzione pagina `transactions.html`~
+- Versione 0.1.1 con currency support
 - Gestione avanzata dello storico prezzi:
   - visualizzazione dati disponibili
   - individuazione e recupero di periodi mancanti
