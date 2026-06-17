@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS prices (
     FOREIGN KEY (asset_id) REFERENCES assets(id)
 );
 
-CREATE TABLE exchange_rates (
+CREATE TABLE IF NOT EXISTS exchange_rates (
     base_currency TEXT NOT NULL,
     quote_currency TEXT NOT NULL,
     rate_date TEXT NOT NULL,
