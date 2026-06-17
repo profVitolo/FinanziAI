@@ -60,7 +60,7 @@ if __name__ == "__main__":
     position = pdm.get_position(asset_id)
 
     if position is not None:
-        remaining_quantity = position[2]
+        remaining_quantity = position["quantity"]
 
         service.register_transaction(
             asset_id=asset_id,
@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
         service.delete_transaction(transaction_id)
 
-        print(tdm.get_transaction(transaction_id))
+        print("Is still there an id for deleted trans?: ", tdm.get_transaction(transaction_id))
         
         print("\n=== POSITION AFTER DELETE ===\n")
 

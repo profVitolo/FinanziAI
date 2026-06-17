@@ -82,7 +82,7 @@ class DataService:
             if asset is None:
                 continue
 
-            symbol = asset[1]
+            symbol = asset["symbol"]
 
             try:
                 result = self.update_asset(symbol)

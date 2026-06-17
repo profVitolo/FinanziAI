@@ -110,9 +110,9 @@ class DataEngine:
         result = []
 
         for position in positions:
-            asset_id = position[1]
-            quantity = position[2]
-            avg_price = position[3]
+            asset_id = position["asset_id"]
+            quantity = position["quantity"]
+            avg_price = position["avg_price"]
 
             asset = self.asset_data_manager.get_asset_by_id(asset_id)
 
