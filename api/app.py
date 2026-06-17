@@ -11,7 +11,7 @@ from api.routes.transaction import router as transaction_router
 app = FastAPI(
     title="FinanziAI",
     description="AI-Assisted Investment Analysis",
-    version="0.1.0"
+    version="0.1.1"
 )
 
 app.include_router(assets_router)
