@@ -7,7 +7,7 @@ class PortfolioAnalysis:
         total_value = 0
 
         for position in positions:
-            total_value += position["market_value"]
+            total_value += position["market_value_base"]
 
         return total_value
 
@@ -25,7 +25,7 @@ class PortfolioAnalysis:
         for position in positions:
             symbol = position["symbol"]
 
-            exposure[symbol] = self.calculate_asset_weight(position["market_value"], portfolio_value)
+            exposure[symbol] = self.calculate_asset_weight(position["market_value_base"], portfolio_value)
 
         return exposure
 
@@ -59,7 +59,7 @@ class PortfolioAnalysis:
         largest_weight = 0
 
         for position in positions:
-            weight = self.calculate_asset_weight(position["market_value"], portfolio_value)
+            weight = self.calculate_asset_weight(position["market_value_base"], portfolio_value)
 
             largest_weight = max(largest_weight, weight)
 
