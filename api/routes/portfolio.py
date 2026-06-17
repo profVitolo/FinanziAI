@@ -2,21 +2,19 @@ from datetime import datetime, date
 from fastapi import APIRouter, HTTPException, Body, Depends
 
 from data_engine.data_engine import DataEngine
-from data_manager.portfolio_data_manager import PortfolioDataManager
-from data_manager.asset_data_manager import AssetDataManager
+from services.data_service import DataService
 from services.portfolio_service import PortfolioService
 from api.schemas import TransactionCreate
 
 router = APIRouter(prefix="/portfolio", tags=["Portfolio"])
 
 data_engine = DataEngine()
-portfolio_data_manager = PortfolioDataManager()
-asset_data_manager = AssetDataManager()
+data_service = DataService()
 portfolio_service = PortfolioService()
 
 @router.get("/")
 def get_portfolio():
-    positions = (portfolio_data_manager.get_all_positions())
+    positions = (portfolio_service.get_all_positions())
 
     return positions
 	
@@ -31,14 +29,14 @@ def analyze_portfolio():
 
 @router.get("/watchlist")
 def get_watchlist():
-    watchlist = (portfolio_data_manager.get_watchlist())
+    watchlist = (portfolio_service.get_watchlist())
 
     result = []
 
     for item in watchlist:
         asset_id = item[1]
 
-        asset = (asset_data_manager.get_asset_by_id(asset_id))
+        asset = (data_service.get_asset_by_id(asset_id))
 
         if asset is None:
             continue
@@ -57,12 +55,12 @@ def get_watchlist():
     
 @router.post("/watchlist/{symbol}")
 def add_to_watchlist(symbol: str):
-    asset = (asset_data_manager.get_asset_by_symbol(symbol.upper()))
+    asset = (data_service.get_asset_by_symbol(symbol.upper()))
 
     if asset is None:
         raise HTTPException(status_code=404, detail="Asset not found")
 
-    portfolio_data_manager.add_to_watchlist(asset[0])
+    portfolio_service.add_to_watchlist(asset[0])
 
     return {
         "status": "success",
@@ -71,12 +69,12 @@ def add_to_watchlist(symbol: str):
     
 @router.delete("/watchlist/{symbol}")
 def remove_from_watchlist(symbol: str):
-    asset = (asset_data_manager.get_asset_by_symbol(symbol.upper()))
+    asset = (data_service.get_asset_by_symbol(symbol.upper()))
 
     if asset is None:
         raise HTTPException(status_code=404, detail="Asset not found")
 
-    portfolio_data_manager.remove_from_watchlist(asset[0])
+    portfolio_service.remove_from_watchlist(asset[0])
 
     return {
         "status": "success",
