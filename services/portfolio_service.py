@@ -215,12 +215,20 @@ class PortfolioService:
             
     def remove_from_watchlist(self, asset_id):
         try:
-            return self.portfolio_data_manager.remove_from_watchlist(asset_id)
+            self.portfolio_data_manager.remove_from_watchlist(asset_id)
+            self.portfolio_data_manager.commit()
+        except Exception:
+            self.transaction_data_manager.rollback()
+            raise
         finally:
             self.portfolio_data_manager.close()
             
     def add_to_watchlist(self, asset_id):
         try:
-            return self.portfolio_data_manager.add_to_watchlist(asset_id)
+            self.portfolio_data_manager.add_to_watchlist(asset_id)
+            self.portfolio_data_manager.commit()
+        except Exception:
+            self.transaction_data_manager.rollback()
+            raise
         finally:
             self.portfolio_data_manager.close()
