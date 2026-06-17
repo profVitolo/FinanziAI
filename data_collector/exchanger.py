@@ -3,9 +3,10 @@ from datetime import date
 from data_collector.yahoo_collector import YahooCollector
 from data_manager.exchange_data_manager import ExchangeDataManager
 
+from config import BASE_CURRENCY
 
 class Exchanger:
-    def __init__(self, exchange_data_manager, base_currency="EUR"):
+    def __init__(self, exchange_data_manager, base_currency=BASE_CURRENCY):
         self.exchange_data_manager = exchange_data_manager
         self.collector = YahooCollector()
         self.base_currency = base_currency.upper()
