@@ -42,6 +42,15 @@ async function addToWatchlist(symbol)
     alert(`${symbol} aggiunto alla watchlist`);
 }
 
+async function removeFromWatchlist(symbol) 
+{
+    const response = await fetch(`${API_BASE}/portfolio/watchlist/${symbol}`, {method: "DELETE"});
+
+    if (!response.ok) throw new Error("Errore rimozione dalla watchlist");
+
+    alert(`${symbol} rimosso dalla watchlist`);
+}
+
 function renderAnalysis(data) 
 {
 	document.getElementById("asset-symbol").textContent = data.asset.symbol;
@@ -89,9 +98,14 @@ async function init()
                 }
             );
 
-        document.getElementById("watchlist-btn").addEventListener(
+        document.getElementById("watchlist-add-btn").addEventListener(
                 "click",
                 () => addToWatchlist(symbol)
+            );
+			
+		document.getElementById("watchlist-del-btn").addEventListener(
+                "click",
+                () => removeFromWatchlist(symbol)
             );
     } 
 	catch (error) 

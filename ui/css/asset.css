@@ -22,3 +22,6 @@ span
 {
     font-weight: bold;
 }
+
+#watchlist-add-btn{background-color:green;}
+#watchlist-del-btn{background-color:#cc2200;}
