@@ -201,3 +201,26 @@ class PortfolioService:
         finally:
             self.portfolio_data_manager.close()
     
+    def get_all_positions(self):
+        try:
+            return self.portfolio_data_manager.get_all_positions()
+        finally:
+            self.portfolio_data_manager.close()
+            
+    def get_watchlist(self):
+        try:
+            return self.portfolio_data_manager.get_watchlist()
+        finally:
+            self.portfolio_data_manager.close()
+            
+    def remove_from_watchlist(self, asset_id):
+        try:
+            return self.portfolio_data_manager.remove_from_watchlist(asset_id)
+        finally:
+            self.portfolio_data_manager.close()
+            
+    def add_to_watchlist(self, asset_id):
+        try:
+            return self.portfolio_data_manager.add_to_watchlist(asset_id)
+        finally:
+            self.portfolio_data_manager.close()

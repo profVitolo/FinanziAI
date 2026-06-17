@@ -103,3 +103,21 @@ class DataService:
                 })
 
         return results
+        
+    def get_all_assets(self):
+        try:
+            return self.asset_data_manager.get_all_assets()
+        finally:
+            self.asset_data_manager.close()
+
+    def get_asset_by_symbol(self, symbol):
+        try:
+            return self.asset_data_manager.get_asset_by_symbol(symbol)
+        finally:
+            self.asset_data_manager.close()
+            
+    def get_asset_by_id(self, asset_id):
+        try:
+            return self.asset_data_manager.get_asset_by_id(asset_id)
+        finally:
+            self.asset_data_manager.close()    
