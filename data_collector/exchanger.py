@@ -23,41 +23,35 @@ class Exchanger:
         if rate_date is None:
             rate_date = date.today().isoformat()
 
-        existing = self.exchange_data_manager.get_latest_rate_before(from_currency, self.base_currency, rate_date)
+        existing = self.exchange_data_manager.get_rate(from_currency, self.base_currency, rate_date)
 
         if existing:
-            return
+            return True
         
         rate = self.collector.fetch_exchange_rate(from_currency, self.base_currency, rate_date)
         
         if rate is None:
-            raise ValueError(
-                f"Exchange rate not available: " 
-                f"{from_currency}/{self.base_currency} ({rate_date})"
-            )
+            return False
 
         self.exchange_data_manager.save_rate(from_currency, self.base_currency, rate, rate_date)
+        return True
 
-    def get_latest_rate(self, from_currency):
+    def get_rate(self, from_currency, rate_date=None):
         from_currency = from_currency.upper()
 
         if from_currency == self.base_currency:
             return 1.0
+        
+        self.update_rate(from_currency, rate_date)
+        rate = self.exchange_data_manager.get_latest_rate_before(from_currency, self.base_currency, rate_date)
+        
+        return rate["rate"] if rate else None
 
-        rate = self.exchange_data_manager.get_latest_rate(from_currency, self.base_currency)
-
-        if rate is None:
-            self.update_rate(from_currency)
-
-            rate = self.exchange_data_manager.get_latest_rate(from_currency, self.base_currency)
-
-        return rate["rate"]
-
-    def convert(self, amount, from_currency):
-        rate = self.get_latest_rate(from_currency.upper())
+    def convert(self, amount, from_currency, date=None):
+        rate = self.get_rate(from_currency.upper(), date)
 
         if rate is None:
-            raise ValueError(f"Exchange rate not available: {from_currency}")
+            raise ValueError(f"Exchange rate on {date} not available: {from_currency}")
         
         return amount * rate
         

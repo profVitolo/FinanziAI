@@ -22,6 +22,28 @@ class ExchangeDataManager:
             (from_currency.upper(), to_currency.upper(), rate_date, rate)
         )
 
+    def get_rate(self, from_currency, to_currency, rate_date):
+        conn = self._connect()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            SELECT
+                from_currency,
+                to_currency,
+                rate_date,
+                rate
+            FROM exchange_rates
+            WHERE from_currency = ?
+              AND to_currency = ?
+              AND rate_date = ?
+            """,
+            (from_currency, to_currency, rate_date)
+        )
+
+        result = cursor.fetchone()
+        return dict(result) if result else None
+        
     def get_latest_rate_before(self, from_currency, to_currency, rate_date=None):
         conn = self._connect()
         cursor = conn.cursor()

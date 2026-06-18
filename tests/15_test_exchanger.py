@@ -22,8 +22,8 @@ try:
     exchanger.update_rate("USD")
     exchanger.update_rate("GBP")
 
-    print_value("USD LATEST RATE", exchanger.get_latest_rate("USD"))
-    print_value("GBP LATEST RATE", exchanger.get_latest_rate("GBP"))
+    print_value("USD LATEST RATE", exchanger.get_rate("USD"))
+    print_value("GBP LATEST RATE", exchanger.get_rate("GBP"))
 
     print_value("100 USD IN EUR", exchanger.convert(100, "USD"))
     print_value("100 GBP IN EUR", exchanger.convert(100, "GBP"))
