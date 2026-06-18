@@ -1,4 +1,6 @@
 const API_BASE = "http://127.0.0.1:8000";
+let portfolioPositions = [];
+let filteredPositions = [];
 
 async function loadPortfolioAnalysis()
 {
@@ -10,6 +12,7 @@ async function loadPortfolioAnalysis()
             portfolio_value: 0,
             positions: [],
             exposure: {},
+			base_currency: "",
             risk: null
         };
     }
@@ -17,12 +20,35 @@ async function loadPortfolioAnalysis()
     if (!response.ok)
         throw new Error("Errore caricamento portfolio");
 
-    return await response.json();
+	const data = await response.json();
+
+    portfolioPositions = data.positions;
+    filteredPositions = portfolioPositions;
+
+    return data;
+}
+
+function handlePortfolioFilter()
+{
+    const symbol = document.getElementById("portfolio-filter-symbol").value.trim().toUpperCase();
+
+    if (!symbol)
+    {
+        filteredPositions = portfolioPositions;
+    }
+    else
+    {
+        filteredPositions = portfolioPositions.filter(position => position.symbol.toUpperCase().includes(symbol));
+    }
+
+    renderPositions(filteredPositions);
 }
 
 function renderSummary(data) 
 {
-    document.getElementById("portfolio-value").textContent = data.portfolio_value.toFixed(2) ?? "-";
+    document.getElementById("portfolio-value").textContent = data.base_currency ?? "";
+    document.getElementById("portfolio-value").textContent += data.base_currency ? " ": "";
+    document.getElementById("portfolio-value").textContent += data.portfolio_value.toFixed(2) ?? "-";
     document.getElementById("risk-level").textContent = data.risk?.concentration_level 
         ? `${data.risk.concentration_level} (${data.risk.largest_position_weight.toFixed(2)}%)`
         : "-";
@@ -38,13 +64,13 @@ function renderSummary(data)
     document.getElementById("largest-position").textContent = largestPosition;
 }
 
-function renderPositions(data) 
+function renderPositions(positions) 
 {
     const table = document.getElementById("positions-table");
 
     table.innerHTML = "";
 
-    for (const position of data.positions) 
+    for (const position of positions) 
 	{
         const row =  document.createElement("tr");
 
@@ -83,7 +109,7 @@ function renderExposure(data)
 function renderPortfolio(data) 
 {
 	renderSummary(data);
-	renderPositions(data);
+	renderPositions(filteredPositions);
 	renderExposure(data);
 }
 
