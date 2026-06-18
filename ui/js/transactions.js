@@ -2,7 +2,7 @@
  * STATE
  * ========================================================== */
 let assetsMap = {};
-
+let base_currency = "";
 
 /* ==========================================================
  * API
@@ -130,7 +130,7 @@ function renderTransactions(transactions)
 
             <td>${transaction.type}</td>
 
-            <td>${transaction.quantity}</td>
+            <td>${parseFloat(transaction.quantity.toFixed(6))}</td>
 
             <td>${Number(transaction.price).toFixed(2)}</td>
 
@@ -176,6 +176,14 @@ function attachActionHandlers()
         );
 }
 
+function renderCurrencyLabels(baseCurrency)
+{
+	const txt = ` (${baseCurrency})`;
+    document.getElementById("th-price").textContent += txt;
+    document.getElementById("th-fees").textContent += txt;
+    document.getElementById("price").placeholder += txt;
+    document.getElementById("fees").placeholder += txt;
+}
 
 /* ==========================================================
  * EDIT MODAL
@@ -332,9 +340,10 @@ async function handleDelete(event)
 async function refreshTransactions()
 {
     const filters = getFiltersFromQueryString();
-    const transactions = await loadTransactions(filters);
+    const data = await loadTransactions(filters);
+	base_currency = data.base_currency;
 	
-    renderTransactions(transactions);
+    renderTransactions(data.transactions);
 }
 
 
@@ -489,11 +498,11 @@ async function init()
 	
 	initializeTransactionDate();
 
-	
     try
     {
         assetsMap = await loadAssetsMap();
         await refreshTransactions();
+		renderCurrencyLabels(base_currency); 
     }
     catch (error)
     {

@@ -1,6 +1,7 @@
 const API_BASE = "http://127.0.0.1:8000";
 let portfolioPositions = [];
 let filteredPositions = [];
+let base_currency = "";
 
 async function loadPortfolioAnalysis()
 {
@@ -21,7 +22,8 @@ async function loadPortfolioAnalysis()
         throw new Error("Errore caricamento portfolio");
 
 	const data = await response.json();
-
+	
+	base_currency = data.base_currency;
     portfolioPositions = data.positions;
     filteredPositions = portfolioPositions;
 
@@ -80,9 +82,9 @@ function renderPositions(positions)
 					${position.symbol}
 				</a>
 			</td>
-            <td>${position.quantity.toFixed(6)}</td>
-            <td>${position.avg_price.toFixed(2)}</td>
-            <td>${position.market_price.toFixed(2)}</td>
+            <td>${parseFloat(position.quantity.toFixed(6))}</td>
+            <td>${base_currency} ${position.avg_price.toFixed(2)}</td>
+            <td>${position.currency} ${position.market_price.toFixed(2)}</td>
             <td>
 				${position.performance.pnl.toFixed(2)}  (${position.performance.pnl_percent.toFixed(2)}%)
 			</td>
