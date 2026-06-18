@@ -44,7 +44,7 @@
             </select>
             <input type="number" id="quantity" placeholder="Quantità" step="0.000001" required>
             <input type="number" id="price" placeholder="Prezzo" step="0.01" required>
-            <input type="number" id="fees" placeholder="Commissioni" step="0.01" value="0" required>
+            <input type="number" id="fees" placeholder="Commissioni" step="0.01" required>
 			<input type="date" id="transaction-date" required>
             <button type="submit" id="save-button">Registra</button>
         </form>
@@ -73,8 +73,8 @@
                     <th>Asset</th>
                     <th>Operazione</th>
                     <th>Quantità</th>
-                    <th>Prezzo</th>
-                    <th>Commissioni</th>
+                    <th id="th-price">Prezzo</th>
+                    <th id="th-fees">Commissioni</th>
                     <th>Azioni</th>
                 </tr>
             </thead>
