@@ -24,7 +24,7 @@ function renderSummary(data)
 {
     document.getElementById("portfolio-value").textContent = data.portfolio_value.toFixed(2) ?? "-";
     document.getElementById("risk-level").textContent = data.risk?.concentration_level 
-        ? `${data.risk.concentration_level} (${data.risk.largest_position_weight}%)`
+        ? `${data.risk.concentration_level} (${data.risk.largest_position_weight.toFixed(2)}%)`
         : "-";
 
     let largestPosition = "-";
