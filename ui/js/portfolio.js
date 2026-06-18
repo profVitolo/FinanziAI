@@ -80,7 +80,7 @@ function renderPositions(positions)
 					${position.symbol}
 				</a>
 			</td>
-            <td>${position.quantity}</td>
+            <td>${position.quantity.toFixed(6)}</td>
             <td>${position.avg_price.toFixed(2)}</td>
             <td>${position.market_price.toFixed(2)}</td>
             <td>
