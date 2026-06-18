@@ -341,12 +341,11 @@ async function refreshTransactions()
 /* ==========================================================
  * FILTERS
  * ========================================================== */
- 
-function buildFiltersFromForm()
+ async function handleFilters()
 {
     const filters = {};
 
-    const symbol = document.getElementById("filter-symbol").value.trim();
+    const symbol = document.getElementById("filter-symbol").value.trim().toUpperCase();
     const startDate = document.getElementById("filter-start-date").value;
     const endDate = document.getElementById("filter-end-date").value;
 
@@ -364,40 +363,21 @@ function buildFiltersFromForm()
     if (endDate)
         filters.end_date = endDate;
 
-    return filters;
-}
-
-async function handleFilters(event)
-{
-    event.preventDefault();
-
-    const filters = buildFiltersFromForm();
-
     const params = new URLSearchParams(filters);
 
-    window.history.replaceState(
-        {},
-        "",
-        `transactions.html?${params.toString()}`
-    );
+    window.history.replaceState({}, "", `transactions.html?${params.toString()}`);
 
     await refreshTransactions();
 }
 
-async function handleResetFilters()
+async function resetFilters()
 {
-    window.history.replaceState(
-        {},
-        "",
-        "transactions.html"
-    );
+    document.getElementById("filter-symbol").value = "";
+    document.getElementById("filter-start-date").value = "";
+    document.getElementById("filter-end-date").value = "";
 
-    document.getElementById("filter-form").reset();
-
-    await refreshTransactions();
+    await handleFilters();
 }
-
-
 /* ==========================================================
  * TRANSACTION FORM
  * ========================================================== */
@@ -521,40 +501,16 @@ async function init()
         alert("Errore caricamento transazioni");
     }
 	
-	document.getElementById("filter-form").addEventListener("submit", handleFilters);
-	document.getElementById("reset-filters").addEventListener("click", handleResetFilters);
 	document.getElementById("transaction-form").addEventListener("submit", handleTransaction);
+	document.getElementById("edit-transaction-form").addEventListener("submit", handleEditSubmit);
+	document.getElementById("close-modal").addEventListener("click", closeEditModal);
+	document.getElementById("cancel-edit").addEventListener("click", closeEditModal);
 	
-	document
-		.getElementById("edit-transaction-form")
-		.addEventListener(
-			"submit",
-			handleEditSubmit
-		);
-
-	document
-		.getElementById("close-modal")
-		.addEventListener(
-			"click",
-			closeEditModal
-		);
-
-	document
-		.getElementById("cancel-edit")
-		.addEventListener(
-			"click",
-			closeEditModal
-		);
-	
-	document
-		.getElementById("edit-modal")
-		.addEventListener(
+	document.getElementById("edit-modal").addEventListener(
 			"click",
 			event =>
 			{
-				if (
-					event.target.id === "edit-modal"
-				)
+				if (event.target.id === "edit-modal")
 				{
 					closeEditModal();
 				}

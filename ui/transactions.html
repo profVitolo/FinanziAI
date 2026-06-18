@@ -54,13 +54,10 @@
 	
     <section>
         <h2>Cerca Transazioni</h2>
-        <form id="filter-form">
-            <input type="text" id="filter-symbol" placeholder="AAPL">
-            <input type="date" id="filter-start-date">
-            <input type="date" id="filter-end-date">
-            <button type="submit">Filtra</button>
-            <button type="button" id="reset-filters">Reset</button>
-        </form>
+            <input type="text" id="filter-symbol" placeholder="AAPL"  oninput="handleFilters()">
+            <input type="date" id="filter-start-date"  onchange="handleFilters()">
+            <input type="date" id="filter-end-date"  onchange="handleFilters()">
+			<button onclick="resetFilters()">Reset</button>
     </section>
 
     <hr>
