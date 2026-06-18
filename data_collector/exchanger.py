@@ -27,7 +27,9 @@ class Exchanger:
 
         if existing:
             return
-
+        
+        rate = self.collector.fetch_exchange_rate(from_currency, self.base_currency, rate_date)
+        
         if rate is None:
             raise ValueError(
                 f"Exchange rate not available: " 
