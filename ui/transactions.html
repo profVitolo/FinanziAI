@@ -93,14 +93,7 @@
 
         <div class="modal-header">
             <h2>Modifica Transazione</h2>
-            <button
-                type="button"
-                id="close-modal"
-                class="modal-close"
-                title="Chiudi"
-            >
-                ✖
-            </button>
+            <button type="button" id="close-modal" class="modal-close" title="Chiudi">✖</button>
         </div>
 
         <form id="edit-transaction-form">
@@ -108,13 +101,8 @@
             <input type="hidden" id="edit-transaction-id">
             <input type="hidden" id="edit-asset-id">
 
-            <label>
-                Simbolo
-                <input
-                    type="text"
-                    id="edit-symbol"
-                    readonly
-                >
+            <label>Simbolo
+                <input type="text" id="edit-symbol" readonly>
             </label>
 
             <label>
@@ -127,58 +115,28 @@
 
             <label>
                 Quantità
-                <input
-                    type="number"
-                    id="edit-quantity"
-                    step="0.000001"
-                    required
-                >
+                <input type="number" id="edit-quantity" step="0.000001" required >
             </label>
 
             <label>
                 Prezzo
-                <input
-                    type="number"
-                    id="edit-price"
-                    step="0.01"
-                    required
-                >
+                <input type="number" id="edit-price" step="0.01" required>
             </label>
 
             <label>
                 Commissioni
-                <input
-                    type="number"
-                    id="edit-fees"
-                    step="0.01"
-                    required
-                >
+                <input type="number" id="edit-fees" step="0.01" required>
             </label>
 
             <label>
                 Data
-                <input
-                    type="date"
-                    id="edit-transaction-date"
-                    required
-                >
+                <input type="date" id="edit-transaction-date" required>
             </label>
 
             <div class="modal-actions">
-                <button
-                    type="button"
-                    id="cancel-edit"
-                >
-                    Annulla
-                </button>
-
-                <button
-                    type="submit"
-                >
-                    Salva
-                </button>
+                <button type="button" id="cancel-edit">Annulla</button>
+                <button type="submit">Salva</button>
             </div>
-
         </form>
 
     </div>
