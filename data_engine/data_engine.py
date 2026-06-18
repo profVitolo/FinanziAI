@@ -160,6 +160,7 @@ class DataEngine:
         risk = (self.portfolio_analysis.calculate_risk(positions))
 
         return {
+            "base_currency": self.exchanger.base_currency,
             "portfolio_value": portfolio_value,
             "positions": positions,
             "exposure": exposure,
