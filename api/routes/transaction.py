@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
+from config import BASE_CURRENCY
 
 from services.portfolio_service import PortfolioService
 from services.transaction_service import TransactionService
@@ -16,11 +17,14 @@ router = APIRouter(
 def get_transactions(filters: TransactionsFilter = Depends()):
     transaction_service = TransactionService()
 
-    return transaction_service.get_transactions(
-        asset_id=filters.asset_id,
-        start_date=filters.start_date,
-        end_date=filters.end_date
-    )
+    return {
+         "transactions": transaction_service.get_transactions(
+            asset_id=filters.asset_id,
+            start_date=filters.start_date,
+            end_date=filters.end_date
+        ),
+        "base_currency": BASE_CURRENCY
+    }
 
 
 @router.get("/{transaction_id}")
