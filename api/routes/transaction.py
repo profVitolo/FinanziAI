@@ -10,12 +10,12 @@ router = APIRouter(
     tags=["Transactions"]
 )
 
-portfolio_service = PortfolioService()
-transaction_service = TransactionService()
 
 
 @router.get("/")
 def get_transactions(filters: TransactionsFilter = Depends()):
+    transaction_service = TransactionService()
+
     return transaction_service.get_transactions(
         asset_id=filters.asset_id,
         start_date=filters.start_date,
@@ -25,6 +25,8 @@ def get_transactions(filters: TransactionsFilter = Depends()):
 
 @router.get("/{transaction_id}")
 def get_transaction(transaction_id: int):
+    transaction_service = TransactionService()
+    
     transaction = transaction_service.get_transaction(transaction_id)
 
     if transaction is None:
@@ -35,6 +37,8 @@ def get_transaction(transaction_id: int):
 
 @router.post("/")
 def create_transaction(payload: TransactionCreate):
+    portfolio_service = PortfolioService()
+    
     try:
         transaction_id = portfolio_service.register_transaction(
             asset_id=payload.asset_id,
@@ -56,6 +60,8 @@ def create_transaction(payload: TransactionCreate):
 
 @router.put("/{transaction_id}")
 def update_transaction(transaction_id: int, payload: TransactionUpdate):
+    portfolio_service = PortfolioService()
+    
     try:
         portfolio_service.update_transaction(
             transaction_id=transaction_id,
@@ -78,6 +84,8 @@ def update_transaction(transaction_id: int, payload: TransactionUpdate):
 
 @router.delete("/{transaction_id}")
 def delete_transaction(transaction_id: int):
+    portfolio_service = PortfolioService()
+    
     try:
         portfolio_service.delete_transaction(transaction_id)
 

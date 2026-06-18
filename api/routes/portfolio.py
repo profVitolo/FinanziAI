@@ -8,18 +8,17 @@ from api.schemas import TransactionCreate
 
 router = APIRouter(prefix="/portfolio", tags=["Portfolio"])
 
-data_engine = DataEngine()
-data_service = DataService()
-portfolio_service = PortfolioService()
 
 @router.get("/")
 def get_portfolio():
+    portfolio_service = PortfolioService()
     positions = (portfolio_service.get_all_positions())
 
     return positions
 	
 @router.get("/analysis")
 def analyze_portfolio():
+    data_engine = DataEngine()
     result = (data_engine.analyze_portfolio())
 
     if result is None:
@@ -29,6 +28,9 @@ def analyze_portfolio():
 
 @router.get("/watchlist")
 def get_watchlist():
+    portfolio_service = PortfolioService()
+    data_service = DataService()
+    
     watchlist = (portfolio_service.get_watchlist())
 
     result = []
@@ -55,6 +57,9 @@ def get_watchlist():
     
 @router.post("/watchlist/{symbol}")
 def add_to_watchlist(symbol: str):
+    data_service = DataService()
+    portfolio_service = PortfolioService()
+    
     asset = (data_service.get_asset_by_symbol(symbol.upper()))
 
     if asset is None:
@@ -69,6 +74,9 @@ def add_to_watchlist(symbol: str):
     
 @router.delete("/watchlist/{symbol}")
 def remove_from_watchlist(symbol: str):
+    data_service = DataService()
+    portfolio_service = PortfolioService()
+    
     asset = (data_service.get_asset_by_symbol(symbol.upper()))
 
     if asset is None:

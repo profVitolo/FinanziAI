@@ -7,12 +7,10 @@ from api.schemas import AssetSync
 
 router = APIRouter(prefix="/assets", tags=["Assets"])
 
-data_service = DataService()
-portfolio_service = PortfolioService()
-
 
 @router.get("/")
 def list_assets():
+    data_service = DataService()
     assets = data_service.get_all_assets()
     
     return [dict(asset) for asset in assets]
@@ -20,6 +18,7 @@ def list_assets():
 
 @router.get("/{symbol}")
 def get_asset(symbol: str):
+    data_service = DataService()
     asset = data_service.get_asset_by_symbol(symbol.upper())
 
     if asset is None:
@@ -30,6 +29,8 @@ def get_asset(symbol: str):
     
 @router.post("/{symbol}/sync")
 def sync_asset(symbol: str, payload: AssetSync):
+    data_service = DataService()
+    
     try:
         result = data_service.sync_asset(
             symbol.upper(), 
@@ -49,6 +50,9 @@ def sync_asset(symbol: str, payload: AssetSync):
  
 @router.put("/sync-tracked")
 def sync_tracked_assets():
+    data_service = DataService()
+    portfolio_service = PortfolioService()
+    
     try:
         tracked_assets = portfolio_service.get_tracked_assets()
         result = data_service.sync_assets(tracked_assets)

@@ -1,9 +1,6 @@
 from fastapi import APIRouter, Request
 
-router = APIRouter(
-    prefix="/info",
-    tags=["Info"]
-)
+router = APIRouter(prefix="/info", tags=["Info"])
 
 @router.get("")
 def get_info(request: Request):
