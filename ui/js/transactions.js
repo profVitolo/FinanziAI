@@ -2,7 +2,6 @@
  * STATE
  * ========================================================== */
 let assetsMap = {};
-let base_currency = "";
 
 /* ==========================================================
  * API
@@ -339,11 +338,10 @@ async function handleDelete(event)
  
 async function refreshTransactions()
 {
-    const filters = getFiltersFromQueryString();
+    const filters = getQueryParams();
     const data = await loadTransactions(filters);
-	base_currency = data.base_currency;
 	
-    renderTransactions(data.transactions);
+    renderTransactions(data);
 }
 
 
@@ -374,8 +372,8 @@ async function refreshTransactions()
 
     const params = new URLSearchParams(filters);
 
-    window.history.replaceState({}, "", `transactions.html?${params.toString()}`);
-
+    //window.history.replaceState({}, "", `transactions.html?${params.toString()}`);
+    updateQueryParams(filters);
     await refreshTransactions();
 }
 
@@ -499,10 +497,11 @@ async function init()
 	initializeTransactionDate();
 
     try
-    {
+    {	
+		await loadAppInfo();
         assetsMap = await loadAssetsMap();
         await refreshTransactions();
-		renderCurrencyLabels(base_currency); 
+		renderCurrencyLabels(appInfo.base_currency); 
     }
     catch (error)
     {

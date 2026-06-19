@@ -1,7 +1,6 @@
-const API_BASE = "http://127.0.0.1:8000";
+
 let portfolioPositions = [];
 let filteredPositions = [];
-let base_currency = "";
 
 async function loadPortfolioAnalysis()
 {
@@ -23,7 +22,6 @@ async function loadPortfolioAnalysis()
 
 	const data = await response.json();
 	
-	base_currency = data.base_currency;
     portfolioPositions = data.positions;
     filteredPositions = portfolioPositions;
 
@@ -48,8 +46,8 @@ function handlePortfolioFilter()
 
 function renderSummary(data) 
 {
-    document.getElementById("portfolio-value").textContent = data.base_currency ?? "";
-    document.getElementById("portfolio-value").textContent += data.base_currency ? " ": "";
+    document.getElementById("portfolio-value").textContent = appInfo.base_currency ?? "";
+    document.getElementById("portfolio-value").textContent += appInfo.base_currency ? " ": "";
     document.getElementById("portfolio-value").textContent += data.portfolio_value.toFixed(2) ?? "-";
     document.getElementById("risk-level").textContent = data.risk?.concentration_level 
         ? `${data.risk.concentration_level} (${data.risk.largest_position_weight.toFixed(2)}%)`
@@ -83,7 +81,7 @@ function renderPositions(positions)
 				</a>
 			</td>
             <td>${parseFloat(position.quantity.toFixed(6))}</td>
-            <td>${base_currency} ${position.avg_price.toFixed(2)}</td>
+            <td>${appInfo.base_currency} ${position.avg_price.toFixed(2)}</td>
             <td>${position.currency} ${position.market_price.toFixed(2)}</td>
             <td>
 				${position.performance.pnl.toFixed(2)}  (${position.performance.pnl_percent.toFixed(2)}%)
@@ -126,6 +124,7 @@ async function init()
 	
     try 
 	{
+		await loadAppInfo();
         await refreshPortfolio();
     }
     catch (error) 

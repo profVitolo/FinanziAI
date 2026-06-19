@@ -1,4 +1,3 @@
-const API_BASE = "http://127.0.0.1:8000";
 
 async function loadWatchlist() 
 {
@@ -51,17 +50,13 @@ function setupSearch()
 
 async function checkHealth()
 {
-    const statusElement = document.getElementById("api-status");
+    const statusElement =
+        document.getElementById("api-status");
 
     try
     {
-        const response = await fetch(`${API_BASE}/info`);
-
-        if (!response.ok)
-            throw new Error();
-
-        const data = await response.json();
-        statusElement.textContent = `${data.application} v${data.version}`;
+        await loadAppInfo();
+        statusElement.textContent =  `${appInfo.application} v${appInfo.version}`;
     }
     catch
     {
@@ -80,8 +75,8 @@ async function loadPortfolioSummary()
 
         const data = await response.json();
 
-        document.getElementById("portfolio-value").textContent = data.base_currency ?? "";
-        document.getElementById("portfolio-value").textContent += data.base_currency ? " " : "";
+        document.getElementById("portfolio-value").textContent = appInfo.base_currency ?? "";
+        document.getElementById("portfolio-value").textContent += app_info.base_currency ? " " : "";
         document.getElementById("portfolio-value").textContent += data.portfolio_value.toFixed(2) ?? "-";
 
         document.getElementById("positions-count").textContent = data.positions?.length ?? 0;

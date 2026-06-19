@@ -1,4 +1,5 @@
 const API_BASE = "http://127.0.0.1:8000";
+let appInfo = null;
 
 async function loadAssetsMap()
 {
@@ -19,13 +20,42 @@ async function loadAssetsMap()
     return assetsMap;
 }
 
-function getFiltersFromQueryString()
+function getQueryParams()
 {
     const params = new URLSearchParams(window.location.search);
+    const result = {};
 
-    return {
-        asset_id: params.get("asset_id"),
-        start_date: params.get("start_date"),
-        end_date: params.get("end_date")
-    };
+    for (const [key, value] of params.entries())
+        result[key] = value;
+
+    return result;
 }
+
+function updateQueryParams(params)
+{
+    const searchParams = new URLSearchParams();
+
+    for (const [key, value] of Object.entries(params))
+    {
+        if (value !== null && value !== undefined && value !== "")
+            searchParams.set(key, value);
+    }
+
+    window.history.replaceState({}, "", `${window.location.pathname}?${searchParams.toString()}`);
+}
+
+async function loadAppInfo()
+{
+    if (appInfo)
+        return appInfo;
+
+    const response = await fetch(`${API_BASE}/info`);
+
+    if (!response.ok)
+        throw new Error("Errore caricamento configurazione");
+
+    appInfo = await response.json();
+
+    return appInfo;
+}
+
