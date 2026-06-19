@@ -2,6 +2,7 @@ from datetime import date, timedelta
 
 from data_collector.yahoo_collector import YahooCollector
 from data_manager.exchange_data_manager import ExchangeDataManager
+from database.database_manager import DatabaseManager
 
 from config import BASE_CURRENCY
 
