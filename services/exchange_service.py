@@ -113,9 +113,15 @@ class ExchangeService:
         }
     
     def get_rates(self, from_currency=None, to_currency=None, start_date=None, end_date=None):
+        if to_currency is not None:
+            to_currency = to_currency.upper()
+            
+        if from_currency is not None:
+            from_currency = from_currency.upper()
+            
         return self.exchange_data_manager.get_rates(
-            from_currency=from_currency.upper(),
-            to_currency=to_currency.upper(),
+            from_currency=from_currency,
+            to_currency=to_currency,
             start_date=start_date,
             end_date=end_date
         )
