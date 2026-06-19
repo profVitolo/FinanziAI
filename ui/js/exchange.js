@@ -1,0 +1,180 @@
+
+let rates = [];
+let missingDates = [];
+
+function bindEvents()
+{
+    document.getElementById("from-currency").addEventListener("change", refreshRates);
+    document.getElementById("start-date").addEventListener("change", refreshRates);
+    document.getElementById("end-date").addEventListener("change", refreshRates);
+    document.getElementById("sync-range").addEventListener("click", syncRates);
+}
+
+function buildFilters()
+{
+    const params = new URLSearchParams();
+
+    const fromCurrency = document.getElementById("from-currency").value;
+    const startDate = document.getElementById("start-date").value;
+    const endDate = document.getElementById("end-date").value;
+
+    if (fromCurrency)
+        params.append("from_currency", fromCurrency);
+
+    if (startDate)
+        params.append("start_date", startDate);
+
+    if (endDate)
+        params.append("end_date", endDate);
+
+    return params;
+}
+
+async function refreshRates()
+{
+    await loadRates();
+    renderRates();
+    renderCoverage();
+
+    await loadMissingDates();
+}
+
+async function loadRates()
+{
+    const response = await fetch(`${API_BASE}/exchange/rates?${buildFilters()}`);
+
+    if (!response.ok)
+        throw new Error("Unable to load exchange rates");
+
+    rates = await response.json();
+}
+
+function renderRates()
+{
+    const table = document.getElementById("rates-table");
+
+    table.innerHTML = "";
+console.log(rates);
+    for (const rate of rates)
+    {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${rate.rate_date}</td>
+            <td>${rate.from_currency}</td>
+            <td>${rate.to_currency}</td>
+            <td>${rate.rate.toFixed(6)}</td>
+        `;
+
+        table.appendChild(row);
+    }
+}
+
+function renderCoverage()
+{
+    const info = document.getElementById("coverage-info");
+
+    if (rates.length === 0)
+    {
+        info.textContent = "Nessun dato disponibile.";
+
+        return;
+    }
+
+    const newest = rates[0].rate_date;
+    const oldest = rates[rates.length - 1].rate_date;
+
+    info.textContent = `Copertura dati dal ${oldest} al ${newest}`;
+}
+
+async function loadMissingDates()
+{
+    const fromCurrency = document.getElementById("from-currency").value;
+    const startDate = document.getElementById("start-date").value;
+    const endDate = document.getElementById("end-date").value;
+
+    if (!startDate || !endDate)
+        return;
+
+    const params = new URLSearchParams();
+
+    params.append("from_currency",fromCurrency);
+    params.append("to_currency",appInfo.baseCurrency);
+    params.append("start_date",startDate);
+    params.append("end_date",endDate);
+
+    const response = await fetch(`${API_BASE}/exchange/missing?${params}`);
+
+    if (!response.ok)
+        throw new Error("Unable to load missing dates");
+
+    const data = await response.json();
+    missingDates = data.missing_dates;
+
+    renderMissingSummary();
+}
+
+function renderMissingSummary()
+{
+    const container = document.getElementById("missing-summary");
+
+    if (missingDates.length === 0)
+    {
+        container.textContent = "Nessun buco rilevato.";
+
+        return;
+    }
+
+    container.textContent = `Date mancanti: ${missingDates.length}`;
+}
+
+async function syncRates()
+{
+    const fromCurrency = document.getElementById("from-currency").value;
+    const startDate = document.getElementById("sync-start-date").value;
+    const endDate = document.getElementById("sync-end-date").value;
+
+    if (!startDate)
+    {
+        alert("Data iniziale richiesta");
+        return;
+    }
+
+    const response = await fetch(`${API_BASE}/exchange/sync-range`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                from_currency: fromCurrency,
+                to_currency: appInfo.base_currency,
+                start_date: startDate,
+                end_date: endDate
+            })
+        }
+    );
+
+    if (!response.ok)
+        throw new Error("Sync exchange rates failed");
+
+    const result = await response.json();
+
+    alert(
+        `Processati: ${result.processed}\n` +
+        `Salvati: ${result.saved}\n` +
+        `Falliti: ${result.failed}`
+    );
+
+    await refreshRates();
+}
+
+
+async function init()
+{
+    bindEvents();
+	await loadAppInfo();
+    await refreshRates();
+}
+
+document.addEventListener("DOMContentLoaded", init);

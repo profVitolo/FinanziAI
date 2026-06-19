@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exchange Rates</title>
+
+    <link rel="stylesheet" href="css/exchange.css">
+    <link rel="stylesheet" href="css/common.css">
+
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 x=%22-.1em%22 font-size=%2290%22>📈</text></svg>"
+    >
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <h1>📈 FinanziAI</h1>
+        <p>AI-Assisted Investment Analysis</p>
+    </div>
+
+    <h1>Cambi Valutari</h1>
+
+    <div class="nav-links">
+        <a href="index.html">🏠 Dashboard</a>
+        <a href="portfolio.html">💼 Portafoglio</a>
+        <a href="transactions.html">💸 Transazioni</a>
+    </div>
+</header>
+
+<main>
+
+    <!-- FILTRI -->
+
+    <section>
+        <h2>Ricerca Cambi</h2>
+
+        <div class="filters">
+
+            <select id="from-currency">
+                <option value="USD">USD</option>
+                <option value="GBP">GBP</option>
+            </select>
+
+            <input type="date" id="start-date">
+            <input type="date" id="end-date">
+
+        </div>
+    </section>
+
+    <!-- TABELLA CAMBI -->
+
+    <section>
+        <h2>Cambi Memorizzati</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Da</th>
+                    <th>A</th>
+                    <th>Tasso</th>
+                </tr>
+            </thead>
+
+            <tbody id="rates-table">
+            </tbody>
+        </table>
+    </section>
+
+    <!-- MANUTENZIONE -->
+
+    <section>
+        <h2>Sincronizzazione</h2>
+
+        <div class="sync-controls">
+
+            <input type="date" id="sync-start-date">
+
+            <input type="date" id="sync-end-date">
+
+            <button id="sync-range">
+                Sincronizza Intervallo
+            </button>
+
+        </div>
+    </section>
+
+    <!-- COPERTURA DATI -->
+
+    <section>
+        <h2>Copertura Archivio</h2>
+
+        <p id="coverage-info">
+            Nessun dato disponibile.
+        </p>
+
+        <div id="missing-summary">
+			Nessuna verifica eseguita.
+        </div>
+
+        <div id="missing-calendar">
+            <!-- generato da JS -->
+        </div>
+    </section>
+
+</main>
+
+<script src="js/helper.js"></script>
+<script src="js/exchange.js"></script>
+
+</body>
+</html>
