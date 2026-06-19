@@ -1,4 +1,6 @@
-class ExchangeDataManager:
+import sqlite3
+from data_manager.base_data_manager import BaseDataManager
+class ExchangeDataManager(BaseDataManager):
     def __init__(self, database):
         self.database = database
 
