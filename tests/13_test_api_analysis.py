@@ -1,45 +1,24 @@
 from pathlib import Path
+import requests
+import sys
+from api_test_utils import *
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-
-import sys
 sys.path.insert(0, str(ROOT_DIR))
 
-import subprocess
-import requests
+server = start_server_if_needed()
 
-from api_test_utils import (BASE_URL, wait_for_server, print_response)
-
-if __name__ == "__main__":
-    print("\n=== AVVIO UVICORN ===\n")
-
-    server = subprocess.Popen([sys.executable, "-m", "uvicorn", "api.app:app"])
+try:
     
-    try:
+    print("\n=== TEST ANALYSIS ===")
 
-        if not wait_for_server():
-            print("Server non raggiungibile")
-            sys.exit(1)
+    response = requests.get(f"{BASE_URL}/analysis/AAPL")
 
-        print("Server pronto")
-        print("\n=== TEST ANALYSIS ===")
+    print_response(response)
+    if response.status_code >= 400:
+        raise Exception("Analysis fallita")
 
-        response = requests.get(f"{BASE_URL}/analysis/AAPL")
+    print("\n=== TEST API ANALYSIS COMPLETATO ===")
 
-        print_response(response)
-        if response.status_code >= 400:
-            raise Exception("Analysis fallita")
-
-        print("\n=== TEST API ANALYSIS COMPLETATO ===")
-
-    finally:
-        print("\n=== ARRESTO UVICORN ===")
-
-        server.terminate()
-
-        try:
-            server.wait(timeout=5)
-        except Exception:
-            server.kill()
-
-        print("Server arrestato")
+finally:
+    stop_server(server)

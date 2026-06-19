@@ -2,12 +2,19 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import os
+from api_test_utils import  *
+
+env = dict(os.environ)
+env["FINANZIAI_TEST_RUNNER"] = "1"
 
 ROOT_DIR = Path(__file__).parent.parent
 TEST_DIR = Path(__file__).parent
 
 DB_PATH = ROOT_DIR / "database" / "vault.db"
 BACKUP_PATH = ROOT_DIR / "database" / "vault.db.bk"
+
+server = None
 
 tests = sorted(
     [
@@ -17,17 +24,27 @@ tests = sorted(
     ]
 )
 
-print("\n=== TESTS ===\n")
-print("0. Esegui tutti i test")
+try:
+    print("\n=== AVVIO UVICORN ===\n")
 
-for index, test_file in enumerate(tests, start=1):
-    print(f"{index}. {test_file.stem}")
+    server = subprocess.Popen([sys.executable, "-m", "uvicorn", "api.app:app"])
 
-choice = input("\nSeleziona test: ")
+    if not wait_for_server():
+        print("Server non raggiungibile")
+        sys.exit(1)
 
-# Tutti - default
-if choice == "0":
-    try:
+    print("Server pronto")
+
+    print("\n=== TESTS ===\n")
+    print("0. Esegui tutti i test")
+
+    for index, test_file in enumerate(tests, start=1):
+        print(f"{index}. {test_file.stem}")
+
+    choice = input("\nSeleziona test: ")
+
+    # Tutti - default
+    if choice == "0":
         if DB_PATH.exists():
                 print("\nBackup database...")
 
@@ -40,7 +57,8 @@ if choice == "0":
 
             result = subprocess.run(
                 [sys.executable, str(test_file.relative_to(ROOT_DIR))],
-                cwd=ROOT_DIR
+                cwd=ROOT_DIR,
+                env=env
             )
 
             if result.returncode != 0:
@@ -48,24 +66,20 @@ if choice == "0":
                 sys.exit(result.returncode)
 
         print("\nTutti i test completati.")
+        
+    else:
+        selected = tests[int(choice) - 1]
+        print(f"\nAvvio {selected.name}\n")
+        subprocess.run([sys.executable, str(selected.relative_to(ROOT_DIR))], cwd=ROOT_DIR, env=env)
     
-    finally:
-
-        if BACKUP_PATH.exists():
-            print("\nRipristino database...")
-
-            if DB_PATH.exists():
-                DB_PATH.unlink()
-
-            shutil.move(BACKUP_PATH, DB_PATH)
-    sys.exit(0)
+finally:
+    stop_server(server)
+    time.sleep(3)
     
-try:
-    selected = tests[int(choice) - 1]
-except (ValueError, IndexError):
-    print("Scelta non valida")
-    sys.exit(1)
+    if BACKUP_PATH.exists():
+        print("\nRipristino database...")
 
-print(f"\nAvvio {selected.name}\n")
+        if DB_PATH.exists():
+            DB_PATH.unlink()
 
-subprocess.run([sys.executable, str(selected.relative_to(ROOT_DIR))], cwd=ROOT_DIR)
+        shutil.move(BACKUP_PATH, DB_PATH)

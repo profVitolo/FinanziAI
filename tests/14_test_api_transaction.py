@@ -1,120 +1,99 @@
 from pathlib import Path
+import requests
+import sys
+from api_test_utils import *
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-
-import sys
 sys.path.insert(0, str(ROOT_DIR))
 
-import subprocess
-import requests
+server = start_server_if_needed()
 
-from api_test_utils import (BASE_URL, wait_for_server, print_response)
+try:
 
+    print("\n=== RECUPERO ASSET ===")
 
-if __name__ == "__main__":
-    print("\n=== AVVIO UVICORN ===\n")
+    response = requests.get(f"{BASE_URL}/assets/AAPL")
 
-    server = subprocess.Popen([sys.executable, "-m", "uvicorn", "api.app:app"])
+    print_response(response)
 
-    try:
-        if not wait_for_server():
-            print("Server non raggiungibile")
-            sys.exit(1)
+    if response.status_code >= 400:
+        raise Exception("Get asset fallita")
 
-        print("Server pronto")
+    asset_id = response.json()["id"]
 
-        print("\n=== RECUPERO ASSET ===")
+    print("\n=== CREATE TRANSACTION ===")
+    
+    payload = {
+            "asset_id": asset_id,
+            "operation_type": "buy",
+            "quantity": 1,
+            "price": 100,
+            "fees": 0,
+            "transaction_date": "2026-06-15"
+    }
+    response = requests.post(f"{BASE_URL}/transactions/",json=payload)
 
-        response = requests.get(f"{BASE_URL}/assets/AAPL")
+    print_response(response)
 
-        print_response(response)
+    if response.status_code >= 400:
+        raise Exception(f"Transaction create fallita")
 
-        if response.status_code >= 400:
-            raise Exception("Get asset fallita")
+    transaction_id = response.json()["transaction_id"]
 
-        asset_id = response.json()["id"]
+    print("\n=== GET TRANSACTIONS ===")
 
-        print("\n=== CREATE TRANSACTION ===")
-        
-        payload = {
-                "asset_id": asset_id,
-                "operation_type": "buy",
-                "quantity": 1,
-                "price": 100,
-                "fees": 0,
-                "transaction_date": "2026-06-15"
-        }
-        response = requests.post(f"{BASE_URL}/transactions/",json=payload)
+    response = requests.get(f"{BASE_URL}/transactions/")
 
-        print_response(response)
+    print_response(response)
 
-        if response.status_code >= 400:
-            raise Exception(f"Transaction create fallita")
+    if response.status_code >= 400:
+        raise Exception("Transactions get fallita")
 
-        transaction_id = response.json()["transaction_id"]
+    print("\n=== UPDATE TRANSACTION ===")
 
-        print("\n=== GET TRANSACTIONS ===")
+    payload = {
+            "asset_id": asset_id,
+            "operation_type": "buy",
+            "quantity": 2,
+            "price": 120,
+            "fees": 1,
+            "transaction_date": "2026-06-15"
+    }
+    response = requests.put(f"{BASE_URL}/transactions/{transaction_id}", json=payload)
 
-        response = requests.get(f"{BASE_URL}/transactions/")
+    print_response(response)
 
-        print_response(response)
+    if response.status_code >= 400:
+        raise Exception("Transaction update fallita")
 
-        if response.status_code >= 400:
-            raise Exception("Transactions get fallita")
+    print("\n=== GET TRANSACTIONS AFTER UPDATE ===")
 
-        print("\n=== UPDATE TRANSACTION ===")
+    response = requests.get(f"{BASE_URL}/transactions/")
 
-        payload = {
-                "asset_id": asset_id,
-                "operation_type": "buy",
-                "quantity": 2,
-                "price": 120,
-                "fees": 1,
-                "transaction_date": "2026-06-15"
-        }
-        response = requests.put(f"{BASE_URL}/transactions/{transaction_id}", json=payload)
+    print_response(response)
 
-        print_response(response)
+    if response.status_code >= 400:
+        raise Exception("Transactions get fallita")
 
-        if response.status_code >= 400:
-            raise Exception("Transaction update fallita")
+    print("\n=== DELETE TRANSACTION ===")
 
-        print("\n=== GET TRANSACTIONS AFTER UPDATE ===")
+    response = requests.delete(f"{BASE_URL}/transactions/{transaction_id}")
 
-        response = requests.get(f"{BASE_URL}/transactions/")
+    print_response(response)
 
-        print_response(response)
+    if response.status_code >= 400:
+        raise Exception("Transaction delete fallita")
 
-        if response.status_code >= 400:
-            raise Exception("Transactions get fallita")
+    print("\n=== GET TRANSACTIONS AFTER DELETE ===")
 
-        print("\n=== DELETE TRANSACTION ===")
+    response = requests.get(f"{BASE_URL}/transactions/")
 
-        response = requests.delete(f"{BASE_URL}/transactions/{transaction_id}")
+    print_response(response)
 
-        print_response(response)
+    if response.status_code >= 400:
+        raise Exception("Transactions get fallita")
 
-        if response.status_code >= 400:
-            raise Exception("Transaction delete fallita")
+    print("\n=== TEST API TRANSACTIONS COMPLETATO ===")
 
-        print("\n=== GET TRANSACTIONS AFTER DELETE ===")
-
-        response = requests.get(f"{BASE_URL}/transactions/")
-
-        print_response(response)
-
-        if response.status_code >= 400:
-            raise Exception("Transactions get fallita")
-
-        print("\n=== TEST API TRANSACTIONS COMPLETATO ===")
-
-    finally:
-        print("\n=== ARRESTO UVICORN ===")
-        server.terminate()
-
-        try:
-            server.wait(timeout=5)
-        except Exception:
-            server.kill()
-
-        print("Server arrestato")
+finally:
+    stop_server(server)

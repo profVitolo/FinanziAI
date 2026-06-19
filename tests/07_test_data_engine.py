@@ -10,15 +10,13 @@ from database.database_manager import DatabaseManager
 
 database = DatabaseManager()
 
-if __name__ == "__main__":
+engine = DataEngine(database)
 
-    engine = DataEngine(database)
+print("\n=== PORTFOLIO ANALYSIS ===\n")
 
-    print("\n=== PORTFOLIO ANALYSIS ===\n")
+result = engine.analyze_portfolio()
 
-    result = engine.analyze_portfolio()
-
-    if result is None:
-        print("Nessuna posizione presente")
-    else:
-        pprint(result)
+if result is None:
+    print("Nessuna posizione presente")
+else:
+    pprint(result)

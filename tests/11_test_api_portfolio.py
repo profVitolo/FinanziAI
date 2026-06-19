@@ -1,53 +1,31 @@
 from pathlib import Path
+import requests
+import sys
+from api_test_utils import *
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-
-import sys
 sys.path.insert(0, str(ROOT_DIR))
 
-import subprocess
-import requests
+server = start_server_if_needed()
 
-from api_test_utils import (BASE_URL, wait_for_server, print_response)
+try:
+    print("\n=== TEST PORTFOLIO ===")
 
-if __name__ == "__main__":
-    print("\n=== AVVIO UVICORN ===\n")
+    response = requests.get(f"{BASE_URL}/portfolio/")
 
-    server = subprocess.Popen([sys.executable, "-m", "uvicorn", "api.app:app"])
+    print_response(response)
+    if response.status_code >= 400:
+        raise Exception("Portfolio get fallita")
 
-    try:
-        if not wait_for_server():
-            print("Server non raggiungibile")
-            sys.exit(1)
+    print("\n=== TEST PORTFOLIO ANALYSIS ===")
 
-        print("Server pronto")
+    response = requests.get(f"{BASE_URL}/portfolio/analysis")
 
-        print("\n=== TEST PORTFOLIO ===")
+    print_response(response)
+    if response.status_code >= 400:
+        raise Exception("Portfolio analysis fallita")
 
-        response = requests.get(f"{BASE_URL}/portfolio/")
+    print("\n=== TEST API PORTFOLIO COMPLETATO ===")
 
-        print_response(response)
-        if response.status_code >= 400:
-            raise Exception("Portfolio get fallita")
-
-        print("\n=== TEST PORTFOLIO ANALYSIS ===")
-
-        response = requests.get(f"{BASE_URL}/portfolio/analysis")
-
-        print_response(response)
-        if response.status_code >= 400:
-            raise Exception("Portfolio analysis fallita")
-
-        print("\n=== TEST API PORTFOLIO COMPLETATO ===")
-
-    finally:
-        print("\n=== ARRESTO UVICORN ===")
-
-        server.terminate()
-
-        try:
-            server.wait(timeout=5)
-        except Exception:
-            server.kill()
-
-        print("Server arrestato")
+finally:
+    stop_server(server)

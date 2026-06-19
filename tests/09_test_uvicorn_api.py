@@ -3,24 +3,7 @@ import sys
 import time
 import requests
 
-BASE_URL = "http://127.0.0.1:8000"
-
-
-def wait_for_server(timeout=15):
-    start = time.time()
-
-    while time.time() - start < timeout:
-        try:
-            response = requests.get(f"{BASE_URL}/info")
-
-            if response.status_code == 200:
-                return True
-        except Exception:
-            pass
-
-        time.sleep(1)
-
-    return False
+from api_test_utils import (BASE_URL, wait_for_server, print_response)
 
 
 def test_endpoint(method, path):
@@ -50,56 +33,59 @@ def test_endpoint(method, path):
     return response.status_code
 
 
+server = None
+
 if __name__ == "__main__":
     print("\n=== AVVIO UVICORN ===\n")
 
-    server = subprocess.Popen(
-        [sys.executable, "-m", "uvicorn", "api.app:app"],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True
-    )
+    server = subprocess.Popen([sys.executable, "-m", "uvicorn", "api.app:app"])
+    
+    if not wait_for_server():
+        print("Server non raggiungibile")
+        sys.exit(1)
 
-    try:
-        if not wait_for_server():
+    print("Server pronto")
 
-            print("Server non raggiungibile")
+try:
+    if not wait_for_server():
 
-            server.kill()
-            sys.exit(1)
-            
-        info = requests.get(f"{BASE_URL}/info").json()
-        print(f"FinanziAI {info['version']} avviato correttamente")
+        print("Server non raggiungibile")
+
+        server.kill()
+        sys.exit(1)
         
-        failures = []
+    info = requests.get(f"{BASE_URL}/info").json()
+    print(f"FinanziAI {info['version']} avviato correttamente")
+    
+    failures = []
 
-        endpoints = [
-            ("GET", "/info"),
-            ("GET", "/assets/"),
-            ("GET", "/portfolio/"),
-            ("GET", "/portfolio/analysis"),
-        ]
+    endpoints = [
+        ("GET", "/info"),
+        ("GET", "/assets/"),
+        ("GET", "/portfolio/"),
+        ("GET", "/portfolio/analysis"),
+    ]
 
-        for method, path in endpoints:
-            status = test_endpoint(method, path)
+    for method, path in endpoints:
+        status = test_endpoint(method, path)
 
-            if status >= 400:
-                failures.append(path)
+        if status >= 400:
+            failures.append(path)
 
-        print("\n=== REPORT ===")
+    print("\n=== REPORT ===")
 
-        if failures:
-            print("Endpoint falliti:")
+    if failures:
+        print("Endpoint falliti:")
 
-            for endpoint in failures:
-                print("-", endpoint)
+        for endpoint in failures:
+            print("-", endpoint)
 
-            sys.exit(1)
+        sys.exit(1)
 
-        print("Tutti gli endpoint testati correttamente")
+    print("Tutti gli endpoint testati correttamente")
 
-    finally:
-
+finally:
+    if server:
         print("\n=== ARRESTO UVICORN ===")
         server.terminate()
 
