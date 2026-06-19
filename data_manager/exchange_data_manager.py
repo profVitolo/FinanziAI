@@ -111,3 +111,47 @@ class ExchangeDataManager:
         return [dict(row) for row in cursor.fetchall()]
 		
 		
+    def get_rates(self, from_currency=None, to_currency=None, start_date=None, end_date=None):
+        conn = self._connect()
+        cursor = conn.cursor()
+
+        query = """
+            SELECT
+                from_currency,
+                to_currency,
+                rate_date,
+                rate
+            FROM exchange_rates
+            WHERE 1 = 1
+        """
+
+        params = []
+
+        if from_currency:
+            query += " AND from_currency = ?"
+            params.append(from_currency.upper())
+
+        if to_currency:
+            query += " AND to_currency = ?"
+            params.append(to_currency.upper())
+
+        if start_date:
+            query += " AND rate_date >= ?"
+            params.append(start_date)
+
+        if end_date:
+            query += " AND rate_date <= ?"
+            params.append(end_date)
+
+        query += """
+            ORDER BY
+                from_currency,
+                to_currency,
+                rate_date DESC
+        """
+
+        cursor.execute(query, params)
+
+        return [dict(row) for row in cursor.fetchall()]
+		
+		
