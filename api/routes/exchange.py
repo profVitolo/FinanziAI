@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from services.exchange_service import ExchangeService
-
 from api.schemas import (ExchangeRatesFilter, MissingDatesFilter, ExchangeRateSync, ExchangeRatesSync, ExchangeConvert)
+from services.exchange_service import ExchangeService
 
 router = APIRouter(prefix="/exchange", tags=["Exchange"])
 
