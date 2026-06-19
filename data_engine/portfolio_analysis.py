@@ -1,17 +1,22 @@
 class PortfolioAnalysis:
 
     def calculate_position_value(self, quantity, market_price):
+        if quantity is None or market_price is None:
+            return 0
         return quantity * market_price
 
     def calculate_portfolio_value(self, positions):
         total_value = 0
 
         for position in positions:
-            total_value += position["market_value_base"]
+            total_value += position["market_value_base"] or 0
 
         return total_value
 
     def calculate_asset_weight(self, position_value, portfolio_value):
+        if position_value is None or portfolio_value is None:
+            return 0
+            
         if portfolio_value <= 0:
             return 0
 
@@ -30,6 +35,14 @@ class PortfolioAnalysis:
         return exposure
 
     def calculate_performance(self, quantity, avg_price, market_price):
+        if (quantity is None or avg_price is None or market_price is None):
+            return {
+                "cost_basis": 0,
+                "market_value": 0,
+                "pnl": 0,
+                "pnl_percent": 0
+            }
+            
         cost_basis = quantity * avg_price
         market_value = quantity * market_price
 
