@@ -17,14 +17,11 @@ router = APIRouter(
 def get_transactions(filters: TransactionsFilter = Depends()):
     transaction_service = TransactionService()
 
-    return {
-         "transactions": transaction_service.get_transactions(
+    return transaction_service.get_transactions(
             asset_id=filters.asset_id,
             start_date=filters.start_date,
-            end_date=filters.end_date
-        ),
-        "base_currency": BASE_CURRENCY
-    }
+            end_date=filters.end_date)
+        
 
 
 @router.get("/{transaction_id}")

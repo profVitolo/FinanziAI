@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Request
+from config import BASE_CURRENCY
 
 router = APIRouter(prefix="/info", tags=["Info"])
 
@@ -9,5 +10,6 @@ def get_info(request: Request):
     return {
         "application": app.title,
         "description": app.description,
-        "version": app.version
+        "version": app.version,
+        "base_currency": BASE_CURRENCY
     }
