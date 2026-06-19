@@ -6,7 +6,7 @@ from data_engine.indicators import Indicators
 from data_engine.market_analysis import MarketAnalysis
 from data_engine.portfolio_analysis import PortfolioAnalysis
 
-from service.exchange_service import ExchangeService
+from services.exchange_service import ExchangeService
 
 
 ## un solo DataManager → chiudo il DataManager; 
