@@ -75,7 +75,11 @@ class DataEngine:
     def _build_asset_result(self, asset, prices, indicators, analysis):
         first_date = prices[0]["date"]
         last_date = prices[-1]["date"]
-        last_close = prices[-1]["close"]
+        last_close = None
+        for row in reversed(prices):
+            if row["close"] is not None:
+                last_close = row["close"]
+                break
 
         return {
              "asset": {
@@ -136,8 +140,11 @@ class DataEngine:
 
             market_value = (self.portfolio_analysis.calculate_position_value(quantity, market_price))
             performance = (self.portfolio_analysis.calculate_performance(quantity, avg_price, market_price))
-            market_value_base = self.exchange_service.convert(amount=market_value, from_currency=currency)
-            
+            try:
+                market_value_base = self.exchange_service.convert(amount=market_value, from_currency=currency)
+            except ValueError:
+                market_value_base = None
+                
             result.append({
                 "asset_id": asset_id,
                 "symbol": symbol,
