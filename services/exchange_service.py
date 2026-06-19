@@ -93,7 +93,7 @@ class ExchangeService:
         processed = 0
         saved = 0
         failed = 0
-        failed_dates = []
+        unavailable_dates = []
         
         while current_date <= end_date:
             rate_date = current_date.isoformat()
@@ -105,7 +105,7 @@ class ExchangeService:
                 saved += 1
             else:
                 failed += 1
-                failed_dates.append(rate_date)
+                unavailable_dates.append(rate_date)
 
             current_date += timedelta(days=1)
 
@@ -113,7 +113,7 @@ class ExchangeService:
             "processed": processed,
             "saved": saved,
             "failed": failed,
-            "failed_dates": failed_dates
+            "unavailable_dates": unavailable_dates
         }
     
     def get_rates(self, from_currency=None, to_currency=None, start_date=None, end_date=None):
