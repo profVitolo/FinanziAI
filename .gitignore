@@ -1,5 +1,7 @@
 # Database
 *.db
+*-journal
+*.bk
 
 # Config files
 *.conf
