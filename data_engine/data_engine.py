@@ -1,13 +1,12 @@
 from data_manager.asset_data_manager import AssetDataManager
 from data_manager.portfolio_data_manager import PortfolioDataManager
-from data_manager.exchange_data_manager import ExchangeDataManager
 from database.database_manager import DatabaseManager
 
 from data_engine.indicators import Indicators
 from data_engine.market_analysis import MarketAnalysis
 from data_engine.portfolio_analysis import PortfolioAnalysis
 
-from data_collector.exchanger import Exchanger
+from service.exchange_service import ExchangeService
 
 
 ## un solo DataManager → chiudo il DataManager; 
@@ -20,9 +19,8 @@ class DataEngine:
         self.asset_data_manager = AssetDataManager(self.database)
         self.portfolio_data_manager = PortfolioDataManager(self.database)
         self.portfolio_analysis = PortfolioAnalysis()
-        
-        exchange_data_manager = ExchangeDataManager(self.database)
-        self.exchanger = Exchanger(exchange_data_manager)
+
+        self.exchange_service = ExchangeService(self.database)
         
     def analyze_asset(self, symbol, start_date=None, end_date=None):
         try:
@@ -138,7 +136,7 @@ class DataEngine:
 
             market_value = (self.portfolio_analysis.calculate_position_value(quantity, market_price))
             performance = (self.portfolio_analysis.calculate_performance(quantity, avg_price, market_price))
-            market_value_base = self.exchanger.convert(market_value, currency)
+            market_value_base = self.exchange_service.convert(amount=market_value, from_currency=currency)
             
             result.append({
                 "asset_id": asset_id,
@@ -160,7 +158,7 @@ class DataEngine:
         risk = (self.portfolio_analysis.calculate_risk(positions))
 
         return {
-            "base_currency": self.exchanger.base_currency,
+            "base_currency": self.exchange_service.base_currency,
             "portfolio_value": portfolio_value,
             "positions": positions,
             "exposure": exposure,
