@@ -47,18 +47,6 @@ def print_dict(title, data):
 
 def print_collection(title, items):
     print(f"\n=== {title} ===")
-    if not items:
-        print("Empty")
-        return
-
-    for item in items:
-        if isinstance(item, dict):
-            print("-" * 40)
-            for key, value in item.items():
-                print(f"{key}: {value}")
-        else:
-            print(item)
-    print(f"\n=== {title} ===")
 
     if not items:
         print("Empty")
