@@ -15,7 +15,7 @@ class PortfolioService:
         self.portfolio_data_manager = PortfolioDataManager(self.database)
         self.transaction_data_manager = TransactionDataManager(self.database)
         self.asset_data_manager = AssetDataManager(self.database)
-        self.exchange_service = ExChangeService(self.database)
+        self.exchange_service = ExchangeService(self.database)
 
     def register_transaction(self, asset_id, operation_type, quantity, price, fees=0, transaction_date=None):
         if transaction_date is None:
