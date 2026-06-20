@@ -76,7 +76,7 @@ async function loadPortfolioSummary()
         const data = await response.json();
 
         document.getElementById("portfolio-value").textContent = appInfo.base_currency ?? "";
-        document.getElementById("portfolio-value").textContent += app_info.base_currency ? " " : "";
+        document.getElementById("portfolio-value").textContent += appInfo.base_currency ? " " : "";
         document.getElementById("portfolio-value").textContent += data.portfolio_value.toFixed(2) ?? "-";
 
         document.getElementById("positions-count").textContent = data.positions?.length ?? 0;
