@@ -1,11 +1,9 @@
 from pathlib import Path
-from api_test_utils import print_result
-
-ROOT_DIR = Path(__file__).resolve().parent.parent
-
 import sys
+ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
+from api_test_utils import *
 from data_manager.asset_data_manager import AssetDataManager
 from data_manager.portfolio_data_manager import PortfolioDataManager
 from data_manager.transaction_data_manager import TransactionDataManager
@@ -19,40 +17,43 @@ pdm = PortfolioDataManager(database)
 tdm = TransactionDataManager(database)
 service = PortfolioService(database)
 
+print_title("=== TEST PORTFOLIO SERVICE ===")
+
 asset = adm.get_asset_by_symbol("AAPL")
 
 if asset is None:
     print("Asset AAPL non trovato")
     sys.exit(1)
-
+else:
+    print_result("Asset found", asset)
+    
 asset_id = asset["id"]
 
-print("\n=== INITIAL POSITION ===\n")
-print_result("Must be empty", pdm.get_position(asset_id))
+print_result("INITIAL POSITION [empty]", pdm.get_position(asset_id))
 
 print("\n=== INITIAL TRANSACTIONS ===\n")
 transactions = tdm.get_transactions_by_asset(asset_id)
 
 for transaction in transactions:
-    print(dict(transaction))
+    print_result("", transaction)
 
 print("\n=== BUY 10 @ 100 ===\n")
 
 service.register_transaction(asset_id=asset_id, operation_type="buy", quantity=10, price=100, fees=1 )
 
-print(dict(pdm.get_position(asset_id)))
+print_result("AFTER BUY", pdm.get_position(asset_id))
 
 print("\n=== BUY 5 @ 120 ===\n")
 
 service.register_transaction(asset_id=asset_id, operation_type="buy", quantity=5, price=120, fees=1)
 
-print(dict(pdm.get_position(asset_id)))
+print_result("AFTER BUY", pdm.get_position(asset_id))
 
 print("\n=== SELL 3 ===\n")
 
 service.register_transaction(asset_id=asset_id, operation_type="sell", quantity=3, price=130, fees=1)
 
-print(dict(pdm.get_position(asset_id)))
+print_result("AFTER SELL", pdm.get_position(asset_id))
 
 print("\n=== SELL ALL REMAINING ===\n")
 
@@ -68,8 +69,9 @@ if position is not None:
         price=130,
         fees=1
     )
+    print("- Transaction registered (sell it all)\n")
 
-print("Position after sell it all [None]:", pdm.get_position(asset_id))
+print_result("Position after sell [None]", pdm.get_position(asset_id))
 
 print("\n=== INVALID SELL ===\n")
 
@@ -81,14 +83,12 @@ except Exception as exc:
     print(exc)
 
 print("\n=== ALL TRANSACTIONS FOR AAPL ===\n")
-
 transactions = tdm.get_transactions_by_asset(asset_id)
 
 for transaction in transactions:
-    print(dict(transaction))
+    print_result("", transaction)
 
-    print("\n=== UPDATE LAST TRANSACTION ===\n")
-
+print("\n=== UPDATE LAST TRANSACTION ===\n")
 transactions = tdm.get_transactions_by_asset(asset_id)
 
 if transactions:
@@ -104,14 +104,10 @@ if transactions:
         fees=2
     )
 
-    print(dict(tdm.get_transaction(transaction_id)))
-
-    print("\n=== POSITION AFTER UPDATE ===\n")
-
-    print(dict(pdm.get_position(asset_id)))
+    print_result("LAST TRANSACTION", tdm.get_transaction(transaction_id))
+    print_result("POSITION AFTER UPDATE", pdm.get_position(asset_id))
 
 print("\n=== DELETE LAST TRANSACTION ===\n")
-
 transactions = tdm.get_transactions_by_asset(asset_id)
 
 if transactions:
@@ -119,15 +115,11 @@ if transactions:
 
     service.delete_transaction(transaction_id)
 
-    print("Is still there an id for deleted trans?: ", tdm.get_transaction(transaction_id))
-    
-    print("\n=== POSITION AFTER DELETE ===\n")
-
-    print(dict(pdm.get_position(asset_id)))
+    print_result("Is still there an id for deleted trans?", tdm.get_transaction(transaction_id))
+    print_result("POSITION AFTER DELETE", pdm.get_position(asset_id))
     
 print("\n=== REBUILD PORTFOLIO ===\n")
-
 service.rebuild_portfolio()
 
-print(dict(pdm.get_position(asset_id)))
+print_result("POSITION AFTER REBUILD", pdm.get_position(asset_id))
     

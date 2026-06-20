@@ -6,13 +6,14 @@ sys.path.insert(0, str(ROOT_DIR))
 
 from database.database_manager import DatabaseManager
 from services.exchange_service import ExchangeService
-from api_test_utils import (print_dict, print_value, print_collection)
+from api_test_utils import *
 
 
 database = DatabaseManager()
 exchange_service = ExchangeService(database)
 
-print("\n=== COLLECTOR TESTS ===")
+print_title("=== TEST EXCHANGE SERVIVE ===")
+print("\n=== COLLECTOR FETCHES ===")
 
 print_value(
     "USD/EUR 2026-06-12-FRI",

@@ -8,9 +8,11 @@ sys.path.insert(0, str(ROOT_DIR))
 
 server = start_server_if_needed()
 
+print_title("=== TEST API ANALYSIS ===")
+
 try:
     
-    print("\n=== TEST ANALYSIS ===")
+    print("\n=== GET ANALYSIS ===")
 
     response = requests.get(f"{BASE_URL}/analysis/AAPL")
 

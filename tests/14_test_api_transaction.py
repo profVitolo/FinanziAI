@@ -8,6 +8,8 @@ sys.path.insert(0, str(ROOT_DIR))
 
 server = start_server_if_needed()
 
+print_title("=== TEST API TRNASACTION ===")
+
 try:
 
     print("\n=== RECUPERO ASSET ===")

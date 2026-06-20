@@ -3,7 +3,7 @@ import sys
 import time
 import requests
 
-from api_test_utils import (BASE_URL, wait_for_server, print_response)
+from api_test_utils import *
 
 
 def test_endpoint(method, path):
@@ -32,19 +32,7 @@ def test_endpoint(method, path):
         
     return response.status_code
 
-
-server = None
-
-if __name__ == "__main__":
-    print("\n=== AVVIO UVICORN ===\n")
-
-    server = subprocess.Popen([sys.executable, "-m", "uvicorn", "api.app:app"])
-    
-    if not wait_for_server():
-        print("Server non raggiungibile")
-        sys.exit(1)
-
-    print("Server pronto")
+server = start_server_if_needed()
 
 try:
     if not wait_for_server():
@@ -85,13 +73,4 @@ try:
     print("Tutti gli endpoint testati correttamente")
 
 finally:
-    if server:
-        print("\n=== ARRESTO UVICORN ===")
-        server.terminate()
-
-        try:
-            server.wait(timeout=5)
-        except subprocess.TimeoutExpired:
-            server.kill()
-
-        print("Server arrestato")
+    stop_server(server)

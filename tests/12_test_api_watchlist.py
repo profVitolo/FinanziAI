@@ -7,9 +7,10 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
 server = start_server_if_needed()
+print_title("=== TEST WATCHLIST API ===")
 
 try:
-    print("\n=== TEST WATCHLIST ADD ===")
+    print("\n=== WATCHLIST ADD ===")
 
     response = requests.post(f"{BASE_URL}/portfolio/watchlist/AAPL")
 
@@ -17,7 +18,7 @@ try:
     if response.status_code >= 400:
         raise Exception("Watchlist add fallita")
 
-    print("\n=== TEST WATCHLIST GET ===")
+    print("\n=== WATCHLIST GET ===")
 
     response = requests.get(f"{BASE_URL}/portfolio/watchlist")
 
@@ -25,7 +26,7 @@ try:
     if response.status_code >= 400:
         raise Exception("Watchlist get fallita")
 
-    print("\n=== TEST WATCHLIST DELETE ===")
+    print("\n=== WATCHLIST DELETE ===")
 
     response = requests.delete(f"{BASE_URL}/portfolio/watchlist/AAPL")
 

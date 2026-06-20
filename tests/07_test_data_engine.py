@@ -11,11 +11,11 @@ database = DatabaseManager()
 
 engine = DataEngine(database)
 
-print_title("\n=== PORTFOLIO ANALYSIS ===\n")
+print_title("=== TEST DATA ENGINE ===")
 
 result = engine.analyze_portfolio()
 
 if result is None:
     print("Nessuna posizione presente")
 else:
-    print_result("", result)
+    print_result("PORTFOLIO ANALYSIS", result)
