@@ -105,19 +105,17 @@ class DataService:
         return results
         
     def get_all_assets(self):
-        try:
-            return self.asset_data_manager.get_all_assets()
-        finally:
-            self.asset_data_manager.close()
-
+        return self.asset_data_manager.get_all_assets()
+    
     def get_asset_by_symbol(self, symbol):
-        try:
-            return self.asset_data_manager.get_asset_by_symbol(symbol)
-        finally:
-            self.asset_data_manager.close()
+        asset = self.asset_data_manager.get_asset_by_symbol(symbol)
+
+        if asset is None:
+            self.sync_asset(symbol,(date.today() - timedelta(days=365)).isoformat())
+            asset = self.asset_data_manager.get_asset_by_symbol(symbol)
+
+        return asset
             
     def get_asset_by_id(self, asset_id):
-        try:
-            return self.asset_data_manager.get_asset_by_id(asset_id)
-        finally:
-            self.asset_data_manager.close()    
+        return self.asset_data_manager.get_asset_by_id(asset_id)
+   

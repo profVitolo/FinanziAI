@@ -8,17 +8,11 @@ class TransactionService:
         self.transaction_data_manager = TransactionDataManager(database)
 
     def get_transaction(self, transaction_id):
-        try:
-            return self.transaction_data_manager.get_transaction(transaction_id)
-        finally:
-            self.transaction_data_manager.close()
+        return self.transaction_data_manager.get_transaction(transaction_id)
 
     def get_transactions(self, asset_id=None, start_date=None, end_date=None):
-        try:
-            if asset_id is not None:
-                return self.transaction_data_manager.get_transactions_by_asset(asset_id, start_date, end_date)
+        if asset_id is not None:
+            return self.transaction_data_manager.get_transactions_by_asset(asset_id, start_date, end_date)
 
-            return self.transaction_data_manager.get_transactions(start_date, end_date)
-        finally:
-            self.transaction_data_manager.close()
+        return self.transaction_data_manager.get_transactions(start_date, end_date)
             

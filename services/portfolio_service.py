@@ -210,33 +210,23 @@ class PortfolioService:
             self.database.close()
     
     def get_tracked_assets(self):
-        try:
-            tracked_assets = set()
+        tracked_assets = set()
 
-            positions = self.portfolio_data_manager.get_all_positions()
-            for position in positions:
-                tracked_assets.add(position["asset_id"])  # asset_id
+        positions = self.portfolio_data_manager.get_all_positions()
+        for position in positions:
+            tracked_assets.add(position["asset_id"])  # asset_id
 
-            watchlist = self.portfolio_data_manager.get_watchlist()
-            for item in watchlist:
-                tracked_assets.add(item["asset_id"])  # asset_id
+        watchlist = self.portfolio_data_manager.get_watchlist()
+        for item in watchlist:
+            tracked_assets.add(item["asset_id"])  # asset_id
 
-            return list(tracked_assets)
-            
-        finally:
-            self.portfolio_data_manager.close()
+        return list(tracked_assets)
     
     def get_all_positions(self):
-        try:
-            return self.portfolio_data_manager.get_all_positions()
-        finally:
-            self.portfolio_data_manager.close()
+        return self.portfolio_data_manager.get_all_positions()
             
     def get_watchlist(self):
-        try:
-            return self.portfolio_data_manager.get_watchlist()
-        finally:
-            self.portfolio_data_manager.close()
+        return self.portfolio_data_manager.get_watchlist()
             
     def remove_from_watchlist(self, asset_id):
         try:
