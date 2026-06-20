@@ -23,7 +23,7 @@ class Indicators:
             - wilder (default)
             - simple
         """
-
+        
         if len(prices) < period + 1:
             return None
 

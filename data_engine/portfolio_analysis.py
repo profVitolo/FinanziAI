@@ -17,7 +17,7 @@ class PortfolioAnalysis:
         if position_value is None or portfolio_value is None:
             return 0
             
-        if portfolio_value <= 0:
+        if portfolio_value <= 0 or position_value <= 0:
             return 0
 
         return (position_value / portfolio_value) * 100
@@ -61,14 +61,19 @@ class PortfolioAnalysis:
         }
 
     def calculate_risk(self, positions):
+        default = {
+            "largest_position_weight": 0,
+            "concentration_level": "low"
+        }
+        
         if not positions:
-            return {
-                "largest_position_weight": 0,
-                "concentration_level": "low"
-            }
+            return default
 
         portfolio_value = self.calculate_portfolio_value(positions)
-
+        
+        if portfolio_value <= 0:
+            return default
+            
         largest_weight = 0
 
         for position in positions:

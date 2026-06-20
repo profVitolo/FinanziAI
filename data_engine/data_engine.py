@@ -29,12 +29,16 @@ class DataEngine:
             if not asset:
                 return None
             
-            prices = self._load_prices(symbol, start_date, end_date)
+            prices = self._load_prices(asset, start_date, end_date)
 
             if not prices:
                 return None
 
             close_prices = self._extract_close_prices(prices)
+            
+            if not close_prices:
+                return None
+            
             indicators = self._calculate_indicators(close_prices)
             analysis = MarketAnalysis.analyze(indicators)
 
@@ -45,9 +49,13 @@ class DataEngine:
     def _load_asset(self, symbol):
         return (self.asset_data_manager.get_asset_by_symbol(symbol))
     
-    def _load_prices(self, symbol, start_date=None, end_date=None):
-        asset = self.asset_data_manager.get_asset_by_symbol(symbol)
-
+    def _get_last_valid_close(self, prices):
+        for row in reversed(prices):
+            if row["close"] is not None:
+                return row["close"]
+        return None
+    
+    def _load_prices(self, asset, start_date=None, end_date=None):
         if asset is None:
             return None
 
@@ -57,9 +65,9 @@ class DataEngine:
 
     def _extract_close_prices(self, prices):
         return [
-            row[4]
+            row["close"]
             for row in prices
-            if row[4] is not None
+            if row["close"] is not None
         ]
 
     def _calculate_indicators(self, close_prices):
@@ -75,11 +83,8 @@ class DataEngine:
     def _build_asset_result(self, asset, prices, indicators, analysis):
         first_date = prices[0]["date"]
         last_date = prices[-1]["date"]
-        last_close = None
-        for row in reversed(prices):
-            if row["close"] is not None:
-                last_close = row["close"]
-                break
+        
+        last_close = self._get_last_valid_close(prices)
 
         return {
              "asset": {
@@ -136,8 +141,7 @@ class DataEngine:
             if not prices:
                 continue
 
-            market_price = prices[-1]["close"]
-
+            market_price = self._get_last_valid_close(prices)
             market_value = (self.portfolio_analysis.calculate_position_value(quantity, market_price))
             performance = (self.portfolio_analysis.calculate_performance(quantity, avg_price, market_price))
             try:
