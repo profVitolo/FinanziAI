@@ -172,6 +172,7 @@ async function syncRates()
 
 async function init()
 {
+	generateMenu();
     bindEvents();
 	await loadAppInfo();
     await refreshRates();

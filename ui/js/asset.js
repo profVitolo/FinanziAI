@@ -52,7 +52,6 @@ async function removeFromWatchlist(symbol)
 
 function renderAnalysis(data) 
 {
-	document.getElementById("asset-symbol").textContent = data.asset.symbol;
     document.getElementById("asset-name").textContent = data.asset.name ?? "-";
     document.getElementById("asset-symbol-info").textContent = data.asset.symbol ?? "-";
     document.getElementById("asset-type").textContent = data.asset.type ?? "-";
@@ -72,8 +71,9 @@ function renderAnalysis(data)
 
 async function init() 
 {
+	generateMenu();
     const symbol = getSymbol();
-
+	
     if (!symbol) 
 	{
         alert("Simbolo non specificato"  );

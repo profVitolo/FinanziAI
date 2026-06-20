@@ -490,6 +490,7 @@ function initializeTransactionDate()
  
 async function init()
 {
+	generateMenu();
 	const symbolInput = document.getElementById("symbol");
 	symbolInput.addEventListener("blur",handleSymbolBlur);
 	symbolInput.addEventListener("input", clearAssetSelection);

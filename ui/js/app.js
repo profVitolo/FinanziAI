@@ -107,18 +107,24 @@ async function syncTrackedAssets()
     }
 }
 
-document.addEventListener(
-    "DOMContentLoaded",
-    async () =>
-    {
-        await checkHealth();
-		await syncTrackedAssets();
+async function init() 
+{
+    generateMenu();
 
-		await Promise.all([
+    try 
+	{
+        await checkHealth();
+        await Promise.all([
+			syncTrackedAssets(),
 			loadPortfolioSummary(),
 			loadWatchlist()
 		]);
-
-		setupSearch();
+    } catch (error) {
+        console.error("Init failed:", error);
     }
-);
+	
+	setupSearch();
+}
+
+
+document.addEventListener("DOMContentLoaded",init);

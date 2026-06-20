@@ -121,7 +121,7 @@ async function refreshPortfolio()
 
 async function init() 
 {
-	
+	generateMenu();
     try 
 	{
 		await loadAppInfo();
