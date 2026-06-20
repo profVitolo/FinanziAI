@@ -140,6 +140,15 @@ class ExchangeService:
             "unavailable_dates": unavailable_dates
         }
     
+    def ensure_rate(self, from_currency, to_currency, rate_date):
+        if self.sync_rate(from_currency, to_currency, rate_date):
+            return True
+
+        start_date = (date.fromisoformat(rate_date)- timedelta(days=7)).isoformat()
+        result = self.sync_rates(from_currency,to_currency,start_date,rate_date)
+
+        return result["saved"] > 0
+        
     def get_rates(self, from_currency=None, to_currency=None, start_date=None, end_date=None):
         if to_currency is not None:
             to_currency = to_currency.upper()
