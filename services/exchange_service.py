@@ -86,8 +86,20 @@ class ExchangeService:
             self.exchange_data_manager.close()
         
         return response
-        
+       
     def sync_rates(self, from_currency, to_currency, start_date, end_date=None):
+        self.exchange_data_manager.begin_transaction()
+        try:
+            result = self._sync_rates(from_currency, to_currency, start_date, end_date)
+            self.exchange_data_manager.commit()
+            return result
+        except:
+            self.exchange_data_manager.rollback()
+            raise
+        finally:
+            self.exchange_data_manager.close()
+            
+    def _sync_rates(self, from_currency, to_currency, start_date, end_date=None):
         from_currency = from_currency.upper()
         to_currency = to_currency.upper()
 
@@ -108,31 +120,21 @@ class ExchangeService:
         saved = 0
         failed = 0
         unavailable_dates = []
+
+        while current_date <= end_date:
+            rate_date = current_date.isoformat()
+
+            success = self._sync_rate(from_currency, to_currency, rate_date)
+            processed += 1
+
+            if success:
+                saved += 1
+            else:
+                failed += 1
+                unavailable_dates.append(rate_date)
+
+            current_date += timedelta(days=1)
         
-        self.exchange_data_manager.begin_transaction()
-        try:
-            while current_date <= end_date:
-                rate_date = current_date.isoformat()
-
-                success = self._sync_rate(from_currency, to_currency, rate_date)
-                processed += 1
-
-                if success:
-                    saved += 1
-                else:
-                    failed += 1
-                    unavailable_dates.append(rate_date)
-
-                current_date += timedelta(days=1)
-         
-            self.exchange_data_manager.commit()
-        except Exception:
-            self.exchange_data_manager.rollback()
-            raise
-
-        finally:
-            self.exchange_data_manager.close()
-            
         return {
             "processed": processed,
             "saved": saved,
@@ -144,11 +146,11 @@ class ExchangeService:
         if from_currency.upper() == to_currency.upper():
             return True
             
-        if self.sync_rate(from_currency, to_currency, rate_date):
+        if self._sync_rate(from_currency, to_currency, rate_date):
             return True
 
         start_date = (date.fromisoformat(rate_date)- timedelta(days=days)).isoformat()
-        result = self.sync_rates(from_currency,to_currency,start_date,rate_date)
+        result = self._sync_rates(from_currency,to_currency,start_date,rate_date)
 
         return result["saved"] > 0
         

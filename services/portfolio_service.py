@@ -127,7 +127,7 @@ class PortfolioService:
         if from_currency == to_currency:
             return
 
-        success = self.exchange_service.ensure_rate(from_currency,to_currency,transaction_date)
+        success = self.exchange_service.ensure_rate(from_currency,to_currency,str(transaction_date))
 
         if not success:
             raise ValueError(f"Exchange rate unavailable: {from_currency}->{to_currency} on {transaction_date}")

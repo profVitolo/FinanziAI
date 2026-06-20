@@ -1,9 +1,9 @@
 from pathlib import Path
-ROOT_DIR = Path(__file__).resolve().parent.parent
-
 import sys
+ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
+from api_test_utils import *
 from data_manager.asset_data_manager import AssetDataManager
 from database.database_manager import DatabaseManager
 
@@ -11,24 +11,24 @@ database = DatabaseManager()
 
 adm = AssetDataManager(database)
 
-print("=== TEST ASSET DATA MANAGER ===")
+print_title("=== TEST ASSET DATA MANAGER ===")
 
 asset = adm.get_asset_by_symbol("AAPL")
-print("AAPL:", dict(asset))
+print_result("AAPL:", asset)
 
 if asset:
     asset_id = asset["id"]
 
     asset_by_id = adm.get_asset_by_id(asset_id)
-    print("Asset by id:", dict(asset_by_id))
+    print_result("Asset by id:", asset_by_id)
 
     last_date = adm.get_last_price_date(asset_id)
-    print("Last date:", last_date)
+    print_result("Last date:", last_date)
 
     prices = adm.get_prices(asset_id)
 
-    print("Records:", len(prices))
+    print_result("Records:", len(prices))
 
     if prices:
-        print("First:", dict(prices[0]))
-        print("Last:", dict(prices[-1]))
+        print_result("First:", (prices[0]))
+        print_result("Last:", (prices[-1]))

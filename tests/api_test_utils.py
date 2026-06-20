@@ -3,6 +3,8 @@ import sys
 import subprocess
 import requests
 import time
+import json
+import sqlite3 
 
 BASE_URL = "http://127.0.0.1:8000"
 
@@ -66,15 +68,32 @@ def print_response(response):
         print(response.text)
         
     
+def print_title(title):
+    str_len = len(title)
+
+    end = ""
+    char = "="
+    if str_len % 2:
+        str_len += 1
+        end = char
+    
+    tot_len = str_len + 8
+    
+    print(f"\n\n{char * (tot_len * 2)}")
+    print(f"\n{char * int(tot_len / 2)}{char * 3} {title} {char * 3}{char * int(tot_len / 2)}{end}")
+    print(f"\n{char * (tot_len * 2)}\n")
+ 
 def print_value(title, value):
-    print(f"\n=== {title} ===")
+    if title != "":
+        print(f"\n=== {title} ===")
     if value is None:
         print("None")
     else:
         print(value)
 
 def print_dict(title, data):
-    print(f"\n=== {title} ===")
+    if title != "":
+        print(f"\n=== {title} ===")
     if data is None:
         print("None")
         return
@@ -82,20 +101,36 @@ def print_dict(title, data):
     for key, value in data.items():
         print(f"{key}: {value}")
 
+def print_json(title, data):
+    if title:
+        print(f"\n=== {title} ===")
+
+    if data is None:
+        print("None")
+        return
+
+    print(json.dumps(data, indent=4, ensure_ascii=False))
+    
 def print_collection(title, items):
-    print(f"\n=== {title} ===")
+    if title != "":
+        print(f"\n=== {title} ===")
 
     if not items:
         print("Empty")
         return
 
     for item in items:
-        print(item)
+        if isinstance(item, sqlite3.Row):
+            print_json("", dict(item))
+        else:
+            print(item)
     
 def print_result(title, value):    
     if isinstance(value, dict):
         print_dict(title, value)
     elif isinstance(value, (list, tuple)):
         print_collection(title, value)
+    elif isinstance(value, sqlite3.Row):
+        print_json(title, dict(value))
     else:
         print_value(title, value)

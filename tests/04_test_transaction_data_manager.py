@@ -1,10 +1,9 @@
 from pathlib import Path
-
-ROOT_DIR = Path(__file__).resolve().parent.parent
-
 import sys
+ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
+from api_test_utils import *
 from data_manager.asset_data_manager import AssetDataManager
 from data_manager.transaction_data_manager import TransactionDataManager
 from database.database_manager import DatabaseManager
@@ -14,12 +13,15 @@ database = DatabaseManager()
 adm = AssetDataManager(database)
 tdm = TransactionDataManager(database)
 
-print("=== ALL TRANSACTIONS ===")
+print_title("=== TEST TRANSACTION DATA MANAGER ===")
 
 transactions = tdm.get_transactions()
 
+print("=== ALL TRANSACTIONS ===")
 for transaction in transactions:
-    print(dict(transaction))
+    print_result("", (transaction))
+else:
+    print("None")
 
 asset = adm.get_asset_by_symbol("AAPL")
 
@@ -36,14 +38,14 @@ if asset:
     )
 
     print("\n=== CREATED TRANSACTION ===")
-    print(dict(tdm.get_transaction(transaction_id)))
+    print_result("", (tdm.get_transaction(transaction_id)))
 
     print("\n=== TRANSACTIONS BY ASSET ===")
 
     transactions = tdm.get_transactions_by_asset(asset_id)
 
     for transaction in transactions:
-        print(dict(transaction))
+        print_result("", (transaction))
 
     print("\n=== UPDATE TRANSACTION ===")
 
@@ -57,12 +59,12 @@ if asset:
         fees=2
     )
 
-    print(dict(tdm.get_transaction(transaction_id)))
+    print_result("", (tdm.get_transaction(transaction_id)))
 
     print("\n=== DELETE TRANSACTION ===")
 
     tdm.delete_transaction(transaction_id)
 
-    print("Last deleted transaction id [None]: ", tdm.get_transaction(transaction_id))
+    print_result("Last deleted transaction id [None]", tdm.get_transaction(transaction_id))
     
     
