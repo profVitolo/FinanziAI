@@ -141,6 +141,9 @@ class ExchangeService:
         }
     
     def ensure_rate(self, from_currency, to_currency, rate_date, days=30):
+        if from_currency.upper() == to_currency.upper():
+            return True
+            
         if self.sync_rate(from_currency, to_currency, rate_date):
             return True
 
