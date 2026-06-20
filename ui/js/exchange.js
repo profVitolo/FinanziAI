@@ -1,6 +1,8 @@
 
 let rates = [];
 let missingDates = [];
+let currentPage = 1;
+const pageSize = 10;
 
 function bindEvents()
 {
@@ -33,8 +35,8 @@ function buildFilters()
 async function refreshRates()
 {
     await loadRates();
-    renderRates();
-    renderCoverage();
+	updateTable(renderRates, rates, "rates-pagination",currentPage, pageSize);
+	renderCoverage();
 
     await loadMissingDates();
 }
@@ -49,12 +51,12 @@ async function loadRates()
     rates = await response.json();
 }
 
-function renderRates()
+function renderRates(rates)
 {
     const table = document.getElementById("rates-table");
 
     table.innerHTML = "";
-console.log(rates);
+
     for (const rate of rates)
     {
         const row = document.createElement("tr");
@@ -175,6 +177,7 @@ async function init()
 	generateMenu();
     bindEvents();
 	await loadAppInfo();
+	document.querySelector("#to-currency").innerText = " ►► " + appInfo.base_currency;
     await refreshRates();
 }
 

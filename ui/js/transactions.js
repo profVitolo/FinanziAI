@@ -2,6 +2,9 @@
  * STATE
  * ========================================================== */
 let assetsMap = {};
+let allTransactions = [];
+let currentPage = 1;
+const pageSize = 1;
 
 /* ==========================================================
  * API
@@ -301,7 +304,6 @@ async function handleEditSubmit(event)
     }
 }
 
-
 /* ==========================================================
  * DELETE ACTIONS
  * ========================================================== */
@@ -331,7 +333,6 @@ async function handleDelete(event)
     }
 }
 
-
 /* ==========================================================
  * PAGE REFRESH
  * ========================================================== */
@@ -339,16 +340,21 @@ async function handleDelete(event)
 async function refreshTransactions()
 {
     const filters = getQueryParams();
-    const data = await loadTransactions(filters);
-	
-    renderTransactions(data);
-}
+	const [map, data ] = await Promise.all([
+        loadAssetsMap(),
+        loadTransactions(filters)
+    ]);
 
+    assetsMap = map;
+	allTransactions = data;
+	updateTable(renderTransactions, allTransactions, "transactions-pagination",currentPage, pageSize);
+}
 
 /* ==========================================================
  * FILTERS
  * ========================================================== */
- async function handleFilters()
+
+async function handleFilters()
 {
     const filters = {};
 
@@ -385,6 +391,7 @@ async function resetFilters()
 
     await handleFilters();
 }
+
 /* ==========================================================
  * TRANSACTION FORM
  * ========================================================== */
@@ -500,7 +507,6 @@ async function init()
     try
     {	
 		await loadAppInfo();
-        assetsMap = await loadAssetsMap();
         await refreshTransactions();
 		renderCurrencyLabels(appInfo.base_currency); 
     }

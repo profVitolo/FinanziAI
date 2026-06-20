@@ -17,11 +17,6 @@ const menuItems = {
 		url: "transactions.html",
 		title: "Transazioni"
 	},
-	assets: {
-		icon: "📈",
-		url: "assets.html",
-		title: "Asset"
-	},
 	exchange: {
 		icon: "💵",
 		url: "exchange.html",
@@ -87,7 +82,105 @@ async function loadAppInfo()
     return appInfo;
 }
 
-function generateMenu() {
+function paginate(data, page = 1, pageSize = 10)
+{
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+
+    return {
+        items: data.slice(start, end),
+        totalPages: Math.ceil(data.length / pageSize),
+        currentPage: page
+    };
+}
+
+function renderPagination(containerId, currentPage, totalPages, onPageChange)
+{
+    const container = document.getElementById(containerId);
+
+    if (!container)
+        return;
+
+    let html = "";
+
+    function addPage(page)
+    {
+        html += `
+            <button
+                class="${page === currentPage ? "active" : ""}"
+                data-page="${page}">
+                ${page}
+            </button>
+        `;
+    }
+
+    if (currentPage > 1)
+        html += `<button data-page="${currentPage - 1}">←</button>`;
+
+    const pages = new Set();
+
+    pages.add(1);
+
+    for (let i = currentPage - 2; i <= currentPage + 2; i++)
+    {
+        if (i > 1 && i < totalPages)
+            pages.add(i);
+    }
+
+    if (totalPages > 1)
+        pages.add(totalPages);
+
+    const sortedPages = [...pages].sort((a, b) => a - b);
+
+    let previous = null;
+
+    for (const page of sortedPages)
+    {
+        if (previous !== null && page - previous > 1)
+            html += `<span class="ellipsis">...</span>`;
+
+        addPage(page);
+        previous = page;
+    }
+
+    if (currentPage < totalPages)
+        html += `<button data-page="${currentPage + 1}">→</button>`;
+
+    container.innerHTML = html;
+
+    container.querySelectorAll("button[data-page]").forEach(button =>
+    {
+        button.addEventListener("click", () =>
+        {
+            onPageChange(Number(button.dataset.page));
+        });
+    });
+}
+
+function updateTable(renderFunc, items, paginationId, currentPage, pageSize)
+{
+    const page = paginate(
+        items,
+        currentPage,
+        pageSize
+    );
+
+    renderFunc(page.items);
+
+    renderPagination(
+        paginationId,
+        page.currentPage,
+        page.totalPages,
+        newPage =>
+        {
+            currentPage = newPage;
+            updateTable(renderFunc, items, paginationId, currentPage, pageSize);
+        }
+    );
+}
+
+function generateMenu() 
+{
     const container = document.querySelector(".nav-links");
     const pageTitle = document.querySelector("#page-title");
 

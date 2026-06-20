@@ -1,10 +1,13 @@
 /* ===== LAYOUT ===== */
-header
-{
+body {
+    max-width: 1200px;
+}
+
+header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 25px;
-    align-items: flex-end;
 }
 
 .logo
@@ -123,6 +126,47 @@ button
 button:hover
 {
     background-color: #1565c0;
+}
+
+/* ===== PAGINATOR ===== */
+
+.pagination
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 15px;
+}
+
+.pagination .ellipsis
+{
+    padding: 0 4px;
+    color: #666;
+}
+
+.pagination button {
+    min-width: 36px;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    background: #0d6efd;
+	color: white;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.pagination button:hover
+{
+    background: #6ea8fe;
+}
+
+.pagination button.active
+{
+    background: #6ea8fe;
+    color: yellow;
+    border-color: #6ea8fe;
+    font-weight: bold;
 }
 
 /* ===== TABLES ===== */

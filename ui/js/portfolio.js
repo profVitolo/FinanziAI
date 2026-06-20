@@ -1,6 +1,8 @@
 
 let portfolioPositions = [];
 let filteredPositions = [];
+let currentPage = 1;
+const pageSize = 1;
 
 async function loadPortfolioAnalysis()
 {
@@ -41,7 +43,8 @@ function handlePortfolioFilter()
         filteredPositions = portfolioPositions.filter(position => position.symbol.toUpperCase().includes(symbol));
     }
 
-    renderPositions(filteredPositions);
+	updateTable(renderPositions, filteredPositions, "positions-pagination",currentPage, pageSize);
+    //renderPositions(filteredPositions);
 }
 
 function renderSummary(data) 
@@ -109,7 +112,8 @@ function renderExposure(data)
 function renderPortfolio(data) 
 {
 	renderSummary(data);
-	renderPositions(filteredPositions);
+	updateTable(renderPositions, filteredPositions, "positions-pagination",currentPage, pageSize);
+	//renderPositions(filteredPositions);
 	renderExposure(data);
 }
 

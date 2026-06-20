@@ -1,16 +1,3 @@
-body
-{
-    max-width: 1200px;
-}
-
-header
-{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-}
-
 #exposure-list
 {
     margin: 0;
