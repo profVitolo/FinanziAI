@@ -1,6 +1,8 @@
 from datetime import date
+from services.exchange_service import ExchangeService
 from data_manager.portfolio_data_manager import PortfolioDataManager
 from data_manager.transaction_data_manager import TransactionDataManager
+from data_manager.asset_data_manager import AssetDataManager
 from database.database_manager import DatabaseManager
 
 ## un solo DataManager → chiudo il DataManager; 
@@ -12,6 +14,8 @@ class PortfolioService:
         self.database = database or DatabaseManager()
         self.portfolio_data_manager = PortfolioDataManager(self.database)
         self.transaction_data_manager = TransactionDataManager(self.database)
+        self.asset_data_manager = AssetDataManager(self.database)
+        self.exchange_service = ExChangeService(self.database)
 
     def register_transaction(self, asset_id, operation_type, quantity, price, fees=0, transaction_date=None):
         if transaction_date is None:
@@ -22,6 +26,8 @@ class PortfolioService:
         self.transaction_data_manager.begin_transaction()
 
         try:
+            self._ensure_exchange_rate(asset_id, transaction_date)
+
             transaction_id = self.transaction_data_manager.add_transaction(
                 asset_id=asset_id,
                 date=transaction_date,
@@ -58,6 +64,8 @@ class PortfolioService:
         self.transaction_data_manager.begin_transaction()
 
         try:
+            self._ensure_exchange_rate(asset_id, transaction_date)
+
             self.transaction_data_manager.update_transaction(
                 transaction_id=transaction_id,
                 asset_id=asset_id,
@@ -106,6 +114,23 @@ class PortfolioService:
             raise
         finally:
             self.transaction_data_manager.close()
+        
+    def _ensure_exchange_rate(self, asset_id, transaction_date):
+        asset = self.asset_data_manager.get_asset_by_id(asset_id)
+
+        if asset is None:
+            raise ValueError(f"Asset not found: {asset_id}")
+
+        from_currency = asset["currency"]
+        to_currency = self.exchange_service.base_currency
+
+        if from_currency == to_currency:
+            return
+
+        success = self.exchange_service.ensure_rate(from_currency,to_currency,transaction_date)
+
+        if not success:
+            raise ValueError(f"Exchange rate unavailable: {from_currency}->{to_currency} on {transaction_date}")
         
     def _validate_asset_transactions(self, asset_id):
         transactions = self.transaction_data_manager.get_transactions_by_asset(asset_id)
