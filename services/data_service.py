@@ -40,6 +40,12 @@ class DataService:
         
         if asset_info is None:
             return False
+        
+        if isinstance(start_date, str):
+            start_date = date.fromisoformat(start_date)
+
+        if isinstance(end_date, str):
+            end_date = date.fromisoformat(end_date)
             
         self.asset_data_manager.begin_transaction()
         try:
@@ -126,7 +132,13 @@ class DataService:
 
         if asset is None:
             return None
+        
+        if isinstance(start_date, str):
+            start_date = date.fromisoformat(start_date)
 
+        if isinstance(end_date, str):
+            end_date = date.fromisoformat(end_date)
+            
         prices = self.asset_data_manager.get_prices(asset["id"], start_date, end_date)
 
         return {"asset": asset, "prices": prices}
