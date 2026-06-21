@@ -24,7 +24,6 @@ def wait_for_server(timeout=10):
 
     return False
 
-
 def start_server_if_needed():
     if os.getenv("FINANZIAI_TEST_RUNNER") == "1":
         return None
@@ -42,7 +41,6 @@ def start_server_if_needed():
     print("Server pronto")
 
     return server
-
 
 def stop_server(server):
     if server is None:
@@ -97,9 +95,12 @@ def print_dict(title, data):
     if data is None:
         print("None")
         return
-
+    
     for key, value in data.items():
-        print(f"{key}: {value}")
+        if isinstance(value, dict):
+            print(f"{key}: {value}")
+        else:
+            print_result(key, value)
 
 def print_json(title, data):
     if title:
