@@ -65,4 +65,21 @@ def sync_tracked_assets():
 
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-        
+
+@router.get("/{symbol}/details")
+def get_asset_details(symbol: str, start_date: str | None = None, end_date: str | None = None):
+    data_service = DataService()
+
+    asset_details = data_service.get_asset_details(
+        symbol.upper(),
+        start_date=start_date,
+        end_date=end_date
+    )
+
+    if asset_details is None:
+        raise HTTPException(status_code=404, detail="Asset not found")
+
+    return {
+        "asset": dict(asset_details["asset"]),
+        "prices": [dict(price) for price in asset_details["prices"]]
+    }
