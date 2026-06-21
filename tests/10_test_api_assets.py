@@ -27,7 +27,16 @@ try:
     print_response(response)
     if response.status_code >= 400:
         raise Exception("Get asset fallita")
+    
+    print("\n=== TEST GET ASSET DETAILS ===")
+    
+    qs = "start_date=2026-01-01&end_date=2026-01-31"
+    response = requests.get(f"{BASE_URL}/assets/AAPL/details?{qs}")
 
+    print_response(response)
+    if response.status_code >= 400:
+        raise Exception("Get asset details fallita")
+        
     print("\n=== TEST LIST ASSETS ===")
 
     response = requests.get(f"{BASE_URL}/assets/")

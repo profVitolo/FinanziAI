@@ -29,6 +29,11 @@ asset = adm.get_asset_by_symbol("AAPL")
 
 print_result("ASSET", (asset))
 
+print("\n=== SYNC AAPL (1-2025) ===")
+ds.sync_asset("AAPL", start_date="2026-01-01", end_date="2026-01-31")
+
+print_result("ASSET DETAILS", ds.get_asset_details("AAPL", "2026-01-01", "2026-01-31"))
+
 if asset:
     asset_id = asset["id"]
 
@@ -53,3 +58,4 @@ print_result("AAPL ANALYSIS", engine.analyze_asset("AAPL"))
 print_result("S&P500 ANALYSIS", engine.analyze_asset("^GSPC"))
 
 print_result("MSFT ANALYSIS", engine.analyze_asset("MSFT"))
+
