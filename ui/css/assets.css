@@ -1,0 +1,5 @@
+#asset-info td:first-child
+{
+    font-weight: bold;
+    width: 150px;
+}

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assets</title>
+
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/assets.css">
+
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 x=%22-.1em%22 font-size=%2290%22>📈</text></svg>"
+    >
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <h1>📈 FinanziAI</h1>
+        <p>AI-Assisted Investment Analysis</p>
+    </div>
+
+    <h1 id="page-title">Asset</h1>
+
+    <div class="nav-links"></div>
+</header>
+
+<main>
+
+    <section>
+        <h2>Selezione Asset</h2>
+
+        <select id="asset-select" onchange="handleFilters()">
+            <option value="">Seleziona asset...</option>
+        </select>
+        <input type="date" id="filter-start-date" onchange="handleFilters()">
+        <input type="date" id="filter-end-date" onchange="handleFilters()">
+        <button onclick="resetFilters()">Reset</button>
+    </section>
+
+    <hr>
+
+    <section>
+        <h2>Informazioni Asset</h2>
+
+        <table>
+            <tbody id="asset-info">
+            </tbody>
+        </table>
+    </section>
+
+    <hr>
+
+    <section>
+        <h2>Storico Prezzi</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Open</th>
+                    <th>High</th>
+                    <th>Low</th>
+                    <th>Close</th>
+                    <th>Volume</th>
+                </tr>
+            </thead>
+
+            <tbody id="prices-table">
+            </tbody>
+        </table>
+
+        <div id="prices-pagination" class="pagination"></div>
+
+    </section>
+
+</main>
+
+<script src="js/helper.js"></script>
+<script src="js/assets.js"></script>
+
+</body>
+</html>
