@@ -17,6 +17,11 @@ const menuItems = {
 		url: "transactions.html",
 		title: "Transazioni"
 	},
+	assets: {
+		icon: "📊",
+		url: "assets.html",
+		title: "Archivio Asset"
+	},
 	exchange: {
 		icon: "💵",
 		url: "exchange.html",
