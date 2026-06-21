@@ -120,4 +120,14 @@ class DataService:
             
     def get_asset_by_id(self, asset_id):
         return self.asset_data_manager.get_asset_by_id(asset_id)
-   
+    
+    def get_asset_details(self, symbol, start_date=None, end_date=None):
+        asset = self.get_asset_by_symbol(symbol)
+
+        if asset is None:
+            return None
+
+        prices = self.asset_data_manager.get_prices(asset["id"], start_date, end_date)
+
+        return {"asset": asset, "prices": prices}
+        
