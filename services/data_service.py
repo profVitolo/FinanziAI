@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from data_manager.asset_data_manager import AssetDataManager
 from data_collector.yahoo_collector import YahooCollector
 from database.database_manager import DatabaseManager
-
+from config import BOOTSTRAP_DAYS 
 
 class DataService:
 
@@ -53,6 +53,8 @@ class DataService:
                     currency=asset_info["currency"],
                     exchange=asset_info["exchange"]
                 )
+                # Boostrap titolo
+                start_date = (start_date - timedelta(days=BOOTSTRAP_DAYS)).isoformat()
 
             else:
                 asset_id = asset["id"]
