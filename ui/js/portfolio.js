@@ -130,6 +130,57 @@ function renderPieChart(positions)
     });
 }
 
+let barChart = null;
+
+function renderBarChart(positions)
+{
+    const canvas = document.getElementById("portfolio-bar-chart");
+
+    if (barChart)
+        barChart.destroy();
+	//console.log(positions);
+    const sortedPositions = [...positions].sort((a, b) => b.performance.pnl_base - a.performance.pnl_base);
+
+    barChart = new Chart(canvas, {
+        type: "bar",
+        data: {
+            labels: sortedPositions.map(p => p.symbol),
+            datasets: [{
+                label: `P/L:`,
+                data: sortedPositions.map(p => Number(p.performance.pnl_base)),
+                backgroundColor: sortedPositions.map(p =>
+                    p.performance.pnl_base >= 0
+                        ? "#4caf50"
+                        : "#f44336"
+                ),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context)
+                        {
+                             return `${context.dataset.label} ${appInfo.base_currency} ${context.raw.toFixed(2)}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
 function renderExposure(data) 
 {
 	const exposureList = document.getElementById("exposure-list");
@@ -150,6 +201,7 @@ function renderPortfolio(data)
 	renderSummary(data);
 	updateTable(renderPositions, filteredPositions, "positions-pagination",currentPage, pageSize);
 	renderPieChart(filteredPositions);
+	renderBarChart(filteredPositions);
 	renderExposure(data);
 }
 
