@@ -119,7 +119,20 @@ class DataEngine:
             return self._build_portfolio_analysis(portfolio_positions)
         finally:
             self.database.close()
-            
+    
+    def _enrich_performance_with_base_currency(self, performance, currency):
+        result = performance.copy()
+
+        try:
+            result["cost_basis_base"] = self.exchange_service.convert(performance["cost_basis"], currency)
+
+            result["pnl_base"] = self.exchange_service.convert(performance["pnl"], currency)
+        except ValueError:
+            result["cost_basis_base"] = None
+            result["pnl_base"] = None
+
+        return result
+    
     def _build_portfolio_positions(self, positions):
         result = []
 
@@ -144,6 +157,8 @@ class DataEngine:
             market_price = self._get_last_valid_close(prices)
             market_value = (self.portfolio_analysis.calculate_position_value(quantity, market_price))
             performance = (self.portfolio_analysis.calculate_performance(quantity, avg_price, market_price))
+            performance = self._enrich_performance_with_base_currency(performance, currency)
+            
             try:
                 market_value_base = self.exchange_service.convert(amount=market_value, from_currency=currency)
             except ValueError:
