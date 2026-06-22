@@ -1,8 +1,9 @@
 
 let portfolioPositions = [];
 let filteredPositions = [];
+let pieChart = null;
 let currentPage = 1;
-const pageSize = 1;
+const pageSize = 5;
 
 async function loadPortfolioAnalysis()
 {
@@ -44,7 +45,8 @@ function handlePortfolioFilter()
     }
 
 	updateTable(renderPositions, filteredPositions, "positions-pagination",currentPage, pageSize);
-    //renderPositions(filteredPositions);
+
+	//renderPieChart(filteredPositions);
 }
 
 function renderSummary(data) 
@@ -94,6 +96,40 @@ function renderPositions(positions)
     }
 }
 
+function renderPieChart(positions)
+{
+    const canvas = document.getElementById("portfolio-pie-chart");
+
+    if (pieChart)
+        pieChart.destroy();
+
+    pieChart = new Chart(canvas, {
+        type: "pie",
+        data: {
+            labels: positions.map(p => p.symbol),
+            datasets: [{
+                data: positions.map(p => Number(p.market_value))
+            }]
+        },
+        options: {
+            responsive: true,
+			maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: "right"
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: €${context.raw.toFixed(2)}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
 function renderExposure(data) 
 {
 	const exposureList = document.getElementById("exposure-list");
@@ -104,7 +140,7 @@ function renderExposure(data)
 	{
 		const li = document.createElement("li");
 
-        li.textContent = `${symbol}: ${value.toFixed(2)}%`;
+        li.innerHTML = `<span>${symbol}</span><strong>${value.toFixed(2)}%</strong>`;
         exposureList.appendChild(li);
     }
 }
@@ -113,7 +149,7 @@ function renderPortfolio(data)
 {
 	renderSummary(data);
 	updateTable(renderPositions, filteredPositions, "positions-pagination",currentPage, pageSize);
-	//renderPositions(filteredPositions);
+	renderPieChart(filteredPositions);
 	renderExposure(data);
 }
 

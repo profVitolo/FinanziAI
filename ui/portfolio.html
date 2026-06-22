@@ -42,6 +42,22 @@
         <hr>
 		
 		<section>
+			<h2>Esposizione</h2>
+
+			<div class="exposure-container">
+				<div class="exposure-chart">
+					<canvas id="portfolio-pie-chart"></canvas>
+				</div>
+
+				<div class="exposure-details">
+					<ul id="exposure-list"></ul>
+				</div>
+			</div>
+		</section>
+
+		<hr>
+
+		<section>
 			<h2>Cerca Posizioni</h2>
 			<input type="text" id="portfolio-filter-symbol" placeholder="AAPL" oninput="handlePortfolioFilter()">
 			<button onclick="document.getElementById('portfolio-filter-symbol').value = '';">Reset</button>
@@ -70,16 +86,10 @@
         </section>
 
         <hr>
-
-        <section>
-            <h2>Esposizione</h2>
-            <ul id="exposure-list"></ul>
-        </section>
-
-        <hr>
     </main>
 
 	<script src="js/helper.js"></script>
     <script src="js/portfolio.js"></script>
+	<script src="js/static/chart.js"></script>
 </body>
 </html>
