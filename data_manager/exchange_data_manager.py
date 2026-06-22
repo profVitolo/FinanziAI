@@ -156,14 +156,19 @@ class ExchangeDataManager(BaseDataManager):
 
         return [dict(row) for row in cursor.fetchall()]
 		
-	def get_from_currencies(self):
+    def get_from_currencies(self):
+        conn = self._connect()
+        cursor = conn.cursor()
+        
         query = """
             SELECT DISTINCT from_currency
             FROM exchange_rates
             ORDER BY from_currency
         """
         
+        cursor.execute(query)
+        
         return [
             row["from_currency"]
-            for row in self.database.fetch_all(query)
+            for row in cursor.fetchall()
         ]
