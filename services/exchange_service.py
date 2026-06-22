@@ -110,7 +110,7 @@ class ExchangeService:
                 "failed": 0
             }
 
-        if end_date is None:
+        if not end_date:
             end_date = date.today().isoformat()
 
         current_date = date.fromisoformat(start_date)
