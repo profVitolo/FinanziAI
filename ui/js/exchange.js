@@ -171,6 +171,16 @@ async function syncRates()
     await refreshRates();
 }
 
+async function loadCurrencies()
+{
+    const response =
+        await fetch(`${API_BASE}/exchange/from-currencies`);
+
+    if (!response.ok)
+        throw new Error("Unable to load currencies");
+
+    return await response.json();
+}
 
 async function init()
 {
