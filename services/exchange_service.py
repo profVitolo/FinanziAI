@@ -50,7 +50,7 @@ class ExchangeService:
         return missing_dates
     
     def _sync_rate(self, from_currency, to_currency, rate_date=None):
-        from_currency = from_currency.upper()
+        from_currency = (from_currency or BASE_CURRENCY).upper()
         to_currency = to_currency.upper()
 
         if from_currency == to_currency:
@@ -100,7 +100,7 @@ class ExchangeService:
             self.exchange_data_manager.close()
             
     def _sync_rates(self, from_currency, to_currency, start_date, end_date=None):
-        from_currency = from_currency.upper()
+        from_currency = from_currency = (from_currency or BASE_CURRENCY).upper()
         to_currency = to_currency.upper()
 
         if from_currency == to_currency:
