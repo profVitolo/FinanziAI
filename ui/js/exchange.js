@@ -36,6 +36,7 @@ function buildFilters()
 async function refreshRates()
 {
     await loadRates();
+	renderChart(rates);
 	updateTable(renderRates, rates, "rates-pagination",currentPage, pageSize);
 	renderCoverage();
 
@@ -88,6 +89,44 @@ function renderCoverage()
     const oldest = rates[rates.length - 1].rate_date;
 
     info.textContent = `Copertura dati dal ${oldest} al ${newest}`;
+}
+
+function renderChart(rates)
+{
+	let chartTitle = "";
+	if (rates.length == 0)
+		chartTitle = "No data to graph";
+	else
+	{
+		const container = document.getElementById("exchange-chart");
+
+		container.innerHTML = "";
+
+		const chart = LightweightCharts.createChart(
+			container,
+			{
+				width: container.clientWidth,
+				height: 400
+			}
+		);
+
+		const series = chart.addLineSeries();
+		const data = rates
+		.map(rate => ({
+			time: rate.rate_date,
+			value: Number(rate.rate)
+		}))
+		.sort((a, b) => a.time.localeCompare(b.time));
+
+		series.setData(data);
+
+		chart.timeScale().fitContent();
+		
+		const fromCurrency = document.getElementById("from-currency").selectedOptions[0].value;
+		chartTitle = `${fromCurrency}/${appInfo.base_currency}`;
+	}
+	
+	document.getElementById("chart-title").innerText = chartTitle;
 }
 
 function renderFromCurrencies()
