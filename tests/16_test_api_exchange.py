@@ -87,7 +87,11 @@ try:
             "end_date": "2026-03-31"
         }
     )
+    print_response(response)
+    
+    print("\n=== TEST GET FROM_CURRENCIES ===")
 
+    response = requests.get(f"{BASE_URL}/exchange/from-currencies")
     print_response(response)
     
     print("\n=== TEST API EXCHANGE COMPLETATO ===")

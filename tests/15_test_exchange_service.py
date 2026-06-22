@@ -12,7 +12,7 @@ from api_test_utils import *
 database = DatabaseManager()
 exchange_service = ExchangeService(database)
 
-print_title("=== TEST EXCHANGE SERVIVE ===")
+print_title("=== TEST EXCHANGE SERVICE ===")
 print("\n=== COLLECTOR FETCHES ===")
 
 print_value(
@@ -86,3 +86,5 @@ print_collection(
         "2026-06-30"
     )
 )
+
+print_collection("GET FROM-CURRENCIES", exchange_service.get_from_currencies())
