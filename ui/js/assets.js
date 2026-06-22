@@ -29,6 +29,9 @@ async function loadAssetDetails()
         currentPage,
         pageSize
     );
+	
+	renderCandlestickChart(assetDetails.prices);
+	renderBarChart(assetDetails.prices);
 }
 
 async function handleFilters()
@@ -43,6 +46,110 @@ function resetFilters()
     document.getElementById("filter-end-date").value = "";
 
     handleFilters();
+}
+
+function renderCandlestickChart(prices)
+{
+    const container = document.getElementById("candle-chart");
+    container.innerHTML = "";
+
+    const chart = LightweightCharts.createChart(
+        container,
+        {
+            width: container.clientWidth || 1000,
+            height: 400,
+            layout: {
+                background: { color: "#ffffff" },
+                textColor: "#333"
+            },
+            grid: {
+                vertLines: { color: "#f0f0f0" },
+                horzLines: { color: "#f0f0f0" }
+            }
+        }
+    );
+
+    const series = chart.addCandlestickSeries({
+		upColor: "#22c55e",
+		downColor: "#ef4444",
+
+		borderUpColor: "#22c55e",
+		borderDownColor: "#ef4444",
+
+		wickUpColor: "#3b82f6",
+		wickDownColor: "#3b82f6"
+	});
+	
+    const data = [...prices]
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .map(price => ({
+            time: price.date,
+            open: Number(price.open),
+            high: Number(price.high),
+            low: Number(price.low),
+            close: Number(price.close)
+        }));
+
+    series.setData(data);
+
+    chart.timeScale().fitContent();
+	
+	chart.subscribeCrosshairMove(param => {
+		if (!param.point || !param.time)
+		{
+			document.getElementById("chart-legend").innerHTML = "&nbsp;";
+			return;
+		}
+		
+		const data = param.seriesData.get(series);
+
+		if (!data)
+			return;
+
+		document.getElementById("chart-legend").innerHTML =
+			`O: ${data.open.toFixed(2)}
+			 H: ${data.high.toFixed(2)}
+			 L: ${data.low.toFixed(2)}
+			 C: ${data.close.toFixed(2)}`;
+	});
+}
+
+function renderBarChart(prices)
+{
+    const container = document.getElementById("bar-chart");
+    container.innerHTML = "";
+
+    const chart = LightweightCharts.createChart(
+        container,
+        {
+            width: container.clientWidth || 1000,
+            height: 200,
+            layout: {
+                background: { color: "#ffffff" },
+                textColor: "#333"
+            },
+            grid: {
+                vertLines: { color: "#f0f0f0" },
+                horzLines: { color: "#f0f0f0" }
+            }
+        }
+    );
+
+    const series = chart.addHistogramSeries({color: "#26a69a"});
+
+    const data = [...prices]
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .map(price => ({
+            time: price.date,
+            value: Number(price.volume),
+            color: Number(price.close) >= Number(price.open) ? "#26a69a" : "#ef5350"
+        }));
+
+    series.setData(data);
+
+    chart.timeScale().fitContent();
+
+    return chart;
 }
 
 function renderAssetInfo(asset)
@@ -60,6 +167,7 @@ function renderAssetInfo(asset)
         <tr><td>Currency</td><td>${asset.currency}</td></tr>
         <tr><td>Exchange</td><td>${asset.exchange}</td></tr>
     `;
+
 }
 
 function renderPrices(prices)
@@ -120,7 +228,13 @@ function populateAssetSelect(selectId, assets)
     const select = document.getElementById(selectId);
 
     select.innerHTML = "";
-
+	
+	if (assets.length == 0)
+	{
+		alert("Still no asset in db");
+		return;
+	}
+	
     for (const asset of assets)
     {
         const option = document.createElement("option");
@@ -130,6 +244,7 @@ function populateAssetSelect(selectId, assets)
 
         select.appendChild(option);
     }
+	
 }
 
 async function init()
