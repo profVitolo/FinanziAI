@@ -1,6 +1,7 @@
 
 let rates = [];
 let missingDates = [];
+let fromCurrencies = [];
 let currentPage = 1;
 const pageSize = 10;
 
@@ -89,6 +90,23 @@ function renderCoverage()
     info.textContent = `Copertura dati dal ${oldest} al ${newest}`;
 }
 
+function renderFromCurrencies()
+{
+	const selector = document.getElementById("from-currency");
+	let html = "";
+			
+	if (fromCurrencies.length === 0)
+		html = `<option value="USD">USD</option>`; //di default vedi solo USD
+	else
+	{
+
+		for(const curr of fromCurrencies)
+			html += `<option value="${curr}">${curr}</option>`;
+		
+	}	
+	selector.innerHTML = html;
+}
+
 async function loadMissingDates()
 {
     const fromCurrency = document.getElementById("from-currency").value;
@@ -142,6 +160,11 @@ async function syncRates()
         return;
     }
 
+	if (!fromCurrency)
+	{
+		return;
+	}
+	
     const response = await fetch(`${API_BASE}/exchange/sync-range`,
         {
             method: "POST",
@@ -171,7 +194,7 @@ async function syncRates()
     await refreshRates();
 }
 
-async function loadCurrencies()
+async function loadFromCurrencies()
 {
     const response =
         await fetch(`${API_BASE}/exchange/from-currencies`);
@@ -179,15 +202,18 @@ async function loadCurrencies()
     if (!response.ok)
         throw new Error("Unable to load currencies");
 
-    return await response.json();
+    const data = await response.json();
+	fromCurrencies = data;
+	renderFromCurrencies();
 }
-
+ 
 async function init()
 {
 	generateMenu();
     bindEvents();
 	await loadAppInfo();
 	document.querySelector("#to-currency").innerText = " ►► " + appInfo.base_currency;
+	await loadFromCurrencies();
     await refreshRates();
 }
 
