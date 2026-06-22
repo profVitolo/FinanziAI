@@ -29,7 +29,7 @@ class ExchangeService:
         from_currency = from_currency.upper()
         to_currency = to_currency.upper()
 
-        if end_date is None:
+        if not end_date:
             end_date = date.today().isoformat()
 
         current_date = date.fromisoformat(start_date)
@@ -56,7 +56,7 @@ class ExchangeService:
         if from_currency == to_currency:
             return True
 
-        if rate_date is None:
+        if not rate_date:
             rate_date = date.today().isoformat()
 
         existing = self.exchange_data_manager.get_rate(from_currency, to_currency, rate_date)
@@ -169,7 +169,7 @@ class ExchangeService:
         )
 
     def get_rate(self, from_currency, to_currency, rate_date=None):
-        if rate_date is None:
+        if not rata_date:
             return self.get_latest_rate(from_currency.upper(), to_currency.upper())
 
         return self.exchange_data_manager.get_rate(from_currency.upper(),to_currency.upper(), rate_date)
