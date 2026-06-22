@@ -4,7 +4,7 @@
 let assetsMap = {};
 let allTransactions = [];
 let currentPage = 1;
-const pageSize = 1;
+const pageSize = 7;
 
 /* ==========================================================
  * API
