@@ -46,6 +46,12 @@ def get_missing_dates(filters: MissingDatesFilter = Depends()):
     }
 
 
+@router.get("/from-currencies")
+def get_currencies():
+    exchange_service = ExchangeService()
+    return exchange_service.get_from_currencies()
+
+
 @router.get("/convert")
 def convert(params: ExchangeConvert = Depends()):
     exchange_service = ExchangeService()
