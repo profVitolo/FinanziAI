@@ -1,5 +1,6 @@
 import sqlite3
 from data_manager.base_data_manager import BaseDataManager
+
 class ExchangeDataManager(BaseDataManager):
     def __init__(self, database):
         self.database = database
@@ -112,7 +113,6 @@ class ExchangeDataManager(BaseDataManager):
 
         return [dict(row) for row in cursor.fetchall()]
 		
-		
     def get_rates(self, from_currency=None, to_currency=None, start_date=None, end_date=None):
         conn = self._connect()
         cursor = conn.cursor()
@@ -156,4 +156,14 @@ class ExchangeDataManager(BaseDataManager):
 
         return [dict(row) for row in cursor.fetchall()]
 		
-		
+	def get_from_currencies(self):
+        query = """
+            SELECT DISTINCT from_currency
+            FROM exchange_rates
+            ORDER BY from_currency
+        """
+        
+        return [
+            row["from_currency"]
+            for row in self.database.fetch_all(query)
+        ]

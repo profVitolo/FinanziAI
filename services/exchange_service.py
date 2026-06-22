@@ -181,3 +181,6 @@ class ExchangeService:
             rate_date
         )
     
+    def get_from_currencies(self):
+        return self.exchange_data_manager.get_from_currencies()
+    
