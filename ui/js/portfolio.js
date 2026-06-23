@@ -1,7 +1,10 @@
 
 let portfolioPositions = [];
 let filteredPositions = [];
-let pieChart = null;
+let positionsChart = null;
+let pnlChart = null;
+let pnlChartAxis = "y";
+
 let currentPage = 1;
 const pageSize = 5;
 
@@ -45,8 +48,6 @@ function handlePortfolioFilter()
     }
 
 	updateTable(renderPositions, filteredPositions, "positions-pagination",currentPage, pageSize);
-
-	//renderPieChart(filteredPositions);
 }
 
 function renderSummary(data) 
@@ -96,14 +97,14 @@ function renderPositions(positions)
     }
 }
 
-function renderPieChart(positions)
+function renderPositionsChart(positions)
 {
     const canvas = document.getElementById("portfolio-pie-chart");
 
-    if (pieChart)
-        pieChart.destroy();
+    if (positionsChart)
+        positionsChart.destroy();
 
-    pieChart = new Chart(canvas, {
+    positionsChart = new Chart(canvas, {
         type: "pie",
         data: {
             labels: positions.map(p => p.symbol),
@@ -130,18 +131,16 @@ function renderPieChart(positions)
     });
 }
 
-let barChart = null;
-
-function renderBarChart(positions)
+function renderPnlChart(positions)
 {
     const canvas = document.getElementById("portfolio-bar-chart");
 
-    if (barChart)
-        barChart.destroy();
-	//console.log(positions);
+    if (pnlChart)
+        pnlChart.destroy();
+
     const sortedPositions = [...positions].sort((a, b) => b.performance.pnl_base - a.performance.pnl_base);
 
-    barChart = new Chart(canvas, {
+    pnlChart = new Chart(canvas, {
         type: "bar",
         data: {
             labels: sortedPositions.map(p => p.symbol),
@@ -157,6 +156,7 @@ function renderBarChart(positions)
             }]
         },
         options: {
+			indexAxis: pnlChartAxis,
             responsive: true,
             maintainAspectRatio: true,
             plugins: {
@@ -200,8 +200,8 @@ function renderPortfolio(data)
 {
 	renderSummary(data);
 	updateTable(renderPositions, filteredPositions, "positions-pagination",currentPage, pageSize);
-	renderPieChart(filteredPositions);
-	renderBarChart(filteredPositions);
+	renderPositionsChart(filteredPositions);
+	renderPnlChart(filteredPositions);
 	renderExposure(data);
 }
 
@@ -224,6 +224,12 @@ async function init()
         console.error(error);
 		alert("Errore caricamento portfolio");
     }
+	
+	document.getElementById("toggle-pnl-chart").addEventListener("click", () =>
+	{
+		pnlChartAxis = pnlChartAxis === "x" ? "y" : "x";
+		renderPnlChart(filteredPositions);
+	});
 }
 
 document.addEventListener("DOMContentLoaded", init);
