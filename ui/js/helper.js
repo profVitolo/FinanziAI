@@ -184,6 +184,21 @@ function updateTable(renderFunc, items, paginationId, currentPage, pageSize)
     );
 }
 
+function getSetting(key, defaultValue)
+{
+    const value = localStorage.getItem(key);
+
+    if (value === null)
+        return defaultValue;
+
+    return JSON.parse(value);
+}
+
+function setSetting(key, value)
+{
+    localStorage.setItem(key, JSON.stringify(value));
+}
+
 function generateMenu() 
 {
     const container = document.querySelector(".nav-links");
