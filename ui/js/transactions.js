@@ -3,6 +3,13 @@
  * ========================================================== */
 let assetsMap = {};
 let allTransactions = [];
+let filteredTransactions = [];
+
+let transactionDistributionChart = null;
+let transactionValueChart = null;
+let buySellChart = null;
+let transactionFeesChart = null;
+
 let currentPage = 1;
 const pageSize = 7;
 
@@ -188,6 +195,364 @@ function renderCurrencyLabels(baseCurrency)
 }
 
 /* ==========================================================
+ * GRAFICI
+ * ========================================================== */
+ 
+function renderTransactionDistributionChart(transactions)
+{
+    const canvas = document.getElementById("transaction-distribution-chart");
+
+    if (transactionDistributionChart)
+        transactionDistributionChart.destroy();
+
+    const distribution = {};
+
+    transactions.forEach(transaction =>
+    {
+		const asset = assetsMap[transaction.asset_id];
+        const symbol = asset.symbol;
+        const value = Number(transaction.quantity) * Number(transaction.price);
+
+        distribution[symbol] = (distribution[symbol] || 0) + value;
+    });
+
+    const labels = Object.keys(distribution);
+
+    const values = Object.values(distribution);
+
+    const colors = [
+        "#4f46e5",
+        "#06b6d4",
+        "#10b981",
+        "#f59e0b",
+        "#ef4444",
+        "#8b5cf6",
+        "#ec4899",
+        "#14b8a6",
+        "#84cc16",
+        "#f97316"
+    ];
+
+    transactionDistributionChart = new Chart(canvas, {
+        type: "pie",
+        data: {
+            labels,
+            datasets: [{
+                data: values,
+                backgroundColor: labels.map((_, index) => colors[index % colors.length])
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {position: "right"},
+                tooltip: {
+                    callbacks: {
+                        label: function(context)
+                        {
+                            const total = context.dataset.data.reduce((sum, value) => sum + value, 0);
+                            const percentage = (context.raw / total) * 100;
+
+                            return `${context.label}: ${appInfo.base_currency} ${context.raw.toFixed(2)}(${percentage.toFixed(1)}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function renderTransactionDetails(transactions)
+{
+    const distributionList = document.getElementById("transaction-distribution-list");
+    distributionList.innerHTML = "";
+    const distribution = {};
+
+    transactions.forEach(transaction =>
+    {
+		const asset = assetsMap[transaction.asset_id];
+        const symbol = asset.symbol;
+        const value = Number(transaction.quantity) * Number(transaction.price);
+        distribution[symbol] = (distribution[symbol] || 0) + value;
+    });
+
+    const total = Object.values(distribution).reduce((sum, value) => sum + value, 0);
+    const entries = Object.entries(distribution)
+        .map(([symbol, value]) => ({symbol, percentage: total > 0 ? (value / total) * 100 : 0}))
+        .sort((a, b) => b.percentage - a.percentage);
+
+    entries.forEach(entry =>
+    {
+        const li = document.createElement("li");
+        li.innerHTML = `<span>${entry.symbol}</span><strong>${entry.percentage.toFixed(2)}%</strong>`;
+        distributionList.appendChild(li);
+    });
+}
+
+function renderTransactionValueChart(transactions)
+{
+    const canvas = document.getElementById("transaction-value-chart");
+
+    if (transactionValueChart)
+        transactionValueChart.destroy();
+
+    const valuesByDate = {};
+	const detailsByDate = {};
+	const buyByDate = {};
+	const sellByDate = {};
+
+	transactions.forEach(transaction =>
+	{
+		const date = transaction.date;
+		const asset = assetsMap[transaction.asset_id];
+		const symbol = asset?.symbol ?? "?";
+		const value = Number(transaction.quantity) * Number(transaction.price);
+		valuesByDate[date] = (valuesByDate[date] || 0) + value;
+		
+		if (transaction.type === "buy")
+			buyByDate[date] = (buyByDate[date] || 0) + value;
+		else
+			sellByDate[date] = (sellByDate[date] || 0) + value;
+
+		if (!detailsByDate[date])
+			detailsByDate[date] = [];
+
+		detailsByDate[date].push({symbol, type: transaction.type,value});
+	});
+	
+    const labels = Object.keys(valuesByDate).sort();
+    const values = labels.map(date => valuesByDate[date]);
+	const colors = labels.map(date =>
+	{
+		const buy = buyByDate[date] || 0;
+		const sell = sellByDate[date] || 0;
+
+		if (buy > 0 && sell > 0)
+		{
+			return buy >= sell
+				? "#4fc3f7"
+				: "#ff9800";
+		}
+
+		return buy > 0
+			? "#4caf50"
+			: "#f44336";
+	});
+	
+    transactionValueChart = new Chart(canvas, {
+        type: "bar",
+        data: {
+            labels,
+            datasets: [{
+                label: "Valore Transato",
+                data: values,
+                backgroundColor: colors,
+                borderColor: colors,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context)
+                        {
+                            return `${appInfo.base_currency} ${context.raw.toFixed(2)}`;
+                        },
+						afterLabel: function(context)
+						{
+							const date = context.label;
+							return detailsByDate[date].map(detail =>
+								`${detail.symbol} - ${appInfo.base_currency} ${detail.value.toFixed(2)} (${detail.type.toUpperCase()})`
+							);
+						}
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: "Euro"
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: "Data"
+                    }
+                }
+            }
+        }
+    });
+}
+
+function renderBuySellChart(transactions)
+{
+    const canvas = document.getElementById("buy-sell-chart");
+
+    if (buySellChart)
+        buySellChart.destroy();
+
+    const buyByDate = {};
+    const sellByDate = {};
+
+    transactions.forEach(transaction =>
+    {
+        const date = transaction.date;
+        const value = Number(transaction.quantity) * Number(transaction.price);
+
+        if (transaction.type === "buy")
+            buyByDate[date] = (buyByDate[date] || 0) + value;
+        else
+            sellByDate[date] = (sellByDate[date] || 0) + value;
+    });
+
+    const labels = [...new Set([...Object.keys(buyByDate),...Object.keys(sellByDate)])].sort();
+    const buyValues = labels.map(date => buyByDate[date] || 0);
+    const sellValues = labels.map(date => sellByDate[date] || 0);
+
+    buySellChart = new Chart(canvas, {
+        type: "bar", //line
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: "Acquisti",
+                    data: buyValues,
+                    backgroundColor: "#4caf50",
+                    borderColor: "#4caf50",
+                    borderWidth: 1
+                },
+                {
+                    label: "Vendite",
+                    data: sellValues,
+                    backgroundColor: "#f44336",
+                    borderColor: "#f44336",
+                    borderWidth: 1
+                }
+            ]
+        }, 
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context)
+                        {
+                            return `${context.dataset.label}: ${appInfo.base_currency} ${context.raw.toFixed(2)}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: appInfo.base_currency
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: "Data"
+                    }
+                }
+            }
+        }
+    });
+}
+
+function renderTransactionFeesChart(transactions)
+{
+    const canvas = document.getElementById("transaction-fees-chart");
+
+    if (transactionFeesChart)
+        transactionFeesChart.destroy();
+
+    const feesByDate = {};
+    const detailsByDate = {};
+
+    transactions.forEach(transaction =>
+    {
+        const date = transaction.date;
+        const asset = assetsMap[transaction.asset_id];
+        const symbol = asset?.symbol ?? "?";
+        const fees = Number(transaction.fees || 0);
+
+        feesByDate[date] = (feesByDate[date] || 0) + fees;
+
+        if (!detailsByDate[date])
+            detailsByDate[date] = [];
+
+        detailsByDate[date].push({symbol, fees});
+    });
+
+    const labels = Object.keys(feesByDate).sort();
+    const values = labels.map(date => feesByDate[date]);
+
+    transactionFeesChart = new Chart(canvas, {
+        type: "bar",
+        data: {
+            labels,
+            datasets: [{
+                label: "Commissioni",
+                data: values,
+                backgroundColor: "#ff9800",
+                borderColor: "#ff9800",
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context)
+                        {
+                            return `${appInfo.base_currency} ${context.raw.toFixed(2)}`;
+                        },
+                        afterLabel: function(context)
+                        {
+                            const date = context.label;
+
+                            return detailsByDate[date].map(detail =>
+                                `${detail.symbol} - ${appInfo.base_currency} ${detail.fees.toFixed(2)}`
+                            );
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: appInfo.base_currency
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: "Data"
+                    }
+                }
+            }
+        }
+    });
+}
+
+/* ==========================================================
  * EDIT MODAL
  * ========================================================== */
 
@@ -346,8 +711,14 @@ async function refreshTransactions()
     ]);
 
     assetsMap = map;
-	allTransactions = data;
-	updateTable(renderTransactions, allTransactions, "transactions-pagination",currentPage, pageSize);
+	if (allTransactions.length == 0)
+		allTransactions = data;
+	filteredTransactions = data;
+	updateTable(renderTransactions, filteredTransactions, "transactions-pagination",currentPage, pageSize);
+	
+	renderTransactionValueChart(filteredTransactions);
+	renderBuySellChart(filteredTransactions);
+	renderTransactionFeesChart(filteredTransactions);
 }
 
 /* ==========================================================
@@ -508,7 +879,10 @@ async function init()
     {	
 		await loadAppInfo();
         await refreshTransactions();
+		
 		renderCurrencyLabels(appInfo.base_currency); 
+		renderTransactionDistributionChart(allTransactions);
+		renderTransactionDetails(allTransactions);
     }
     catch (error)
     {

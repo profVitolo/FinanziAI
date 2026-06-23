@@ -18,3 +18,62 @@ td.actions
 {
     align-items: center;
 }
+
+
+/* GRAFICI */
+.distribution-container
+{
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.distribution-chart
+{
+    flex: 1;
+    max-height: 450px;
+}
+
+.distribution-details
+{
+    flex: 1;
+	align-self: center;
+}
+
+.distribution-details ul
+{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.distribution-details li
+{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+
+    background: #f8f9fa;
+    border-radius: 8px;
+
+    border-left: 4px solid #4f46e5;
+}
+
+.chart-container
+{
+    position: relative;
+    width: 100%;
+    height: 400px;
+}
+
+.chart-container canvas
+{
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#transaction-fees-chart{width: 100%;height: 400px;}
+#transaction-distribution-chart{margin: auto;width: 100%;}

@@ -25,7 +25,22 @@
 </header>
 
 <main>
+	<section>
+		<h2>Distribuzione Operazioni per Asset</h2>
 
+		<div class="distribution-container">
+			<div class="distribution-chart">
+				<canvas id="transaction-distribution-chart"></canvas>
+			</div>
+
+			<div class="distribution-details">
+				<ul id="transaction-distribution-list"></ul>
+			</div>
+		</div>
+	</section>
+	
+	<hr>
+	
 	<section>
         <h2 id="form-title">
             Nuova Transazione
@@ -58,6 +73,32 @@
     </section>
 
     <hr>
+	
+	<section>
+		<h2>Valore Transato nel Tempo</h2>
+
+		<div class="chart-container">
+			<canvas id="transaction-value-chart"></canvas>
+		</div>
+	</section>
+
+	<section>
+		<h2>Acquisti vs Vendite</h2>
+
+		<div class="chart-container">
+			<canvas id="buy-sell-chart"></canvas>
+		</div>
+	</section>
+
+	<section>
+		<h2>Commissioni nel Tempo</h2>
+
+		<div class="chart-container">
+			<canvas id="transaction-fees-chart"></canvas>
+		</div>
+	</section>
+
+	<hr>
 
     <section>
         <h2>Transazioni</h2>
@@ -66,8 +107,8 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Data</th>
                     <th>Asset</th>
+                    <th>Data</th>
                     <th>Operazione</th>
                     <th>Quantità</th>
                     <th id="th-price">Prezzo</th>
@@ -143,6 +184,6 @@
 
 <script src="js/helper.js"></script>
 <script src="js/transactions.js"></script>
-
+<script src="js/static/chart.js"></script>
 </body>
 </html>
