@@ -5,10 +5,12 @@ let assetsMap = {};
 let allTransactions = [];
 let filteredTransactions = [];
 
-let transactionDistributionChart = null;
-let transactionValueChart = null;
+let distributionChart = null;
+let valueChart = null;
 let buySellChart = null;
-let transactionFeesChart = null;
+let buySellChartType = "bar";
+let feesChart = null;
+let feesChartType = "bar";
 
 let currentPage = 1;
 const pageSize = 7;
@@ -96,7 +98,6 @@ async function getTransaction(transactionId)
 
     return await response.json();
 }
-
 
 /* ==========================================================
  * RENDERING
@@ -198,12 +199,12 @@ function renderCurrencyLabels(baseCurrency)
  * GRAFICI
  * ========================================================== */
  
-function renderTransactionDistributionChart(transactions)
+function renderDistributionChart(transactions)
 {
     const canvas = document.getElementById("transaction-distribution-chart");
 
-    if (transactionDistributionChart)
-        transactionDistributionChart.destroy();
+    if (distributionChart)
+        distributionChart.destroy();
 
     const distribution = {};
 
@@ -233,7 +234,7 @@ function renderTransactionDistributionChart(transactions)
         "#f97316"
     ];
 
-    transactionDistributionChart = new Chart(canvas, {
+    distributionChart = new Chart(canvas, {
         type: "pie",
         data: {
             labels,
@@ -290,12 +291,12 @@ function renderTransactionDetails(transactions)
     });
 }
 
-function renderTransactionValueChart(transactions)
+function renderValueChart(transactions)
 {
     const canvas = document.getElementById("transaction-value-chart");
 
-    if (transactionValueChart)
-        transactionValueChart.destroy();
+    if (valueChart)
+        valueChart.destroy();
 
     const valuesByDate = {};
 	const detailsByDate = {};
@@ -340,7 +341,7 @@ function renderTransactionValueChart(transactions)
 			: "#f44336";
 	});
 	
-    transactionValueChart = new Chart(canvas, {
+    valueChart = new Chart(canvas, {
         type: "bar",
         data: {
             labels,
@@ -420,7 +421,7 @@ function renderBuySellChart(transactions)
     const sellValues = labels.map(date => sellByDate[date] || 0);
 
     buySellChart = new Chart(canvas, {
-        type: "bar", //line
+        type: buySellChartType,
         data: {
             labels,
             datasets: [
@@ -472,12 +473,12 @@ function renderBuySellChart(transactions)
     });
 }
 
-function renderTransactionFeesChart(transactions)
+function renderFeesChart(transactions)
 {
     const canvas = document.getElementById("transaction-fees-chart");
 
-    if (transactionFeesChart)
-        transactionFeesChart.destroy();
+    if (feesChart)
+        feesChart.destroy();
 
     const feesByDate = {};
     const detailsByDate = {};
@@ -500,8 +501,8 @@ function renderTransactionFeesChart(transactions)
     const labels = Object.keys(feesByDate).sort();
     const values = labels.map(date => feesByDate[date]);
 
-    transactionFeesChart = new Chart(canvas, {
-        type: "bar",
+    feesChart = new Chart(canvas, {
+        type: feesChartType,
         data: {
             labels,
             datasets: [{
@@ -716,9 +717,9 @@ async function refreshTransactions()
 	filteredTransactions = data;
 	updateTable(renderTransactions, filteredTransactions, "transactions-pagination",currentPage, pageSize);
 	
-	renderTransactionValueChart(filteredTransactions);
+	renderValueChart(filteredTransactions);
 	renderBuySellChart(filteredTransactions);
-	renderTransactionFeesChart(filteredTransactions);
+	renderFeesChart(filteredTransactions);
 }
 
 /* ==========================================================
@@ -881,7 +882,7 @@ async function init()
         await refreshTransactions();
 		
 		renderCurrencyLabels(appInfo.base_currency); 
-		renderTransactionDistributionChart(allTransactions);
+		renderDistributionChart(allTransactions);
 		renderTransactionDetails(allTransactions);
     }
     catch (error)
@@ -896,15 +897,26 @@ async function init()
 	document.getElementById("cancel-edit").addEventListener("click", closeEditModal);
 	
 	document.getElementById("edit-modal").addEventListener(
-			"click",
-			event =>
+		"click",
+		event =>
+		{
+			if (event.target.id === "edit-modal")
 			{
-				if (event.target.id === "edit-modal")
-				{
-					closeEditModal();
-				}
+				closeEditModal();
 			}
-		);
+		}
+	);
+	
+	document.getElementById("toggle-fees-chart").addEventListener("click", () =>
+	{
+		feesChartType = feesChartType === "bar" ? "line" : "bar";
+		renderFeesChart(filteredTransactions);
+	});	
+	document.getElementById("toggle-buy-sell-chart").addEventListener("click", () =>
+	{
+		buySellChartType = buySellChartType === "bar" ? "line" : "bar";
+		renderBuySellChart(filteredTransactions);
+	});
 }
 
 document.addEventListener("DOMContentLoaded", init);
