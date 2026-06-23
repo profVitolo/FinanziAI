@@ -2,7 +2,12 @@ let assets = [];
 let assetDetails = null;
 
 let currentPage = 1;
-let pageSize = 10;
+let pageSize = setupPageSize(
+	"page-size-input",
+	"app.assets.pageSize",
+	10,
+	refreshTableTransactions
+);
 
 async function loadAssetDetails()
 {
@@ -22,16 +27,21 @@ async function loadAssetDetails()
 
     renderAssetInfo(assetDetails.asset);
 
-    updateTable(
+    refreshTableTransactions(pageSize);
+	
+	renderAssetPriceChart(assetDetails.prices);
+	renderAssetVolumeChart(assetDetails.prices);
+}
+
+function refreshTableTransactions(pageSize)
+{
+	updateTable(
         renderPrices,
         assetDetails.prices,
         "prices-pagination",
         currentPage,
         pageSize
     );
-	
-	renderAssetPriceChart(assetDetails.prices);
-	renderAssetVolumeChart(assetDetails.prices);
 }
 
 async function handleFilters()
@@ -273,3 +283,8 @@ async function init()
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
+/*
+pageSize = 25;
+setSetting("app.assets.pageSize", pageSize);
+*/

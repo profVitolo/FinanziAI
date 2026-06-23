@@ -77,8 +77,13 @@
 
         <section>
             <h2>Posizioni</h2>
-
-            <table>
+			
+			<div class="page-size-container">
+				<label for="page-size-input">Righe per pagina:</label>
+				<input type="number" id="page-size-input" min="1" max="99" step="1" value="10">
+			</div>
+            
+			<table>
                 <thead>
                     <tr>
                         <th>Asset</th>

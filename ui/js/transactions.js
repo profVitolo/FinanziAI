@@ -13,7 +13,12 @@ let feesChart = null;
 let feesChartType = "bar";
 
 let currentPage = 1;
-const pageSize = 7;
+let pageSize = setupPageSize(
+	"page-size-input",
+	"app.transactions.pageSize",
+	10,
+	refreshTableTransactions
+);
 
 /* ==========================================================
  * API
@@ -715,11 +720,21 @@ async function refreshTransactions()
 	if (allTransactions.length == 0)
 		allTransactions = data;
 	filteredTransactions = data;
-	updateTable(renderTransactions, filteredTransactions, "transactions-pagination",currentPage, pageSize);
-	
+	refreshTableTransactions(pageSize);	
 	renderValueChart(filteredTransactions);
 	renderBuySellChart(filteredTransactions);
 	renderFeesChart(filteredTransactions);
+}
+
+function refreshTableTransactions(pageSize) 
+{ 
+	updateTable(
+		renderTransactions, 
+		filteredTransactions, 
+		"transactions-pagination", 
+		currentPage, 
+		pageSize
+	); 
 }
 
 /* ==========================================================
@@ -912,6 +927,7 @@ async function init()
 		feesChartType = feesChartType === "bar" ? "line" : "bar";
 		renderFeesChart(filteredTransactions);
 	});	
+	
 	document.getElementById("toggle-buy-sell-chart").addEventListener("click", () =>
 	{
 		buySellChartType = buySellChartType === "bar" ? "line" : "bar";

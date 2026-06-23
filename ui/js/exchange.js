@@ -3,7 +3,12 @@ let rates = [];
 let missingDates = [];
 let fromCurrencies = [];
 let currentPage = 1;
-const pageSize = 10;
+let pageSize = setupPageSize(
+	"page-size-input",
+	"app.exchange.pageSize",
+	10,
+	refreshTableTransactions
+);
 
 function bindEvents()
 {
@@ -37,10 +42,15 @@ async function refreshRates()
 {
     await loadRates();
 	renderRatesChart(rates);
-	updateTable(renderRates, rates, "rates-pagination",currentPage, pageSize);
+	refreshTableTransactions(pageSize);
 	renderCoverage();
 
     await loadMissingDates();
+}
+
+function refreshTableTransactions(pageSize)
+{
+	updateTable(renderRates, rates, "rates-pagination",currentPage, pageSize);
 }
 
 async function loadRates()

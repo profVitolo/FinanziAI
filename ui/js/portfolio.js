@@ -6,7 +6,12 @@ let pnlChart = null;
 let pnlChartAxis = "y";
 
 let currentPage = 1;
-const pageSize = 5;
+let pageSize = setupPageSize(
+	"page-size-input",
+	"app.portfolio.pageSize",
+	10,
+	refreshTableTransactions
+);
 
 async function loadPortfolioAnalysis()
 {
@@ -199,10 +204,15 @@ function renderExposure(data)
 function renderPortfolio(data) 
 {
 	renderSummary(data);
-	updateTable(renderPositions, filteredPositions, "positions-pagination",currentPage, pageSize);
+	refreshTableTransactions(pageSize);
 	renderPositionsChart(filteredPositions);
 	renderPnlChart(filteredPositions);
 	renderExposure(data);
+}
+
+function refreshTableTransactions(pageSize) 
+{ 
+	updateTable(renderPositions, filteredPositions, "positions-pagination",currentPage, pageSize);
 }
 
 async function refreshPortfolio() 
@@ -230,6 +240,32 @@ async function init()
 		pnlChartAxis = pnlChartAxis === "x" ? "y" : "x";
 		renderPnlChart(filteredPositions);
 	});
+	
+	document.getElementById("page-size-input").addEventListener("change", function()
+	{
+		const value = Number(this.value);
+
+		if (value < 1)
+		{
+			this.value = pageSize;
+			return;
+		}
+
+		pageSize = value;
+		localStorage.setItem("app.portfolio.pageSize", pageSize);
+		currentPage = 1;
+
+		updateTable(renderPositions, filteredPositions, "positions-pagination",currentPage, pageSize);
+	});
+	
+	const savedPageSize = Number(localStorage.getItem("app.portfolio.pageSize"));
+
+	if (savedPageSize > 0)
+		pageSize = savedPageSize;
+	else
+		localStorage.setItem("app.portfolio.pageSize", pageSize);
+
+	document.getElementById("page-size-input").value = pageSize;
 }
 
 document.addEventListener("DOMContentLoaded", init);

@@ -213,6 +213,22 @@ tr:nth-child(even)
     background-color: #f8f9fa;
 }
 
+.table-heading {display: flex; justify-content: space-between;}
+
+.page-size-container
+{
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+	align-self: start;
+}
+
+#page-size-input
+{
+    width: 4rem;
+    text-align: center;
+}
+
 /* ===== MENU ===== */
 
 .nav-menu {position: relative;}

@@ -199,6 +199,36 @@ function setSetting(key, value)
     localStorage.setItem(key, JSON.stringify(value));
 }
 
+function setupPageSize(inputId, storageKey, defaultPageSize, onPageSizeChanged)
+{
+    let pageSize = Number(localStorage.getItem(storageKey)) || defaultPageSize;
+		//console.log(localStorage.getItem(storageKey)) ;
+    setSetting(storageKey, pageSize);
+
+    const input = document.getElementById(inputId);
+    input.value = pageSize;
+
+    input.addEventListener("change", function()
+    {
+        const value = Number(this.value);
+
+        if (value < 1)
+        {
+            this.value = pageSize;
+            return;
+        }
+
+        pageSize = value;
+
+        setSetting(storageKey, pageSize);
+
+        if (onPageSizeChanged)
+            onPageSizeChanged(pageSize);
+    });
+
+    return pageSize;
+}
+
 function generateMenu() 
 {
     const container = document.querySelector(".nav-links");
