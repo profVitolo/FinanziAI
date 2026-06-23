@@ -30,8 +30,8 @@ async function loadAssetDetails()
         pageSize
     );
 	
-	renderCandlestickChart(assetDetails.prices);
-	renderBarChart(assetDetails.prices);
+	renderAssetPriceChart(assetDetails.prices);
+	renderAssetVolumeChart(assetDetails.prices);
 }
 
 async function handleFilters()
@@ -48,16 +48,16 @@ function resetFilters()
     handleFilters();
 }
 
-function renderCandlestickChart(prices)
+function renderAssetPriceChart(prices)
 {
-    const container = document.getElementById("candle-chart");
+    const container = document.getElementById("asset-price-chart");
     container.innerHTML = "";
 
     const chart = LightweightCharts.createChart(
         container,
         {
             width: container.clientWidth || 1000,
-            height: 400,
+            height: container.clientHeight ||400,
             layout: {
                 background: { color: "#ffffff" },
                 textColor: "#333"
@@ -114,16 +114,16 @@ function renderCandlestickChart(prices)
 	});
 }
 
-function renderBarChart(prices)
+function renderAssetVolumeChart(prices)
 {
-    const container = document.getElementById("bar-chart");
+    const container = document.getElementById("asset-volume-chart");
     container.innerHTML = "";
 
     const chart = LightweightCharts.createChart(
         container,
         {
             width: container.clientWidth || 1000,
-            height: 200,
+            height: container.clientHeight || 400,
             layout: {
                 background: { color: "#ffffff" },
                 textColor: "#333"
