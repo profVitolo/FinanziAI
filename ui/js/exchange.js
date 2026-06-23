@@ -36,7 +36,7 @@ function buildFilters()
 async function refreshRates()
 {
     await loadRates();
-	renderChart(rates);
+	renderRatesChart(rates);
 	updateTable(renderRates, rates, "rates-pagination",currentPage, pageSize);
 	renderCoverage();
 
@@ -91,7 +91,7 @@ function renderCoverage()
     info.textContent = `Copertura dati dal ${oldest} al ${newest}`;
 }
 
-function renderChart(rates)
+function renderRatesChart(rates)
 {
 	let chartTitle = "";
 	if (rates.length == 0)
@@ -105,8 +105,8 @@ function renderChart(rates)
 		const chart = LightweightCharts.createChart(
 			container,
 			{
-				width: container.clientWidth,
-				height: 400
+				width: container.clientWidth || 1000,
+				height: container.clientHeight ||400
 			}
 		);
 
