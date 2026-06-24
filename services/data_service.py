@@ -37,20 +37,30 @@ class DataService:
 
     def sync_asset(self, symbol, start_date, end_date=None):
         asset_info = self.collector.fetch_asset_info(symbol)
-        
+
         if asset_info is None:
             return False
-        
+
         if isinstance(start_date, str):
             start_date = date.fromisoformat(start_date)
 
         if isinstance(end_date, str):
             end_date = date.fromisoformat(end_date)
-            
+
+        asset = self.asset_data_manager.get_asset_by_symbol(symbol)
+
+        download_start_date = start_date
+
+        if asset is None:
+            download_start_date = start_date - timedelta(days=BOOTSTRAP_DAYS)
+
+        prices = self.collector.fetch_prices(symbol, download_start_date, end_date)
+
+        if not prices:
+            raise ValueError(f"No historical prices available for '{symbol}'")
+
         self.asset_data_manager.begin_transaction()
         try:
-            asset = self.asset_data_manager.get_asset_by_symbol(symbol)
-
             if asset is None:
                 asset_id = self.asset_data_manager.create_asset(
                     symbol=symbol,
@@ -59,25 +69,18 @@ class DataService:
                     currency=asset_info["currency"],
                     exchange=asset_info["exchange"]
                 )
-                # Boostrap titolo
-                start_date = (start_date - timedelta(days=BOOTSTRAP_DAYS)).isoformat()
-
             else:
                 asset_id = asset["id"]
 
-            prices = self.collector.fetch_prices(symbol, start_date, end_date)
-
             self.asset_data_manager.save_prices(asset_id, prices)
-
             self.asset_data_manager.commit()
-            
-            return {
-                "symbol": symbol,
-                "prices_downloaded": len(prices)
-            }
+
+            return {"symbol": symbol, "prices_downloaded": len(prices)}
+
         except Exception:
             self.asset_data_manager.rollback()
             raise
+
         finally:
             self.asset_data_manager.close()
     
