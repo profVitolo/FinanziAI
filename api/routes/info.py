@@ -9,12 +9,14 @@ router = APIRouter(prefix="/info", tags=["Info"])
 @router.get("")
 def get_info(request: Request):
     app = request.app
-
+    service = DatabaseService()
+    
     return {
         "application": app.title,
         "description": app.description,
         "version": app.version,
-        "base_currency": BASE_CURRENCY
+        "base_currency": BASE_CURRENCY,
+        "database": service.get_current_vault()
     }
     
 @router.get("/databases")
