@@ -66,7 +66,16 @@ class AssetDataManager(BaseDataManager):
         asset_id = cursor.lastrowid
 
         return asset_id
+    
+    def delete_asset(self, asset_id):
+        conn = self._connect()
+        cursor = conn.cursor()
 
+        cursor.execute("DELETE FROM prices WHERE asset_id = ?",(asset_id,))
+        cursor.execute("DELETE FROM assets WHERE id = ?",(asset_id,))
+        
+        return cursor.rowcount > 0
+        
     # ======================
     # PRICES
     # ======================
@@ -117,7 +126,6 @@ class AssetDataManager(BaseDataManager):
             )
         )
 
-
     def save_prices(self, asset_id, prices_list):
         conn = self._connect()
         cursor = conn.cursor()
@@ -140,7 +148,6 @@ class AssetDataManager(BaseDataManager):
                 for p in prices_list
             ]
         )
-
 
     def get_prices(self, asset_id, start_date=None, end_date=None):
         conn = self._connect()
