@@ -26,15 +26,16 @@ async function loadAssetDetails()
     );
 
     renderAssetInfo(assetDetails.asset);
-
+	console.log("LoadAssetDetails:", pageSize);
     refreshTableTransactions(pageSize);
 	
 	renderAssetPriceChart(assetDetails.prices);
 	renderAssetVolumeChart(assetDetails.prices);
 }
 
-function refreshTableTransactions(pageSize)
+function refreshTableTransactions(page_size)
 {
+	pageSize = page_size;
 	updateTable(
         renderPrices,
         assetDetails.prices,
