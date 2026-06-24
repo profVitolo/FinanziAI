@@ -13,6 +13,9 @@ class ExchangeService:
         self.exchange_data_manager = ExchangeDataManager(self.database)
         self.collector = YahooCollector()
         self.base_currency = BASE_CURRENCY
+    
+    def close(self):
+        self.exchange_data_manager.close()
         
     def convert(self, amount, from_currency, to_currency=BASE_CURRENCY, rate_date=None):
         if from_currency.upper() == to_currency.upper():

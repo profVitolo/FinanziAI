@@ -22,6 +22,9 @@ class DataEngine:
 
         self.exchange_service = ExchangeService(self.database)
         
+    def close(self):
+        self.portfolio_data_manager.close()
+        
     def analyze_asset(self, symbol, start_date=None, end_date=None):
         try:
             asset = self._load_asset(symbol)

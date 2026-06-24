@@ -6,7 +6,10 @@ class TransactionService:
     def __init__(self, database=None):
         database = database or DatabaseManager()
         self.transaction_data_manager = TransactionDataManager(database)
-
+    
+    def close(self):
+        self.transaction_data_manager.close()
+        
     def get_transaction(self, transaction_id):
         return self.transaction_data_manager.get_transaction(transaction_id)
 

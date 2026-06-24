@@ -17,6 +17,9 @@ class PortfolioService:
         self.asset_data_manager = AssetDataManager(self.database)
         self.exchange_service = ExchangeService(self.database)
 
+    def close(self):
+        self.portfolio_data_manager.close()
+        
     def register_transaction(self, asset_id, operation_type, quantity, price, fees=0, transaction_date=None):
         if transaction_date is None:
             transaction_date = date.today()

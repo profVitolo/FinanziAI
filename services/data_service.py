@@ -14,7 +14,10 @@ class DataService:
         self.portfolio_data_manager = PortfolioDataManager(database)
         self.transaction_data_manager = TransactionDataManager(database)
         self.collector = YahooCollector()
-
+    
+    def close(self):
+        self.asset_data_manager.close()
+    
     def update_asset(self, symbol, initial_days=365):
         asset = self.asset_data_manager.get_asset_by_symbol(symbol)
 

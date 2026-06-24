@@ -9,6 +9,9 @@ class DatabaseService:
     def __init__(self, db_path=None):
         self.database_manager = DatabaseManager(db_path)
         
+    def close(self):
+        self.database_manager.close()
+        
     def list_vaults(self):
         database_dir = ROOT_DIR / "database"
         return sorted([file.name for file in database_dir.glob("*.db")])
