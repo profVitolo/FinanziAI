@@ -69,6 +69,29 @@ function renderAnalysis(data)
     document.getElementById("volatility-class").textContent = data.analysis.volatility_level ?? "-";
 }
 
+async function deleteAsset(symbol)
+{
+    const confirmed = confirm(
+		`Vuoi davvero cancellare ${symbol}?\n\n` +
+		"• Verranno eliminati tutti i prezzi storici\n" +
+		"• Verrà rimosso dalla watchlist\n" +
+		"• Se esistono transazioni la cancellazione verrà bloccata"
+	);
+
+    if (!confirmed)
+        return;
+
+    const response = await fetch(`${API_BASE}/assets/${symbol}`, {method: "DELETE"});
+
+    const result = await response.json();
+
+    if (!response.ok)
+        throw new Error(result.detail || "Errore cancellazione asset");
+
+    alert(`${symbol} cancellato`);
+    window.location.href = "assets.html";
+}
+
 async function init() 
 {
 	generateMenu();
@@ -106,7 +129,12 @@ async function init()
                 "click",
                 () => removeFromWatchlist(symbol)
             );
-    } 
+    
+		document.getElementById("del-btn").addEventListener(
+			"click",
+			() => deleteAsset(symbol)
+		);
+	} 
 	catch (error) 
 	{
         console.error(error);
