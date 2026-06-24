@@ -31,6 +31,7 @@ class DatabaseManager:
 
     def connect(self):
         if self.conn is None:
+            print(f"Opening database {self.db_path}")
             self.conn = sqlite3.connect(self.db_path)
             self.conn.row_factory = sqlite3.Row
 
@@ -50,6 +51,7 @@ class DatabaseManager:
 
     def close(self):
         if self.conn:
+            print(f"Closing database {self.db_path}")
             self.conn.close()
             self.conn = None
     
