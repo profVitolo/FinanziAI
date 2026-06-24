@@ -146,3 +146,25 @@ class DataService:
 
         return {"asset": asset, "prices": prices}
         
+    def delete_asset(self, asset_id):
+        self.asset_data_manager.begin_transaction()
+
+        try:
+            self.asset_data_manager.delete_asset(asset_id)
+            self.asset_data_manager.commit()
+
+            return {"asset_id": asset_id,"deleted": True}
+
+        except Exception:
+            self.asset_data_manager.rollback()
+            raise
+        finally:
+            self.asset_data_manager.close()
+    
+    def delete_asset_by_symbol(self, symbol):
+        asset = self.asset_data_manager.get_asset_by_symbol(symbol)
+
+        if asset is None:
+            return {"symbol": symbol,"deleted": False}
+
+        return self.delete_asset(asset["id"])
