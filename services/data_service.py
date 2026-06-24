@@ -1,15 +1,18 @@
 from datetime import date, timedelta
 
 from data_manager.asset_data_manager import AssetDataManager
+from data_manager.portfolio_data_manager import PortfolioDataManager
+from data_manager.transaction_data_manager import TransactionDataManager
 from data_collector.yahoo_collector import YahooCollector
 from database.database_manager import DatabaseManager
 from config import BOOTSTRAP_DAYS 
 
 class DataService:
-
     def __init__(self, database=None):
         database = database or DatabaseManager()
         self.asset_data_manager = AssetDataManager(database)
+        self.portfolio_data_manager = PortfolioDataManager(database)
+        self.transaction_data_manager = TransactionDataManager(database)
         self.collector = YahooCollector()
 
     def update_asset(self, symbol, initial_days=365):
@@ -146,25 +149,30 @@ class DataService:
 
         return {"asset": asset, "prices": prices}
         
-    def delete_asset(self, asset_id):
-        self.asset_data_manager.begin_transaction()
-
-        try:
-            self.asset_data_manager.delete_asset(asset_id)
-            self.asset_data_manager.commit()
-
-            return {"asset_id": asset_id,"deleted": True}
-
-        except Exception:
-            self.asset_data_manager.rollback()
-            raise
-        finally:
-            self.asset_data_manager.close()
-    
     def delete_asset_by_symbol(self, symbol):
         asset = self.asset_data_manager.get_asset_by_symbol(symbol)
 
         if asset is None:
             return {"symbol": symbol,"deleted": False}
 
-        return self.delete_asset(asset["id"])
+        asset_id = asset["id"]
+
+        transactions = self.transaction_data_manager.get_transactions_by_asset(asset_id)
+
+        if transactions:
+            raise ValueError(f"Cannot delete asset '{symbol}': asset has transactions")
+
+        self.asset_data_manager.begin_transaction()
+        try:
+            self.portfolio_data_manager.remove_from_watchlist(asset_id)
+            self.asset_data_manager.delete_asset(asset_id)
+
+            self.asset_data_manager.commit()
+
+            return {"symbol": symbol,"deleted": True}
+        except Exception:
+            self.asset_data_manager.rollback()
+            raise
+        finally:
+            self.asset_data_manager.close()
+
