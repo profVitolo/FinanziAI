@@ -61,3 +61,8 @@ class MissingDatesFilter:
         self.to_currency = to_currency
         self.start_date = start_date
         self.end_date = end_date
+
+
+class DatabaseRequest(BaseModel):
+    db_name: str
+    
