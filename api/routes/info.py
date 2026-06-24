@@ -44,3 +44,11 @@ def select_database(request: DatabaseRequest):
     return {
         "database": service.get_current_vault()
     }
+    
+@router.delete("/database/{db_name}")
+def delete_database(db_name: str):
+    service = DatabaseService()
+
+    return {
+        "database": service.delete_vault(db_name)
+    }
