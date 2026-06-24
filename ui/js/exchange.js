@@ -48,8 +48,9 @@ async function refreshRates()
     await loadMissingDates();
 }
 
-function refreshTableTransactions(pageSize)
+function refreshTableTransactions(page_size)
 {
+	pageSize = page_size;
 	updateTable(renderRates, rates, "rates-pagination",currentPage, pageSize);
 }
 

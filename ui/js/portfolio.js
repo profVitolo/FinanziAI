@@ -210,8 +210,9 @@ function renderPortfolio(data)
 	renderExposure(data);
 }
 
-function refreshTableTransactions(pageSize) 
+function refreshTableTransactions(page_size) 
 { 
+	pageSize = page_size;
 	updateTable(renderPositions, filteredPositions, "positions-pagination",currentPage, pageSize);
 }
 

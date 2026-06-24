@@ -215,7 +215,9 @@ function renderDistributionChart(transactions)
 
     transactions.forEach(transaction =>
     {
+		console.log(transaction.asset_id);
 		const asset = assetsMap[transaction.asset_id];
+		console.log(assetsMap[transaction.asset_id]);
         const symbol = asset.symbol;
         const value = Number(transaction.quantity) * Number(transaction.price);
 
@@ -726,8 +728,9 @@ async function refreshTransactions()
 	renderFeesChart(filteredTransactions);
 }
 
-function refreshTableTransactions(pageSize) 
+function refreshTableTransactions(page_size) 
 { 
+	pageSize = page_size;
 	updateTable(
 		renderTransactions, 
 		filteredTransactions, 
