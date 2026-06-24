@@ -160,6 +160,37 @@ async function createVault()
 	location.reload();
 }
 
+async function deleteVault()
+{
+    const select = document.getElementById("databases");
+
+    if (select.options.length <= 1)
+    {
+        alert("Impossibile eliminare l'ultimo vault");
+        return;
+    }
+
+    const currentIndex = select.selectedIndex;
+    const dbName = select.value;
+
+    let nextIndex = currentIndex > 0 ? currentIndex - 1 : 1;
+    const nextVault = select.options[nextIndex].value;
+	
+	if (!confirm(`Eliminare ${dbName}?\n\nVerrà selezionato automaticamente ${nextVault}.`))
+		return;
+
+    await selectVault(nextVault);
+    const response = await fetch(`${API_BASE}/info/database/${dbName}`,{method: "DELETE"});
+
+    if (!response.ok)
+    {
+        const error = await response.json();
+        throw new Error(error.detail);
+    }
+
+    location.reload();
+}
+
 async function selectVault(dbName)
 {
     const response = await fetch(
@@ -202,6 +233,7 @@ function setupVaultSelector()
         });
 
     document.getElementById("new-vault-btn").addEventListener("click", createVault);
+    document.getElementById("delete-vault-btn").addEventListener("click", deleteVault);
 }
 
 async function init() 
