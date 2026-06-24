@@ -4,20 +4,24 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 from config import DB_PATH, SCHEMA_PATH
 
 class DatabaseManager:
+    
+    current_db_path = DB_PATH
 
-    def __init__(self, db_path=DB_PATH, schema_path=SCHEMA_PATH):
-        self.db_path = db_path
+    def __init__(self, db_path=None, schema_path=SCHEMA_PATH):
+        self.db_path = db_path or DatabaseManager.current_db_path
         self.schema_path = schema_path
         self.conn = None
         
         if not Path(self.db_path).exists():
             self.initialize()
 
-    def initialize(self):
+    def initialize(self, db_path=None):
         if self.schema_path is None:
             return
 
-        conn = sqlite3.connect(self.db_path)
+        db_path = db_path or self.db_path
+        
+        conn = sqlite3.connect(db_path)
 
         with open(self.schema_path, "r", encoding="utf-8") as f:
             conn.executescript(f.read())
@@ -48,3 +52,12 @@ class DatabaseManager:
         if self.conn:
             self.conn.close()
             self.conn = None
+    
+    @classmethod
+    def set_database(cls, db_path):
+        cls.current_db_path = Path(db_path)
+    
+    @classmethod
+    def get_database(cls):
+        return cls.current_db_path
+    
