@@ -53,6 +53,14 @@ try:
     if response.status_code >= 400:
         raise Exception("Sync tracked assets fallita")
 
+    print("\n=== TEST DELETE ASSET ===")
+
+    response = requests.delete(f"{BASE_URL}/assets/AAPL")
+    print_response(response)
+
+    if response.status_code >= 400:
+        raise Exception("Delete asset fallita")
+        
     print("\n=== TEST API ASSETS COMPLETATO ===")
 
 finally:
