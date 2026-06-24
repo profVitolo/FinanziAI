@@ -107,6 +107,103 @@ async function syncTrackedAssets()
     }
 }
 
+async function loadVaults()
+{
+    const response = await fetch(`${API_BASE}/info/databases`);
+
+    if (!response.ok)
+        throw new Error("Errore caricamento vault");
+
+    const data = await response.json();
+
+    const select = document.getElementById("databases");
+    select.innerHTML = "";
+
+    data.databases.forEach(db =>
+    {
+        const option = document.createElement("option");
+        option.value = db;
+        option.textContent = db;
+
+        if (db === data.selected)
+            option.selected = true;
+
+        select.appendChild(option);
+    });
+}
+
+async function createVault()
+{
+    const dbName = prompt("Nome del nuovo vault");
+
+    if (!dbName)
+        return;
+
+    const response = await fetch(
+        `${API_BASE}/info/database/create`,
+        {
+            method: "POST",
+            headers:
+            {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                db_name: dbName
+            })
+        }
+    );
+
+    if (!response.ok)
+        throw new Error("Errore creazione vault");
+	
+	await selectVault(dbName);
+	location.reload();
+}
+
+async function selectVault(dbName)
+{
+    const response = await fetch(
+        `${API_BASE}/info/database/select`,
+        {
+            method: "POST",
+            headers:
+            {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                db_name: dbName
+            })
+        }
+    );
+
+    if (!response.ok)
+        throw new Error("Errore selezione vault");
+
+    return await response.json();
+}
+
+function setupVaultSelector()
+{
+    document.getElementById("databases").addEventListener(
+		"change", 
+		async function()
+        {
+            const dbName = this.value;
+
+            if (!confirm(`Passare al vault ${dbName}?`))
+            {
+                await loadVaults();
+                return;
+            }
+
+            await selectVault(dbName);
+            alert(`Vault attivo: ${dbName}`);
+            location.reload();
+        });
+
+    document.getElementById("new-vault-btn").addEventListener("click", createVault);
+}
+
 async function init() 
 {
     generateMenu();
@@ -117,8 +214,11 @@ async function init()
         await Promise.all([
 			syncTrackedAssets(),
 			loadPortfolioSummary(),
-			loadWatchlist()
+			loadWatchlist(),
+			loadVaults()
 		]);
+		
+		setupVaultSelector();
     } catch (error) {
         console.error("Init failed:", error);
     }
