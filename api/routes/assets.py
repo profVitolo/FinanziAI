@@ -15,39 +15,6 @@ def list_assets():
     
     return [dict(asset) for asset in assets]
 
-
-@router.get("/{symbol}")
-def get_asset(symbol: str):
-    data_service = DataService()
-    asset = data_service.get_asset_by_symbol(symbol.upper())
-
-    if asset is None:
-        raise HTTPException(status_code=404, detail="Asset not found")
-
-    return dict(asset)
-
-    
-@router.post("/{symbol}/sync")
-def sync_asset(symbol: str, payload: AssetSync):
-    data_service = DataService()
-    
-    try:
-        result = data_service.sync_asset(
-            symbol.upper(), 
-            start_date=payload.start_date, 
-            end_date=payload.end_date
-        )
-
-        return {
-            "status": "success",
-            "symbol": symbol.upper(),
-            "result": result
-        }
-
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
- 
- 
 @router.put("/sync-tracked")
 def sync_tracked_assets():
     data_service = DataService()
@@ -83,3 +50,52 @@ def get_asset_details(symbol: str, start_date: str | None = None, end_date: str 
         "asset": dict(asset_details["asset"]),
         "prices": [dict(price) for price in asset_details["prices"]]
     }
+
+@router.post("/{symbol}/sync")
+def sync_asset(symbol: str, payload: AssetSync):
+    data_service = DataService()
+    
+    try:
+        result = data_service.sync_asset(
+            symbol.upper(), 
+            start_date=payload.start_date, 
+            end_date=payload.end_date
+        )
+
+        return {
+            "status": "success",
+            "symbol": symbol.upper(),
+            "result": result
+        }
+
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+ 
+@router.delete("/{symbol}")
+def delete_asset(symbol: str):
+    data_service = DataService()
+
+    try:
+        result = data_service.delete_asset_by_symbol(symbol.upper())
+
+        if not result["deleted"]:
+            raise HTTPException(status_code=404,detail="Asset not found")
+
+        return result
+
+    except HTTPException:
+        raise
+
+    except Exception as exc:
+        raise HTTPException(status_code=500,detail=str(exc))
+        
+@router.get("/{symbol}")
+def get_asset(symbol: str):
+    data_service = DataService()
+    asset = data_service.get_asset_by_symbol(symbol.upper())
+
+    if asset is None:
+        raise HTTPException(status_code=404, detail="Asset not found")
+
+    return dict(asset)
+ 
