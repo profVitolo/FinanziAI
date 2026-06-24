@@ -14,8 +14,19 @@
 }
 
 #databases{min-width: 180px;}
-#new-vault-btn
+
+#new-vault-btn,
+#delete-vault-btn
 {
-    padding: 0.4rem 0.8rem;
-    font-weight: bold;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    font-size: 1.1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
+#new-vault-btn{background-color: #198754;}
+#new-vault-btn:hover{background-color: #157347;}
+#delete-vault-btn{background-color: #dc3545;}
+#delete-vault-btn:hover{background-color: #bb2d3b;}
