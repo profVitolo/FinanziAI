@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 from database.database_manager import DatabaseManager
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -43,3 +44,28 @@ class DatabaseService:
 
     def get_current_vault(self):
         return Path(self.database_manager.get_database()).name
+    
+    def delete_vault(self, db_name):
+        if not db_name.endswith(".db"):
+            db_name += ".db"
+
+        db_path = ROOT_DIR / "database" / db_name
+
+        if not db_path.exists():
+            raise ValueError(f"Vault '{db_name}' not found")
+
+        if db_name == self.get_current_vault():
+            raise ValueError("Cannot delete current vault")
+
+        if len(self.list_vaults()) <= 1:
+            raise ValueError("Cannot delete last vault")
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_path = db_path.with_name(f"{db_path.stem}_{timestamp}.bk")
+
+        if backup_path.exists():
+            backup_path.unlink()
+
+        db_path.rename(backup_path)
+
+        return db_name
