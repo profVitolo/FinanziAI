@@ -96,7 +96,13 @@ class DataEngine:
                 "name": asset["name"],
                 "type": asset["type"],
                 "currency": asset["currency"],
-                "exchange": asset["exchange"]
+                "exchange": asset["exchange"],
+                "sector":asset["sector"],
+                "industry":asset["industry"],
+                "country":asset["country"],
+                "market_cap":asset["market_cap"],
+                "beta":asset["beta"],
+                "website":asset["website"]
             },
             "period": {
                 "start": first_date,
