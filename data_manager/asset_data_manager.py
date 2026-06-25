@@ -14,7 +14,11 @@ class AssetDataManager(BaseDataManager):
         conn = self._connect()
         cursor = conn.cursor()
 
-        cursor.execute("SELECT id, symbol, name, type, currency, exchange FROM assets ORDER BY symbol")
+        cursor.execute("""
+            SELECT id, symbol, name, type, currency, exchange, sector, industry, country, market_cap, beta, website 
+            FROM assets
+            ORDER BY symbol
+        """)
 
         results = cursor.fetchall()
 
@@ -24,10 +28,9 @@ class AssetDataManager(BaseDataManager):
         conn = self._connect()
         cursor = conn.cursor()
 
-        cursor.execute(
-            "SELECT id, symbol, name, type, currency, exchange FROM assets WHERE symbol = ?",
-            (symbol,)
-        )
+        cursor.execute("""
+            SELECT id, symbol, name, type, currency, exchange, sector, industry, country, market_cap, beta, website
+            FROM assets WHERE symbol = ?""", (symbol,))
 
         result = cursor.fetchone()
 
@@ -37,32 +40,23 @@ class AssetDataManager(BaseDataManager):
         conn = self._connect()
         cursor = conn.cursor()
 
-        cursor.execute(
-            """
-            SELECT id, symbol, name, type, currency, exchange
-            FROM assets
-            WHERE id = ?
-            """,
-            (asset_id,)
-        )
+        cursor.execute("""
+            SELECT id, symbol, name, type, currency, exchange, sector, industry, country, market_cap, beta, website
+            FROM assets WHERE id = ?
+        """, (asset_id,))
 
         result = cursor.fetchone()
 
         return result
 
-    def create_asset(self, symbol, name=None, type=None, currency=None, exchange=None):
+    def create_asset(self,symbol,name=None,type=None,currency=None,exchange=None,sector=None,industry=None,country=None,market_cap=None,beta=None,website=None):
         conn = self._connect()
         cursor = conn.cursor()
 
-        cursor.execute(
-            """
-            INSERT INTO assets (symbol, name, type, currency, exchange)
-            VALUES (?, ?, ?, ?, ?)
-            """,
-            (symbol, name, type, currency, exchange)
-        )
+        cursor.execute("""
+            INSERT INTO assets (symbol, name, type, currency, exchange, sector, industry, country, market_cap, beta, website) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (symbol, name, type, currency, exchange, sector, industry, country, market_cap,beta,webiste))
 
-        #conn.commit()
         asset_id = cursor.lastrowid
 
         return asset_id
@@ -75,7 +69,19 @@ class AssetDataManager(BaseDataManager):
         cursor.execute("DELETE FROM assets WHERE id = ?",(asset_id,))
         
         return cursor.rowcount > 0
-        
+    
+    def update_asset_metadata(self, asset_id, sector=None, industry=None, country=None, market_cap=None, beta=None, website=None):
+        conn = self._connect()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE assets
+            SET sector = ?, industry = ?, country = ?, market_cap = ?, beta = ?, website = ?
+            WHERE id = ?
+        """, (sector, industry, country, market_cap, beta, website, asset_id))
+
+        return cursor.rowcount > 0
+    
     # ======================
     # PRICES
     # ======================
