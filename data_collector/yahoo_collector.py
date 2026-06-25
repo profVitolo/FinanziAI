@@ -8,7 +8,6 @@ class YahooCollector:
 
     def fetch_asset_info(self, symbol):
         ticker = yf.Ticker(symbol)
-
         info = ticker.info
 
         return {
@@ -16,7 +15,25 @@ class YahooCollector:
             "name": info.get("longName"),
             "type": info.get("quoteType"),
             "currency": info.get("currency"),
-            "exchange": info.get("exchange")
+            "exchange": info.get("exchange"),
+
+            # classificazione
+            "sector": info.get("sector"),
+            "industry": info.get("industry"),
+            "country": info.get("country"),
+            "market_cap": info.get("marketCap"),
+
+            # metriche finanziarie
+            "beta": info.get("beta"),
+            "trailing_pe": info.get("trailingPE"),
+            "forward_pe": info.get("forwardPE"),
+            "dividend_yield": info.get("dividendYield"),
+            "recommendation": info.get("recommendationKey"),
+            "target_price": info.get("targetMeanPrice"),
+            "analyst_opinions": info.get("numberOfAnalystOpinions"),
+            
+            # info aggiuntive
+            "website": info.get("website")
         }
         
     def fetch_prices(self, symbol, start_date=None, end_date=None):
