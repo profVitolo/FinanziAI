@@ -215,9 +215,9 @@ function renderDistributionChart(transactions)
 
     transactions.forEach(transaction =>
     {
-		console.log(transaction.asset_id);
+		//console.log(transaction.asset_id);
 		const asset = assetsMap[transaction.asset_id];
-		console.log(assetsMap[transaction.asset_id]);
+		//console.log(assetsMap[transaction.asset_id]);
         const symbol = asset.symbol;
         const value = Number(transaction.quantity) * Number(transaction.price);
 
@@ -811,6 +811,7 @@ async function handleTransaction(event)
 	{
         await createTransaction(transaction);
         await refreshTransactions();
+		renderDistributionChart(allTransactions);
 		resetTransactionForm(event.target);
     }
     catch (error) 
