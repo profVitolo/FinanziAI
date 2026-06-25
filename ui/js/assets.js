@@ -26,7 +26,7 @@ async function loadAssetDetails()
     );
 
     renderAssetInfo(assetDetails.asset);
-	console.log("LoadAssetDetails:", pageSize);
+	//console.log("LoadAssetDetails:", pageSize);
     refreshTableTransactions(pageSize);
 	
 	renderAssetPriceChart(assetDetails.prices);
@@ -168,17 +168,39 @@ function renderAssetInfo(asset)
     const table = document.getElementById("asset-info");
 
     table.innerHTML = `
-        <tr><td>Symbol</td><td>
-			<a href="asset.html?symbol=${asset.symbol}">
-				${asset.symbol}
-			</a>
-		</td></tr>
-        <tr><td>Name</td><td>${asset.name}</td></tr>
-        <tr><td>Type</td><td>${asset.type}</td></tr>
-        <tr><td>Currency</td><td>${asset.currency}</td></tr>
-        <tr><td>Exchange</td><td>${asset.exchange}</td></tr>
-    `;
+        <tr>
+            <td>Symbol</td>
+            <td>
+                <a href="asset.html?symbol=${asset.symbol}">
+                    ${asset.symbol}
+                </a>
+            </td>
+        </tr>
 
+        <tr><td>Name</td><td>${asset.name ?? "-"}</td></tr>
+        <tr><td>Type</td><td>${asset.type ?? "-"}</td></tr>
+        <tr><td>Currency</td><td>${asset.currency ?? "-"}</td></tr>
+        <tr><td>Exchange</td><td>${asset.exchange ?? "-"}</td></tr>
+
+        <tr><td>Sector</td><td>${asset.sector ?? "-"}</td></tr>
+        <tr><td>Industry</td><td>${asset.industry ?? "-"}</td></tr>
+        <tr><td>Country</td><td>${asset.country ?? "-"}</td></tr>
+
+        <tr><td>Market Cap</td><td>${formatFinancialNumber(asset.market_cap)}</td></tr>
+
+        <tr><td>Beta</td><td>${asset.beta?.toFixed(2) ?? "-"}</td></tr>
+
+        <tr>
+            <td>Website</td>
+            <td>
+                ${
+                    asset.website
+                        ? `<a href="${asset.website}" target="_blank">${asset.website}</a>`
+                        : "-"
+                }
+            </td>
+        </tr>
+    `;
 }
 
 function renderPrices(prices)

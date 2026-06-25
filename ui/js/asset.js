@@ -57,7 +57,16 @@ function renderAnalysis(data)
     document.getElementById("asset-type").textContent = data.asset.type ?? "-";
     document.getElementById("asset-currency").textContent = data.asset.currency ?? "-";
     document.getElementById("asset-exchange").textContent = data.asset.exchange ?? "-";
-
+	
+	document.getElementById("asset-sector").textContent = data.asset.sector ?? "-";
+	document.getElementById("asset-industry").textContent = data.asset.industry ?? "-";
+	document.getElementById("asset-country").textContent = data.asset.country ?? "-";
+	document.getElementById("asset-market-cap").textContent = formatFinancialNumber(data.asset.market_cap);
+	document.getElementById("asset-beta").textContent = data.asset.beta?.toFixed(2) ?? "-";
+	document.getElementById("asset-website").innerHTML = data.asset.website
+			? `<a href="${data.asset.website}" target="_blank">${data.asset.website}</a>`
+			: "-";
+	
     document.getElementById("market-price").textContent = data.market_data.last_close.toFixed(2) ?? "-";
     document.getElementById("last-update").textContent = data.period.end ?? "-";
 
