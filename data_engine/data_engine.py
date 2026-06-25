@@ -176,12 +176,22 @@ class DataEngine:
             result.append({
                 "asset_id": asset_id,
                 "symbol": symbol,
+                
+                "name": asset["name"],
+                "type": asset["type"],
+                "sector": asset["sector"],
+                "industry": asset["industry"],
+                "country": asset["country"],
+                "market_cap": asset["market_cap"],
+                "beta": asset["beta"],
+                
                 "quantity": quantity,
                 "currency": currency,
                 "avg_price": avg_price,
                 "market_price": market_price,
                 "market_value": market_value,
                 "market_value_base": market_value_base,
+                
                 "performance": performance
             })
 
