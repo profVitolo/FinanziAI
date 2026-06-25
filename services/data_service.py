@@ -56,28 +56,34 @@ class DataService:
         asset = self.asset_data_manager.get_asset_by_symbol(symbol)
 
         download_start_date = start_date
-        self.asset_data_manager.begin_transaction()
-        if asset is None:
-            download_start_date = start_date - timedelta(days=BOOTSTRAP_DAYS)
-        else:
-            asset_id = asset["id"]
-
-            self.asset_data_manager.update_asset_metadata(
-                asset_id=asset_id,
-                sector=asset_info["sector"],
-                industry=asset_info["industry"],
-                country=asset_info["country"],
-                market_cap=asset_info["market_cap"],
-                beta=asset_info["beta"],
-                website=asset_info["website"]
-            )
         
-        prices = self.collector.fetch_prices(symbol, download_start_date, end_date)
-
-        if not prices:
-            raise ValueError(f"No historical prices available for '{symbol}'")
-
+        self.asset_data_manager.begin_transaction()
         try:
+            needs_bootstrap = (
+                asset is None or
+                self.asset_data_manager.get_last_price_date(asset["id"]) is None
+            )
+
+            if needs_bootstrap:
+                download_start_date = start_date - timedelta(days=BOOTSTRAP_DAYS)
+            else:
+                asset_id = asset["id"]
+
+                self.asset_data_manager.update_asset_metadata(
+                    asset_id=asset_id,
+                    sector=asset_info["sector"],
+                    industry=asset_info["industry"],
+                    country=asset_info["country"],
+                    market_cap=asset_info["market_cap"],
+                    beta=asset_info["beta"],
+                    website=asset_info["website"]
+                )
+            
+            prices = self.collector.fetch_prices(symbol, download_start_date, end_date)
+
+            if not prices:
+                raise ValueError(f"No historical prices available for '{symbol}'")
+
             if asset is None:
                 asset_id = self.asset_data_manager.create_asset(
                     symbol=symbol,
