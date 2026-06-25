@@ -17,23 +17,29 @@ router = APIRouter(
 def get_transactions(filters: TransactionsFilter = Depends()):
     transaction_service = TransactionService()
 
-    return transaction_service.get_transactions(
+    try:
+        return transaction_service.get_transactions(
             asset_id=filters.asset_id,
             start_date=filters.start_date,
-            end_date=filters.end_date)
-        
+            end_date=filters.end_date
+        )
+    finally:
+        transaction_service.close()   
 
 
 @router.get("/{transaction_id}")
 def get_transaction(transaction_id: int):
     transaction_service = TransactionService()
-    
-    transaction = transaction_service.get_transaction(transaction_id)
 
-    if transaction is None:
-        raise HTTPException(status_code=404, detail="Transaction not found")
+    try:
+        transaction = transaction_service.get_transaction(transaction_id)
 
-    return transaction
+        if transaction is None:
+            raise HTTPException(status_code=404,detail="Transaction not found")
+
+        return transaction
+    finally:
+        transaction_service.close()
 
 
 @router.post("/")
@@ -57,6 +63,8 @@ def create_transaction(payload: TransactionCreate):
 
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        portfolio_service.close()
 
 
 @router.put("/{transaction_id}")
@@ -81,6 +89,8 @@ def update_transaction(transaction_id: int, payload: TransactionUpdate):
 
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        portfolio_service.close()
 
 
 @router.delete("/{transaction_id}")
@@ -97,4 +107,6 @@ def delete_transaction(transaction_id: int):
 
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        portfolio_service.close()
         

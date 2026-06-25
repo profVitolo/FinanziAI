@@ -8,10 +8,12 @@ router = APIRouter(prefix="/analysis", tags=["Analysis"])
 @router.get("/{symbol}")
 def analyze_asset(symbol: str, start_date: Optional[str] = None, end_date: Optional[str] = None):
     data_engine = DataEngine()
-    result = data_engine.analyze_asset(symbol.upper(), start_date=start_date, end_date=end_date)
+    try:
+        result = data_engine.analyze_asset(symbol.upper(), start_date=start_date, end_date=end_date)
 
-    if result is None:
-        raise HTTPException(status_code=404, detail="Asset not found or no price data available")
+        if result is None:
+            raise HTTPException(status_code=404, detail="Asset not found or no price data available")
 
-    return result
-    
+        return result
+    finally:
+        data_engine.close()

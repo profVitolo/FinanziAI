@@ -12,80 +12,95 @@ router = APIRouter(prefix="/portfolio", tags=["Portfolio"])
 @router.get("/")
 def get_portfolio():
     portfolio_service = PortfolioService()
-    positions = (portfolio_service.get_all_positions())
-
-    return positions
+    try:
+        positions = (portfolio_service.get_all_positions())
+        
+        return positions
+    finally:
+        portfolio_service.close()
 	
 @router.get("/analysis")
 def analyze_portfolio():
     data_engine = DataEngine()
-    result = (data_engine.analyze_portfolio())
+    try:
+        result = (data_engine.analyze_portfolio())
 
-    if result is None:
-        raise HTTPException(status_code=404, detail="Portfolio is empty")
+        if result is None:
+            raise HTTPException(status_code=404, detail="Portfolio is empty")
 
-    return result
+        return result
+    finally:
+        data_engine.close()
 
 @router.get("/watchlist")
 def get_watchlist():
     portfolio_service = PortfolioService()
     data_service = DataService()
-    
-    watchlist = (portfolio_service.get_watchlist())
+    try:
+        watchlist = (portfolio_service.get_watchlist())
 
-    result = []
+        result = []
 
-    for item in watchlist:
-        asset_id = item[1]
+        for item in watchlist:
+            asset_id = item[1]
 
-        asset = (data_service.get_asset_by_id(asset_id))
+            asset = (data_service.get_asset_by_id(asset_id))
 
-        if asset is None:
-            continue
+            if asset is None:
+                continue
 
-        result.append({
-            "watchlist_id": item[0],
-            "asset_id": asset[0],
-            "symbol": asset[1],
-            "name": asset[2],
-            "type": asset[3],
-            "currency": asset[4],
-            "exchange": asset[5]
-        })
+            result.append({
+                "watchlist_id": item[0],
+                "asset_id": asset[0],
+                "symbol": asset[1],
+                "name": asset[2],
+                "type": asset[3],
+                "currency": asset[4],
+                "exchange": asset[5]
+            })
 
-    return result
+        return result
+    finally:
+        portfolio_service.close()
+        data_service.close()
     
 @router.post("/watchlist/{symbol}")
 def add_to_watchlist(symbol: str):
     data_service = DataService()
     portfolio_service = PortfolioService()
-    
-    asset = (data_service.get_asset_by_symbol(symbol.upper()))
+    try:
+        asset = (data_service.get_asset_by_symbol(symbol.upper()))
 
-    if asset is None:
-        raise HTTPException(status_code=404, detail="Asset not found")
+        if asset is None:
+            raise HTTPException(status_code=404, detail="Asset not found")
 
-    portfolio_service.add_to_watchlist(asset["id"])
-    
-    return {
-        "status": "success",
-        "symbol": symbol.upper()
-    }
+        portfolio_service.add_to_watchlist(asset["id"])
+        
+        return {
+            "status": "success",
+            "symbol": symbol.upper()
+        }
+    finally:
+        portfolio_service.close()
+        data_service.close()
     
 @router.delete("/watchlist/{symbol}")
 def remove_from_watchlist(symbol: str):
     data_service = DataService()
     portfolio_service = PortfolioService()
-    
-    asset = (data_service.get_asset_by_symbol(symbol.upper()))
+    try:        
+        asset = (data_service.get_asset_by_symbol(symbol.upper()))
 
-    if asset is None:
-        raise HTTPException(status_code=404, detail="Asset not found")
+        if asset is None:
+            raise HTTPException(status_code=404, detail="Asset not found")
 
-    portfolio_service.remove_from_watchlist(asset[0])
+        portfolio_service.remove_from_watchlist(asset[0])
 
-    return {
-        "status": "success",
-        "symbol": symbol.upper()
-    }
+        return {
+            "status": "success",
+            "symbol": symbol.upper()
+        }
+    finally:
+        portfolio_service.close()
+        data_service.close()
     
