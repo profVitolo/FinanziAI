@@ -1,10 +1,20 @@
 CREATE TABLE IF NOT EXISTS assets (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     symbol TEXT NOT NULL UNIQUE,
+
     name TEXT,
     type TEXT,
     currency TEXT,
-    exchange TEXT
+    exchange TEXT,
+
+    sector TEXT,
+    industry TEXT,
+    country TEXT,
+
+    market_cap REAL,
+    beta REAL,
+
+    website TEXT
 );
 
 CREATE TABLE IF NOT EXISTS prices (
