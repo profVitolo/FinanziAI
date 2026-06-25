@@ -55,7 +55,7 @@ class AssetDataManager(BaseDataManager):
 
         cursor.execute("""
             INSERT INTO assets (symbol, name, type, currency, exchange, sector, industry, country, market_cap, beta, website) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (symbol, name, type, currency, exchange, sector, industry, country, market_cap,beta,webiste))
+        """, (symbol, name, type, currency, exchange, sector, industry, country, market_cap,beta,website))
 
         asset_id = cursor.lastrowid
 
