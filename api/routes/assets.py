@@ -24,7 +24,7 @@ def sync_tracked_assets():
     
     try:
         tracked_assets = portfolio_service.get_tracked_assets()
-        result = data_service.sync_assets(tracked_assets)
+        result = data_service.sync_tracked_assets(tracked_assets)
 
         return {
             "status": "success",
