@@ -9,10 +9,12 @@ from api.routes.info import router as info_router
 from api.routes.transaction import router as transaction_router
 from api.routes.exchange import router as exchange_router
 
+from config import TITLE, DESCRIPTION, VERSION
+
 app = FastAPI(
-    title="FinanziAI",
-    description="AI-Assisted Investment Analysis",
-    version="0.1.1"
+    title=TITLE,
+    description=DESCRIPTION,
+    version=VERSION
 )
 
 app.include_router(assets_router)
