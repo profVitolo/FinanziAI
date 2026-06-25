@@ -518,12 +518,12 @@ ottenere una prima applicazione utilizzabile da browser.
   - ~eliminazione~
   - ~filtro per asset e intervallo temporale~
 - ~Introduzione pagina `transactions.html`~
-- Versione 0.1.1 con currency support
-- Gestione avanzata dello storico prezzi:
-  - visualizzazione dati disponibili
-  - individuazione e recupero di periodi mancanti
-  - sincronizzazione incrementale dei dati
-- Consolidamento della business logic tramite servizi applicativi dedicati
+- ~Versione 0.1.1 con currency support~
+- ~Gestione avanzata dello storico prezzi:~
+  - ~visualizzazione dati disponibili~
+  - ~individuazione e recupero di periodi mancanti~
+  - ~sincronizzazione incrementale dei dati~
+- ~Consolidamento della business logic tramite servizi applicativi dedicati~
 
 #### Obiettivo:
 Garantire coerenza, aggiornamento e manutenzione dei dati prima dell'introduzione dell'Advisor e dei modelli AI.
@@ -542,7 +542,7 @@ Garantire coerenza, aggiornamento e manutenzione dei dati prima dell'introduzion
 ### Fase 7 — Integrazione AI / LLM
 - Introduzione `llm_engine`
 - Integrazione con modelli locali o API
-- Miglioramento qualità delle piegazioni
+- Miglioramento qualità delle spiegazioni
 - Analisi contestuali
 - Sitnesi automatica del portafoglio
 
