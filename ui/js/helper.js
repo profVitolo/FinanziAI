@@ -269,3 +269,19 @@ function generateMenu()
     const mn_btn = container.querySelector(".menu-toggle")
     mn_btn.addEventListener("click", () => { container.querySelector(".nav-menu").classList.toggle("open");});
 }
+
+function formatFinancialNumber(value)
+{
+    if (!value) return "-";
+
+    if (value >= 1_000_000_000_000)
+        return (value / 1_000_000_000_000).toFixed(2) + " T";
+
+    if (value >= 1_000_000_000)
+        return (value / 1_000_000_000).toFixed(2) + " B";
+
+    if (value >= 1_000_000)
+        return (value / 1_000_000).toFixed(2) + " M";
+
+    return value.toLocaleString();
+}
