@@ -45,3 +45,5 @@ if asset:
     print("\n=== DELETE POSITION ===")
     pdm.delete_portfolio_position(asset_id)
     print_result("Last deleted position [None]", (pdm.get_position(asset_id)))
+    
+database.close()

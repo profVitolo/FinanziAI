@@ -122,4 +122,6 @@ print("\n=== REBUILD PORTFOLIO ===\n")
 service.rebuild_portfolio()
 
 print_result("POSITION AFTER REBUILD", pdm.get_position(asset_id))
+
+database.close()
     

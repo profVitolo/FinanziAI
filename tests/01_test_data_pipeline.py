@@ -51,7 +51,7 @@ if asset:
     for row in prices[-5:]:
         print_result("",row)
 
-engine = DataEngine()
+engine = DataEngine(database)
 
 print_result("AAPL ANALYSIS", engine.analyze_asset("AAPL"))
 
@@ -59,3 +59,4 @@ print_result("S&P500 ANALYSIS", engine.analyze_asset("^GSPC"))
 
 print_result("MSFT ANALYSIS", engine.analyze_asset("MSFT"))
 
+database.close()

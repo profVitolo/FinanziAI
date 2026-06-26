@@ -19,3 +19,5 @@ if result is None:
     print("Nessuna posizione presente")
 else:
     print_result("PORTFOLIO ANALYSIS", result)
+
+database.close()

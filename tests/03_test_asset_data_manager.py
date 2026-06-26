@@ -34,3 +34,5 @@ if asset:
         print_result("Last:", (prices[-1]))
         
     print_result("Deleted asset AAPL:", adm.delete_asset(asset_id))
+
+database.close()

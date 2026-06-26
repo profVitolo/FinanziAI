@@ -17,3 +17,5 @@ print_result("AAPL ANALYSIS", engine.analyze_asset("AAPL"))
 print_result("S&P500 ANALYSIS",engine.analyze_asset("^GSPC"))
 
 print_result("PORTFOLIO ANALYSIS",engine.analyze_portfolio())
+
+engine.close()

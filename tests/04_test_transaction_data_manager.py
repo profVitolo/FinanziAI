@@ -67,4 +67,4 @@ if asset:
 
     print_result("Last deleted transaction id [None]", tdm.get_transaction(transaction_id))
     
-    
+database.close()
