@@ -60,13 +60,13 @@ def get_asset_details(symbol: str, start_date: str | None = None, end_date: str 
         data_service.close()
         
 @router.post("/{symbol}/update")
-def update_asset(symbol: str, payload: AssetUpdate):
+def update_asset(symbol: str, payload: AssetUpdate | None = None):
     data_service = DataService()
     
     try:
         result = data_service.update_asset(
             symbol.upper(), 
-            initial_days=payload.initial_days
+            initial_days=payload.initial_days if payload else 365
         )
 
         return {
