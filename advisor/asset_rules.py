@@ -1,106 +1,104 @@
-class AssetRules:
+from advisor.advisor_base_rules import AdvisorBaseRules
+from advisor.advisor_models import AssetAdvisorResult, Severity
 
-    @staticmethod
-    def evaluate(asset_analysis):
-        messages = []
 
-        messages.extend(AssetRules.check_rsi(asset_analysis))
-        messages.extend(AssetRules.check_volatility(asset_analysis))
-        messages.extend(AssetRules.check_trend(asset_analysis))
-        messages.extend(AssetRules.check_beta(asset_analysis))
+class AssetRules(AdvisorBaseRules):
 
-        return {
-            "messages": messages,
-            "summary": {
-                "message_count": len(messages),
-                "highest_severity":
-                    AssetRules._highest_severity(messages)
-            }
-        }
-	
-	@staticmethod
-	def check_rsi(asset_analysis):
-		messages = []
-		rsi = asset_analysis["indicators"].get("rsi")
+    @classmethod
+    def evaluate(cls, asset_analysis):
+        return cls.build_result(
+            AssetAdvisorResult,
+            symbol=asset_analysis["asset"]["symbol"],
+            messages=cls.collect_messages(
+                cls.check_rsi(asset_analysis),
+                cls.check_volatility(asset_analysis),
+                cls.check_trend(asset_analysis),
+                cls.check_beta(asset_analysis),
+            )
+        )
+    
+    @classmethod
+    def check_rsi(cls, asset_analysis):
+        rsi = asset_analysis["indicators"].get("rsi")
 
-		if rsi is None:
-			return messages
+        if rsi is None:
+            return messages
 
-		if rsi > 70:
-			messages.append({
-				"type": "rsi",
-				"severity": "medium",
-				"message":
-					f"RSI a {rsi:.1f}: possibile ipercomprato."
-			})
-		elif rsi < 30:
-			messages.append({
-				"type": "rsi",
-				"severity": "medium",
-				"message":
-					f"RSI a {rsi:.1f}: possibile ipervenduto."
-			})
+        if rsi > 70:
+            return cls.message(
+                code="ASSET_RSI_OVERBOUGHT",
+                type="rsi",
+                severity=Severity.MEDIUM,
+                message=f"RSI a {rsi:.1f}: possibile ipercomprato."
+            )
 
-		return messages
-		
-	@staticmethod
-	def check_volatility(asset_analysis):
-		messages = []
-		level = (asset_analysis["analysis"].get("volatility_level"))
+        elif rsi < 30:
+            return cls.message(
+                code="ASSET_RSI_OVERSOLD",
+                type="rsi",
+                severity=Severity.MEDIUM,
+                message=f"RSI a {rsi:.1f}: possibile ipervenduto."
+            )
 
-		if level == "high":
-			messages.append({
-				"type": "volatility",
-				"severity": "medium",
-				"message":
-					"L'asset presenta volatilità elevata."
-			})
+        return None
 
-		return messages
-		
-	@staticmethod
-	def check_trend(asset_analysis):
-		messages = []
-		trend = (asset_analysis["analysis"].get("trend"))
+    @classmethod
+    def check_volatility(cls, asset_analysis):
+        level = asset_analysis["analysis"].get("volatility_level")
 
-		if trend == "bullish":
-			messages.append({
-				"type": "trend",
-				"severity": "low",
-				"message":
-					"Trend positivo."
-			})
-		elif trend == "bearish":
-			messages.append({
-				"type": "trend",
-				"severity": "medium",
-				"message":
-					"Trend negativo."
-			})
+        if level == "high":
+            return cls.message(
+                code="ASSET_HIGH_VOLATILITY",
+                type="volatility",
+                severity=Severity.MEDIUM,
+                message="L'asset presenta volatilità elevata."
+            )
 
-		return messages
-		
-	@staticmethod
-	def check_beta(asset_analysis):
-		messages = []
-		beta = (asset_analysis["asset"].get("beta"))
+        return None
 
-		if beta is None:
-			return messages
+    @classmethod
+    def check_trend(cls, asset_analysis):
+        trend = asset_analysis["analysis"].get("trend")
 
-		if beta > 1.5:
-			messages.append({
-				"type": "beta",
-				"severity": "medium",
-				"message":
-					f"Beta elevato ({beta:.2f})."
-			})
-		elif beta < 0.7:
-			messages.append({
-				"type": "beta",
-				"severity": "low",
-				"message":
-					f"Beta contenuto ({beta:.2f})."
-			})
+        if trend == "bullish":
+            return cls.message(
+                code="ASSET_BULLISH_TREND",
+                type="trend",
+                severity=Severity.LOW,
+                message="Trend positivo."
+            )
 
-		return messages
+        elif trend == "bearish":
+            return cls.message(
+                code="ASSET_BEARISH_TREND",
+                type="trend",
+                severity=Severity.MEDIUM,
+                message="Trend negativo."
+            )
+
+        return None
+
+    @classmethod
+    def check_beta(cls, asset_analysis):
+        beta = asset_analysis["asset"].get("beta")
+
+        if beta is None:
+            return None
+
+        if beta > 1.5:
+            return cls.message(
+                code="ASSET_HIGH_BETA",
+                type="beta",
+                severity=Severity.MEDIUM,
+                message=f"Beta elevato ({beta:.2f})."
+            )
+
+        elif beta < 0.7:
+            return cls.message(
+                code="ASSET_LOW_BETA",
+                type="beta",
+                severity=Severity.LOW,
+                message=f"Beta contenuto ({beta:.2f})."
+            )
+
+        return None
