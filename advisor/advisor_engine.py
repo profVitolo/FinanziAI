@@ -1,13 +1,13 @@
 from advisor.asset_rules import AssetRules
 from advisor.portfolio_rules import PortfolioRules
-from advisor.advisor_models import AdvisorResult
+from advisor.advisor_models import AdvisorReport
 
 
 class AdvisorEngine:
 
     @classmethod
     def evaluate(cls, portfolio, assets):
-        return AdvisorResult(
+        return AdvisorReport(
             portfolio=cls.evaluate_portfolio(portfolio),
             assets=[
                 cls.evaluate_asset(asset)
