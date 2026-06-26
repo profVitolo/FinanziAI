@@ -84,10 +84,7 @@ class ExchangeService:
         except Exception:
             self.exchange_data_manager.rollback()
             raise
-
-        finally:
-            self.exchange_data_manager.close()
-        
+            
         return response
        
     def sync_rates(self, from_currency, to_currency, start_date, end_date=None):
@@ -95,13 +92,12 @@ class ExchangeService:
         try:
             result = self._sync_rates(from_currency, to_currency, start_date, end_date)
             self.exchange_data_manager.commit()
-            return result
         except:
             self.exchange_data_manager.rollback()
             raise
-        finally:
-            self.exchange_data_manager.close()
-            
+        
+        return result    
+    
     def _sync_rates(self, from_currency, to_currency, start_date, end_date=None):
         from_currency = from_currency = (from_currency or BASE_CURRENCY).upper()
         to_currency = to_currency.upper()

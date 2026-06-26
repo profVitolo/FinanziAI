@@ -50,8 +50,6 @@ class PortfolioService:
         except Exception:
             self.transaction_data_manager.rollback()
             raise
-        finally:
-            self.transaction_data_manager.close()
     
     def update_transaction(self,transaction_id, asset_id, operation_type, quantity, price, fees=0, transaction_date=None):
         old_transaction = self.transaction_data_manager.get_transaction(transaction_id)
@@ -94,9 +92,7 @@ class PortfolioService:
         except Exception:
             self.transaction_data_manager.rollback()
             raise
-        finally:
-            self.transaction_data_manager.close()
-            
+    
     def delete_transaction(self, transaction_id):
         transaction = self.transaction_data_manager.get_transaction(transaction_id)
 
@@ -115,9 +111,7 @@ class PortfolioService:
         except Exception:
             self.transaction_data_manager.rollback()
             raise
-        finally:
-            self.transaction_data_manager.close()
-        
+    
     def _ensure_exchange_rate(self, asset_id, transaction_date):
         asset = self.asset_data_manager.get_asset_by_id(asset_id)
 
@@ -208,9 +202,6 @@ class PortfolioService:
         except Exception:
             self.transaction_data_manager.rollback()
             raise
-
-        finally:
-            self.database.close()
     
     def get_tracked_assets(self):
         tracked_assets = set()
@@ -238,9 +229,7 @@ class PortfolioService:
         except Exception:
             self.transaction_data_manager.rollback()
             raise
-        finally:
-            self.portfolio_data_manager.close()
-            
+    
     def add_to_watchlist(self, asset_id):
         try:
             self.portfolio_data_manager.add_to_watchlist(asset_id)
@@ -248,5 +237,4 @@ class PortfolioService:
         except Exception:
             self.transaction_data_manager.rollback()
             raise
-        finally:
-            self.portfolio_data_manager.close()
+    
