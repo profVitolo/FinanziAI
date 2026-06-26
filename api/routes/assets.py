@@ -84,20 +84,23 @@ def sync_asset(symbol: str, payload: AssetSync):
 @router.delete("/{symbol}")
 def delete_asset(symbol: str):
     data_service = DataService()
-
     try:
         result = data_service.delete_asset_by_symbol(symbol.upper())
 
         if not result["deleted"]:
-            raise HTTPException(status_code=404,detail="Asset not found")
+            raise HTTPException(status_code=404, detail="Asset not found")
 
         return result
 
     except HTTPException:
         raise
 
+    except ValueError as exc:
+        raise HTTPException(status_code=409,detail=str(exc))
+
     except Exception as exc:
-        raise HTTPException(status_code=500,detail=str(exc))
+        raise HTTPException(status_code=500, detail=str(exc))
+
     finally:
         data_service.close()
         
