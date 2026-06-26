@@ -14,10 +14,18 @@ try:
 
     response = requests.get(f"{BASE_URL}/info/databases")
 
-    print_response(response)
-
+    print_response(response)   
+       
     if response.status_code >= 400:
         raise Exception("Get databases fallita")
+    
+    databases = response.json()["databases"]
+
+    if "test_vault.db" in databases:
+        print("\n- Database test_vault.db trovato, provo a cancellarlo -\n")
+        
+        requests.delete(f"{BASE_URL}/info/database/test_vault")
+        print_response(response)
         
     print("\n=== TEST CREATE DATABASE ===")
 
