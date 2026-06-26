@@ -14,8 +14,11 @@ class TransactionCreate(BaseModel):
 class TransactionUpdate(TransactionCreate):
     pass
     
+class AssetUpdate(BaseModel):
+    initial_days: int = 365
+
 class AssetSync(BaseModel):
-    start_date: date 
+    start_date: date
     end_date: date | None = None
 
 class TransactionsFilter(BaseModel):
