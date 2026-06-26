@@ -18,4 +18,6 @@ print_result("S&P500 ANALYSIS",engine.analyze_asset("^GSPC"))
 
 print_result("PORTFOLIO ANALYSIS",engine.analyze_portfolio())
 
+print_result("PORTFOLIO & ASSETS ANALYSIS",engine.analyze_portfolio_full())
+
 engine.close()
