@@ -24,31 +24,41 @@ class DataEngine:
         
     def close(self):
         self.portfolio_data_manager.close()
-        
+    
+    def analyze_portfolio_assets(self, portfolio=None):
+        if portfolio is None:
+            portfolio = self.analyze_portfolio()
+
+        if portfolio is None:
+            return []
+
+        return [
+            analysis
+            for position in portfolio["positions"]
+            if (analysis := self.analyze_asset(position["symbol"])) is not None
+        ]
+    
     def analyze_asset(self, symbol, start_date=None, end_date=None):
-        try:
-            asset = self._load_asset(symbol)
+        asset = self._load_asset(symbol)
 
-            if not asset:
-                return None
-            
-            prices = self._load_prices(asset, start_date, end_date)
+        if not asset:
+            return None
+        
+        prices = self._load_prices(asset, start_date, end_date)
 
-            if not prices:
-                return None
+        if not prices:
+            return None
 
-            close_prices = self._extract_close_prices(prices)
-            
-            if not close_prices:
-                return None
-            
-            indicators = self._calculate_indicators(close_prices)
-            analysis = MarketAnalysis.analyze(indicators)
+        close_prices = self._extract_close_prices(prices)
+        
+        if not close_prices:
+            return None
+        
+        indicators = self._calculate_indicators(close_prices)
+        analysis = MarketAnalysis.analyze(indicators)
 
-            return self._build_asset_result(asset, prices, indicators, analysis)
-        finally:
-            self.database.close()
-
+        return self._build_asset_result(asset, prices, indicators, analysis)
+    
     def _load_asset(self, symbol):
         return (self.asset_data_manager.get_asset_by_symbol(symbol))
     
@@ -117,18 +127,15 @@ class DataEngine:
         }
 
     def analyze_portfolio(self):
-        try:
-            positions = self.portfolio_data_manager.get_all_positions()
+        positions = self.portfolio_data_manager.get_all_positions()
 
-            if not positions:
-                return None
+        if not positions:
+            return None
 
-            portfolio_positions = self._build_portfolio_positions(positions)
+        portfolio_positions = self._build_portfolio_positions(positions)
 
-            return self._build_portfolio_analysis(portfolio_positions)
-        finally:
-            self.database.close()
-    
+        return self._build_portfolio_analysis(portfolio_positions)
+        
     def _enrich_performance_with_base_currency(self, performance, currency):
         result = performance.copy()
 
