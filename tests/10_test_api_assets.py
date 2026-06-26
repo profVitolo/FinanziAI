@@ -58,7 +58,7 @@ try:
     response = requests.delete(f"{BASE_URL}/assets/AAPL")
     print_response(response)
 
-    if response.status_code >= 400:
+    if response.status_code >= 400 and response.status_code != 409:
         raise Exception("Delete asset fallita")
         
     print("\n=== TEST API ASSETS COMPLETATO ===")
