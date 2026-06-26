@@ -830,7 +830,7 @@ async function resolveAsset(symbol)
 
         if (!response.ok) 
 		{
-            const syncResponse = await fetch(`${API_BASE}/assets/${symbol}/sync`, {method: "POST"});
+            const syncResponse = await fetch(`${API_BASE}/assets/${symbol}/update`, {method: "POST"});
 			
 			if (!syncResponse.ok)
                 throw new Error("Errore sincronizzazione asset");
