@@ -19,18 +19,15 @@ class DataService:
         self.asset_data_manager.close()
     
     def update_asset(self, symbol, initial_days=365):
-        asset = self.asset_data_manager.get_asset_by_symbol(symbol)
+        asset = self.get_asset_by_symbol(symbol)
 
         if asset is None:
-            start_date = (date.today() - timedelta(days=initial_days)).isoformat()
-            return self.sync_asset(symbol, start_date=start_date)
-
-        asset_id = asset["id"]
-        last_date = self.asset_data_manager.get_last_price_date(asset_id)
+            return self._bootstrap_asset(symbol, initial_days)
+        
+        last_date = self._get_last_price_date(asset)
 
         if last_date is None:
-            start_date = (date.today() - timedelta(days=initial_days)).isoformat()
-            return self.sync_asset(symbol, start_date=start_date)
+            return self._bootstrap_asset(symbol, initial_days)
         
         if date.fromisoformat(last_date) >= date.today():
             return {
@@ -41,77 +38,97 @@ class DataService:
         start_date = (date.fromisoformat(last_date) + timedelta(days=1)).isoformat()
         return self.sync_asset(symbol, start_date=start_date)
 
+    def _bootstrap_asset(self, symbol, days=365):
+        start = (date.today() - timedelta(days=days)).isoformat()
+        return self.sync_asset(symbol, start)
+    
     def sync_asset(self, symbol, start_date, end_date=None):
-        asset_info = self.collector.fetch_asset_info(symbol)
+        asset_info = self._load_asset_info(symbol)
+        start_date = self._normalize_date(start_date)
+        end_date = self._normalize_date(end_date)
 
-        if asset_info is None:
-            return False
-
-        if isinstance(start_date, str):
-            start_date = date.fromisoformat(start_date)
-
-        if isinstance(end_date, str):
-            end_date = date.fromisoformat(end_date)
-
-        asset = self.asset_data_manager.get_asset_by_symbol(symbol)
-
-        download_start_date = start_date
-        
         self.asset_data_manager.begin_transaction()
-        try:
-            needs_bootstrap = (
-                asset is None or
-                self.asset_data_manager.get_last_price_date(asset["id"]) is None
-            )
+        try:  
+            asset = self.get_asset_by_symbol(symbol)
+            asset_id, download_start = self._prepare_asset_for_sync(asset, asset_info, start_date)
 
-            if needs_bootstrap:
-                download_start_date = start_date - timedelta(days=BOOTSTRAP_DAYS)
-            else:
-                asset_id = asset["id"]
-
-                self.asset_data_manager.update_asset_metadata(
-                    asset_id=asset_id,
-                    sector=asset_info["sector"],
-                    industry=asset_info["industry"],
-                    country=asset_info["country"],
-                    market_cap=asset_info["market_cap"],
-                    beta=asset_info["beta"],
-                    website=asset_info["website"]
-                )
-            
-            prices = self.collector.fetch_prices(symbol, download_start_date, end_date)
-
-            if not prices:
-                raise ValueError(f"No historical prices available for '{symbol}'")
-
-            if asset is None:
-                asset_id = self.asset_data_manager.create_asset(
-                    symbol=symbol,
-                    name=asset_info["name"],
-                    type=asset_info["type"],
-                    currency=asset_info["currency"],
-                    exchange=asset_info["exchange"],
-                    sector=asset_info["sector"],
-                    industry=asset_info["industry"],
-                    country=asset_info["country"],
-                    market_cap=asset_info["market_cap"],
-                    beta=asset_info["beta"],
-                    website=asset_info["website"]
-                )
-            else:
-                asset_id = asset["id"]
-
+            prices = self._download_prices(symbol, download_start, end_date)
             self.asset_data_manager.save_prices(asset_id, prices)
             self.asset_data_manager.commit()
 
-            return {"symbol": symbol, "prices_downloaded": len(prices)}
+            return {
+                "symbol": symbol,
+                "prices_downloaded": len(prices)
+            }
 
         except Exception:
             self.asset_data_manager.rollback()
             raise
+    
+    @staticmethod
+    def _normalize_date(value):
+        if isinstance(value, str):
+            return date.fromisoformat(value)
+        return value
+    
+    def _download_prices(self, symbol, start_date, end_date):
+        prices = self.collector.fetch_prices(symbol, start_date, end_date)
 
-        finally:
-            self.asset_data_manager.close()
+        if not prices:
+            raise ValueError(f"No historical prices available for '{symbol}'")
+        return prices
+    
+    def _create_asset(self, asset_info):
+        return self.asset_data_manager.create_asset(
+            symbol=asset_info["symbol"],
+            name=asset_info["name"],
+            type=asset_info["type"],
+            currency=asset_info["currency"],
+            exchange=asset_info["exchange"],
+            sector=asset_info["sector"],
+            industry=asset_info["industry"],
+            country=asset_info["country"],
+            market_cap=asset_info["market_cap"],
+            beta=asset_info["beta"],
+            website=asset_info["website"]
+        )
+    
+    def _update_asset(self, asset_id, asset_info):
+        self.asset_data_manager.update_asset_metadata(
+                asset_id=asset_id,
+                sector=asset_info["sector"],
+                industry=asset_info["industry"],
+                country=asset_info["country"],
+                market_cap=asset_info["market_cap"],
+                beta=asset_info["beta"],
+                website=asset_info["website"]
+            )
+    
+    def _prepare_asset_for_sync(self, asset, asset_info, start_date):
+        needs_bootstrap = (asset is None or self._get_last_price_date(asset) is None)
+
+        download_start = start_date
+        if needs_bootstrap:
+            download_start -= timedelta(days=BOOTSTRAP_DAYS)
+
+        if asset is None:
+            asset_id = self._create_asset(asset_info)
+        else:
+            asset_id = asset["id"]
+            self._update_asset(asset_id, asset_info)
+
+        return asset_id, download_start
+    
+    def _get_last_price_date(self, asset):
+        return self.asset_data_manager.get_last_price_date(asset["id"])
+    
+    def _load_asset_info(self, symbol):
+        asset_info = self.collector.fetch_asset_info(symbol)
+
+        if asset_info is None:
+            raise ValueError(f"Asset '{symbol}' not found")
+
+        return asset_info
     
     def sync_tracked_assets(self, asset_ids):
         results = []
@@ -148,11 +165,14 @@ class DataService:
         return self.asset_data_manager.get_all_assets()
     
     def get_asset_by_symbol(self, symbol):
-        asset = self.asset_data_manager.get_asset_by_symbol(symbol)
+        return self.asset_data_manager.get_asset_by_symbol(symbol)
+    
+    def ensure_asset_by_symbol(self, symbol):
+        asset = self.get_asset_by_symbol(symbol)
 
         if asset is None:
-            self.sync_asset(symbol,(date.today() - timedelta(days=365)).isoformat())
-            asset = self.asset_data_manager.get_asset_by_symbol(symbol)
+            self._bootstrap_asset(symbol)
+            asset = self.get_asset_by_symbol(symbol)
 
         return asset
             
@@ -160,45 +180,56 @@ class DataService:
         return self.asset_data_manager.get_asset_by_id(asset_id)
     
     def get_asset_details(self, symbol, start_date=None, end_date=None):
-        asset = self.get_asset_by_symbol(symbol)
-
-        if asset is None:
-            return None
+        asset = self.ensure_asset_by_symbol(symbol)
         
-        if isinstance(start_date, str):
-            start_date = date.fromisoformat(start_date)
-
-        if isinstance(end_date, str):
-            end_date = date.fromisoformat(end_date)
+        start_date = self._normalize_date(start_date)
+        end_date = self._normalize_date(end_date)
             
         prices = self.asset_data_manager.get_prices(asset["id"], start_date, end_date)
 
         return {"asset": asset, "prices": prices}
         
     def delete_asset_by_symbol(self, symbol):
-        asset = self.asset_data_manager.get_asset_by_symbol(symbol)
+        asset = self.get_asset_by_symbol(symbol)
 
         if asset is None:
-            return {"symbol": symbol,"deleted": False}
+            return {
+                "symbol": symbol,
+                "deleted": False
+            }
 
-        asset_id = asset["id"]
-
-        transactions = self.transaction_data_manager.get_transactions_by_asset(asset_id)
-
-        if transactions:
-            raise ValueError(f"Cannot delete asset '{symbol}': asset has transactions")
+        self._ensure_asset_not_used(asset)
 
         self.asset_data_manager.begin_transaction()
-        try:
-            self.portfolio_data_manager.remove_from_watchlist(asset_id)
-            self.asset_data_manager.delete_asset(asset_id)
 
+        try:
+            self._delete_asset(asset)
             self.asset_data_manager.commit()
 
-            return {"symbol": symbol,"deleted": True}
+            return {
+                "symbol": symbol,
+                "deleted": True
+            }
+
         except Exception:
             self.asset_data_manager.rollback()
             raise
-        finally:
-            self.asset_data_manager.close()
+    
+    def _ensure_asset_not_used(self, asset):
+        transactions = (
+            self.transaction_data_manager
+            .get_transactions_by_asset(asset["id"])
+        )
 
+        if transactions:
+            raise ValueError(
+                f"Cannot delete asset '{asset['symbol']}': "
+                "asset has transactions"
+            )
+    
+    def _delete_asset(self, asset):
+        asset_id = asset["id"]
+
+        self.portfolio_data_manager.remove_from_watchlist(asset_id)
+        self.asset_data_manager.delete_asset(asset_id)
+    
