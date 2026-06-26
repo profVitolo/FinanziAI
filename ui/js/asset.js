@@ -6,20 +6,39 @@ function getSymbol()
     return params.get("symbol")?.toUpperCase();
 }
 
-async function syncAsset(symbol) 
+async function updateAsset(symbol) 
 {
 	const today = new Date().toISOString().split('T')[0];
   
-    const response = await fetch(`${API_BASE}/assets/${symbol}/sync`, 
+    const response = await fetch(`${API_BASE}/assets/${symbol}/update`, 
 		{
 			method: "POST",
 			headers: { "Content-Type": "application/json"},
-			body: JSON.stringify({ start_date: today })
+			body: JSON.stringify({inital_days: 365})
 		}
 	);
 	
-    if (!response.ok) throw new Error("Errore sincronizzazione asset");
+    if (!response.ok) throw new Error("Errore recupero asset");
     
+    return await response.json();
+}
+
+async function syncAsset(symbol, startDate, endDate = null) {
+    const response = await fetch(
+        `${API_BASE}/assets/${symbol}/sync`,
+        {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                start_date: startDate,
+                end_date: endDate
+            })
+        }
+    );
+
+    if (!response.ok)
+        throw new Error("Errore sincronizzazione asset");
+
     return await response.json();
 }
 
@@ -114,35 +133,32 @@ async function init()
 
     try 
 	{
-        await syncAsset(symbol);
+        await updateAsset(symbol);
         const analysis = await loadAnalysis(symbol);
 
         renderAnalysis(analysis);
 
         document.getElementById("sync-btn").addEventListener(
-                "click",
-                async () => 
-				{
-                    await syncAsset(symbol);
-                    const analysis =  await loadAnalysis(symbol);
-                    renderAnalysis(analysis);
-                }
-            );
-
-        document.getElementById("watchlist-add-btn").addEventListener(
-                "click",
-                () => addToWatchlist(symbol)
-            );
-			
-		document.getElementById("watchlist-del-btn").addEventListener(
-                "click",
-                () => removeFromWatchlist(symbol)
-            );
-    
-		document.getElementById("del-btn").addEventListener(
 			"click",
-			() => deleteAsset(symbol)
+			async () => 
+			{
+				const _5YearsAgo = new Date();
+				_5YearsAgo.setFullYear(_5YearsAgo.getFullYear() - 5);
+				const endDate =  _5YearsAgo.toJSON().slice(0, 10);//5 anni fa
+				const startDate = prompt("Scarica lo storico a partire da (YYYY-MM-DD):", endDate);
+				
+				if (!startDate)
+					return;
+				
+				await syncAsset(symbol, startDate);
+				const analysis =  await loadAnalysis(symbol);
+				renderAnalysis(analysis);
+			}
 		);
+
+        document.getElementById("watchlist-add-btn").addEventListener("click", () => addToWatchlist(symbol));
+		document.getElementById("watchlist-del-btn").addEventListener("click", () => removeFromWatchlist(symbol));
+    	document.getElementById("del-btn").addEventListener("click", () => deleteAsset(symbol));
 	} 
 	catch (error) 
 	{
