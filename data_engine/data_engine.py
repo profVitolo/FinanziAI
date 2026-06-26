@@ -25,16 +25,24 @@ class DataEngine:
     def close(self):
         self.portfolio_data_manager.close()
     
-    def analyze_assets(self, symbols):
-        return [analysis for symbol in symbols if (analysis := self.analyze_asset(symbol)) is not None]
-    
-    def analyze_portfolio_assets(self, portfolio=None):
-        portfolio = portfolio or self.analyze_portfolio()
+    def analyze_portfolio_full(self):
+        portfolio = self.analyze_portfolio()
 
         if portfolio is None:
-            return []
+            return None
 
-        return self.analyze_assets(position["symbol"] for position in portfolio["positions"])
+        assets = self.analyze_assets(
+            position["symbol"]
+            for position in portfolio["positions"]
+        )
+
+        return {
+            "portfolio": portfolio,
+            "assets": assets
+        }
+        
+    def analyze_assets(self, symbols):
+        return [analysis for symbol in symbols if (analysis := self.analyze_asset(symbol)) is not None]
     
     def analyze_asset(self, symbol, start_date=None, end_date=None):
         asset = self._load_asset(symbol)
