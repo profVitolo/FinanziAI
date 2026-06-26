@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 
 from services.data_service import DataService
 from services.portfolio_service import PortfolioService
-from api.schemas import AssetSync
+from api.schemas import AssetSync, AssetUpdate
 
 router = APIRouter(prefix="/assets", tags=["Assets"])
 
@@ -59,6 +59,27 @@ def get_asset_details(symbol: str, start_date: str | None = None, end_date: str 
     finally:
         data_service.close()
         
+@router.post("/{symbol}/update")
+def update_asset(symbol: str, payload: AssetUpdate):
+    data_service = DataService()
+    
+    try:
+        result = data_service.update_asset(
+            symbol.upper(), 
+            initial_days=payload.initial_days
+        )
+
+        return {
+            "status": "success",
+            "symbol": symbol.upper(),
+            "result": result
+        }
+
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        data_service.close()
+
 @router.post("/{symbol}/sync")
 def sync_asset(symbol: str, payload: AssetSync):
     data_service = DataService()
@@ -66,7 +87,7 @@ def sync_asset(symbol: str, payload: AssetSync):
     try:
         result = data_service.sync_asset(
             symbol.upper(), 
-            start_date=payload.start_date, 
+            start_date=payload.start_date,
             end_date=payload.end_date
         )
 
@@ -80,7 +101,8 @@ def sync_asset(symbol: str, payload: AssetSync):
         raise HTTPException(status_code=500, detail=str(exc))
     finally:
         data_service.close()
-        
+
+
 @router.delete("/{symbol}")
 def delete_asset(symbol: str):
     data_service = DataService()
