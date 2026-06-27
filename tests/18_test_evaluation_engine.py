@@ -7,6 +7,7 @@ sys.path.insert(0, str(ROOT_DIR))
 from api_test_utils import *
 from evaluation_engine.evaluation_engine import EvaluationEngine
 from data_engine.data_engine import DataEngine
+from data_engine.portfolio_models import PortfolioResult
 from database.database_manager import DatabaseManager
 
 def call_evaluation(asset_analysis=None, portfolio=None):
@@ -60,10 +61,10 @@ asset_analysis = {
     }
 }
 
-portfolio = {
-    "base_currency": "EUR",
-    "portfolio_value": 100000,
-    "positions": [
+portfolio = PortfolioResult(
+    base_currency="EUR",
+    portfolio_value=100000,
+    positions=[
         {
             "asset_id": 1,
             "symbol": "NVDA",
@@ -74,14 +75,12 @@ portfolio = {
             "country": "United States",
             "market_cap": 3_500_000_000_000,
             "beta": 1.82,
-
             "quantity": 388.0,
             "currency": "USD",
             "avg_price": 120.00,
             "market_price": 145.10,
             "market_value": 56300.0,
             "market_value_base": 56300.0,
-
             "performance": {
                 "cost_basis": 46560.0,
                 "market_value": 56300.0,
@@ -101,14 +100,12 @@ portfolio = {
             "country": "United States",
             "market_cap": 250_000_000_000,
             "beta": 1.65,
-
             "quantity": 180.0,
             "currency": "USD",
             "avg_price": 120.00,
             "market_price": 131.67,
             "market_value": 23700.0,
             "market_value_base": 23700.0,
-
             "performance": {
                 "cost_basis": 21600.0,
                 "market_value": 23700.0,
@@ -128,14 +125,12 @@ portfolio = {
             "country": "France",
             "market_cap": 28_000_000_000,
             "beta": 1.15,
-
             "quantity": 500.0,
             "currency": "EUR",
             "avg_price": 36.00,
             "market_price": 40.00,
             "market_value": 20000.0,
             "market_value_base": 20000.0,
-
             "performance": {
                 "cost_basis": 18000.0,
                 "market_value": 20000.0,
@@ -146,16 +141,16 @@ portfolio = {
             }
         }
     ],
-    "exposure": {
+    exposure={
         "NVDA": 56.3,
         "AMD": 23.7,
         "STM": 20.0
     },
-    "risk": {
+    risk={
         "largest_position_weight": 56.3,
         "concentration_level": "high"
     }
-}
+)
 
 print_title("=== CASE 1: HIGH RISK ===")
 call_evaluation(asset_analysis, portfolio)
@@ -175,12 +170,10 @@ safe_asset = {
     }
 }
 
-safe_portfolio = {
-    "portfolio_value": 100000,
-    "risk": {
-        "largest_position_weight": 20
-    },
-    "positions": [
+safe_portfolio = PortfolioResult(
+    base_currency="EUR",
+    portfolio_value=100000,
+    positions=[
         {
             "sector": "Technology",
             "country": "USA",
@@ -221,8 +214,12 @@ safe_portfolio = {
             "beta": 0.7,
             "market_value_base": 20000
         }
-    ]
-}
+    ],
+    exposure={},
+    risk={
+        "largest_position_weight": 20
+    }
+)
 
 print_title("=== CASE 2: SAFE ===")
 call_evaluation(safe_asset, safe_portfolio)
@@ -264,10 +261,10 @@ medium_asset = {
     }
 }
 
-medium_portfolio = {
-    "base_currency": "EUR",
-    "portfolio_value": 100000,
-    "positions": [
+medium_portfolio = PortfolioResult(
+    base_currency="EUR",
+    portfolio_value=100000,
+    positions=[
         {
             "asset_id": 1,
             "symbol": "MSFT",
@@ -278,14 +275,12 @@ medium_portfolio = {
             "country": "United States",
             "market_cap": 3_600_000_000_000,
             "beta": 1.20,
-
             "quantity": 77.5,
             "currency": "USD",
             "avg_price": 360.00,
             "market_price": 400.00,
             "market_value": 31000.0,
             "market_value_base": 31000.0,
-
             "performance": {
                 "cost_basis": 27900.0,
                 "market_value": 31000.0,
@@ -305,14 +300,12 @@ medium_portfolio = {
             "country": "United States",
             "market_cap": 2_300_000_000_000,
             "beta": 1.15,
-
             "quantity": 160.0,
             "currency": "USD",
             "avg_price": 135.00,
             "market_price": 150.00,
             "market_value": 24000.0,
             "market_value_base": 24000.0,
-
             "performance": {
                 "cost_basis": 21600.0,
                 "market_value": 24000.0,
@@ -332,14 +325,12 @@ medium_portfolio = {
             "country": "United States",
             "market_cap": 370_000_000_000,
             "beta": 0.70,
-
             "quantity": 200.0,
             "currency": "USD",
             "avg_price": 117.00,
             "market_price": 130.00,
             "market_value": 26000.0,
             "market_value_base": 26000.0,
-
             "performance": {
                 "cost_basis": 23400.0,
                 "market_value": 26000.0,
@@ -359,14 +350,12 @@ medium_portfolio = {
             "country": "Switzerland",
             "market_cap": 280_000_000_000,
             "beta": 0.65,
-
             "quantity": 200.0,
             "currency": "CHF",
             "avg_price": 85.50,
             "market_price": 95.00,
             "market_value": 19000.0,
             "market_value_base": 19000.0,
-
             "performance": {
                 "cost_basis": 17100.0,
                 "market_value": 19000.0,
@@ -377,151 +366,22 @@ medium_portfolio = {
             }
         }
     ],
-    "exposure": {
+    exposure={
         "MSFT": 31.0,
         "GOOGL": 24.0,
         "JNJ": 26.0,
         "NESN": 19.0
     },
-    "risk": {
+    risk={
         "largest_position_weight": 31.0,
         "concentration_level": "medium"
     }
-}
+)
 
 print_title("=== CASE 3: MEDIUM ===")
 call_evaluation(medium_asset, medium_portfolio)
 
-medium_portfolio = {
-    "base_currency": "EUR",
-    "portfolio_value": 100000,
-    "positions": [
-        {
-            "asset_id": 1,
-            "symbol": "MSFT",
-            "name": "Microsoft Corporation",
-            "type": "EQUITY",
-            "sector": "Technology",
-            "industry": "Software - Infrastructure",
-            "country": "United States",
-            "market_cap": 3_600_000_000_000,
-            "beta": 1.20,
-
-            "quantity": 77.5,
-            "currency": "USD",
-            "avg_price": 360.00,
-            "market_price": 400.00,
-            "market_value": 31000.0,
-            "market_value_base": 31000.0,
-
-            "performance": {
-                "cost_basis": 27900.0,
-                "market_value": 31000.0,
-                "pnl": 3100.0,
-                "pnl_percent": 11.11,
-                "cost_basis_base": 27900.0,
-                "pnl_base": 3100.0
-            }
-        },
-        {
-            "asset_id": 2,
-            "symbol": "GOOGL",
-            "name": "Alphabet Inc.",
-            "type": "EQUITY",
-            "sector": "Technology",
-            "industry": "Internet Content & Information",
-            "country": "United States",
-            "market_cap": 2_300_000_000_000,
-            "beta": 1.15,
-
-            "quantity": 160.0,
-            "currency": "USD",
-            "avg_price": 135.00,
-            "market_price": 150.00,
-            "market_value": 24000.0,
-            "market_value_base": 24000.0,
-
-            "performance": {
-                "cost_basis": 21600.0,
-                "market_value": 24000.0,
-                "pnl": 2400.0,
-                "pnl_percent": 11.11,
-                "cost_basis_base": 21600.0,
-                "pnl_base": 2400.0
-            }
-        },
-        {
-            "asset_id": 3,
-            "symbol": "JNJ",
-            "name": "Johnson & Johnson",
-            "type": "EQUITY",
-            "sector": "Healthcare",
-            "industry": "Drug Manufacturers - General",
-            "country": "United States",
-            "market_cap": 370_000_000_000,
-            "beta": 0.70,
-
-            "quantity": 200.0,
-            "currency": "USD",
-            "avg_price": 117.00,
-            "market_price": 130.00,
-            "market_value": 26000.0,
-            "market_value_base": 26000.0,
-
-            "performance": {
-                "cost_basis": 23400.0,
-                "market_value": 26000.0,
-                "pnl": 2600.0,
-                "pnl_percent": 11.11,
-                "cost_basis_base": 23400.0,
-                "pnl_base": 2600.0
-            }
-        },
-        {
-            "asset_id": 4,
-            "symbol": "NESN",
-            "name": "Nestlé S.A.",
-            "type": "EQUITY",
-            "sector": "Consumer",
-            "industry": "Packaged Foods",
-            "country": "Switzerland",
-            "market_cap": 280_000_000_000,
-            "beta": 0.65,
-
-            "quantity": 200.0,
-            "currency": "CHF",
-            "avg_price": 85.50,
-            "market_price": 95.00,
-            "market_value": 19000.0,
-            "market_value_base": 19000.0,
-
-            "performance": {
-                "cost_basis": 17100.0,
-                "market_value": 19000.0,
-                "pnl": 1900.0,
-                "pnl_percent": 11.11,
-                "cost_basis_base": 17100.0,
-                "pnl_base": 1900.0
-            }
-        }
-    ],
-    "exposure": {
-        "MSFT": 31.0,
-        "GOOGL": 24.0,
-        "JNJ": 26.0,
-        "NESN": 19.0
-    },
-    "risk": {
-        "largest_position_weight": 31.0,
-        "concentration_level": "medium"
-    }
-}
-
-print_title("=== CASE 4: STILL MEDIUM ===")
-call_evaluation(medium_asset, medium_portfolio)
-
-
-print_title("=== CASE 5: REAL PORTFOLIO ===")
+print_title("=== CASE 4: REAL PORTFOLIO ===")
 
 database = DatabaseManager()
 engine = DataEngine(database)
