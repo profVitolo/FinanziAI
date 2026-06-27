@@ -9,7 +9,7 @@ class Severity(str, Enum):
 
 
 @dataclass(slots=True)
-class AdvisorMessage:
+class EvaluationMessage:
     code: str
     type: str
     severity: Severity
@@ -17,26 +17,26 @@ class AdvisorMessage:
 
 
 @dataclass(slots=True)
-class AdvisorSummary:
+class EvaluationSummary:
     message_count: int = 0
     highest_severity: Severity | None = None
 
 
 @dataclass(slots=True)
-class AdvisorResult:
-    messages: list[AdvisorMessage]
-    summary: AdvisorSummary
+class EvaluationResult:
+    messages: list[EvaluationMessage]
+    summary: EvaluationSummary
     
 @dataclass(slots=True)
-class AssetAdvisorResult(AdvisorResult):
+class AssetEvaluationResult(EvaluationResult):
     symbol: str
 
 @dataclass(slots=True)
-class PortfolioAdvisorResult(AdvisorResult):
+class PortfolioEvaluationResult(EvaluationResult):
     pass
 
 
 @dataclass(slots=True)
-class AdvisorReport:
-    portfolio: PortfolioAdvisorResult
-    assets: list[AssetAdvisorResult] = field(default_factory=list)
+class EvaluationReport:
+    portfolio: PortfolioEvaluationResult
+    assets: list[AssetEvaluationResult] = field(default_factory=list)

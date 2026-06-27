@@ -1,14 +1,14 @@
 from collections import defaultdict
-from advisor.advisor_base_rules import AdvisorBaseRules
-from advisor.advisor_models import PortfolioAdvisorResult, Severity
+from evaluation_engine.base_evaluator import BaseEvaluator
+from evaluation_engine.evaluation_models import PortfolioEvaluationResult, Severity
 
 
-class PortfolioRules(AdvisorBaseRules):
+class PortfolioEvaluator(BaseEvaluator):
 
     @classmethod
     def evaluate(cls, portfolio):
         return cls.build_result(
-            PortfolioAdvisorResult,
+            PortfolioEvaluationResult,
             messages=cls.collect_messages(
                 cls.check_concentration(portfolio),
                 cls.check_diversification(portfolio),

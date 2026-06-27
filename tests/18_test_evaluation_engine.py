@@ -5,20 +5,23 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
 from api_test_utils import *
-from advisor.advisor_engine import AdvisorEngine
+from evaluation_engine.evaluation_engine import EvaluationEngine
 from data_engine.data_engine import DataEngine
 from database.database_manager import DatabaseManager
 
-def call_advisor(asset_analysis=None, portfolio=None):
+def call_evaluation(asset_analysis=None, portfolio=None):
     if asset_analysis is not None:
-        asset_result = AdvisorEngine.evaluate_asset(asset_analysis)
-        print_result("ASSET ADVISOR", asset_result)
+        if not isinstance(asset_analysis, (list, tuple)):
+            asset_analysis = [asset_analysis]
+        for single_asset_analysis in asset_analysis:
+            asset_result = EvaluationEngine.evaluate_asset(single_asset_analysis)
+            print_result("ASSET EVALUATION", asset_result)
 
     if portfolio is not None:
-        portfolio_result = AdvisorEngine.evaluate_portfolio(portfolio)
-        print_result("PORTFOLIO ADVISOR", portfolio_result)
+        portfolio_result = EvaluationEngine.evaluate_portfolio(portfolio)
+        print_result("PORTFOLIO EVALUATION", portfolio_result)
 
-print_title("=== TEST ADVISOR ENGINE ===")
+print_title("=== TEST EVALUATION ENGINE ===")
 
 asset_analysis = {
     "asset": {
@@ -155,7 +158,7 @@ portfolio = {
 }
 
 print_title("=== CASE 1: HIGH RISK ===")
-call_advisor(asset_analysis, portfolio)
+call_evaluation(asset_analysis, portfolio)
 
 
 safe_asset = {
@@ -222,7 +225,7 @@ safe_portfolio = {
 }
 
 print_title("=== CASE 2: SAFE ===")
-call_advisor(safe_asset, safe_portfolio)
+call_evaluation(safe_asset, safe_portfolio)
 
 medium_asset = {
     "asset": {
@@ -387,7 +390,7 @@ medium_portfolio = {
 }
 
 print_title("=== CASE 3: MEDIUM ===")
-call_advisor(medium_asset, medium_portfolio)
+call_evaluation(medium_asset, medium_portfolio)
 
 medium_portfolio = {
     "base_currency": "EUR",
@@ -515,7 +518,7 @@ medium_portfolio = {
 }
 
 print_title("=== CASE 4: STILL MEDIUM ===")
-call_advisor(medium_asset, medium_portfolio)
+call_evaluation(medium_asset, medium_portfolio)
 
 
 print_title("=== CASE 5: REAL PORTFOLIO ===")
@@ -526,12 +529,8 @@ from pprint import pprint
 try:
     analysis = engine.analyze_portfolio_full()
     pprint(analysis, sort_dicts=False)
-    report = AdvisorEngine.evaluate(
-        portfolio=analysis["portfolio"],
-        assets=analysis["assets"]
-    )
 
-    print_result("REAL PORTFOLIO REPORT", report)
+    call_evaluation([ asset for asset in analysis["assets"] ], analysis["portfolio"])
 
 finally:
     engine.close()

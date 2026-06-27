@@ -1,7 +1,7 @@
-from advisor.advisor_models import Severity, AdvisorSummary, AdvisorMessage
+from evaluation_engine.evaluation_models import Severity, EvaluationSummary, EvaluationMessage
 
 
-class AdvisorBaseRules:
+class BaseEvaluator:
     @classmethod
     def _highest_severity(cls, messages):
         if not messages:
@@ -20,7 +20,7 @@ class AdvisorBaseRules:
     
     @classmethod
     def _build_summary(cls, messages):
-        return AdvisorSummary(
+        return EvaluationSummary(
             message_count=len(messages),
             highest_severity=cls._highest_severity(messages)
         )
@@ -31,7 +31,7 @@ class AdvisorBaseRules:
     
     @classmethod
     def message(cls, code, type, severity, message):
-        return AdvisorMessage(
+        return EvaluationMessage(
             code=code,
             type=type,
             severity=severity,

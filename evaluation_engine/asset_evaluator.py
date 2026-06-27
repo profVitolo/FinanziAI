@@ -1,13 +1,13 @@
-from advisor.advisor_base_rules import AdvisorBaseRules
-from advisor.advisor_models import AssetAdvisorResult, Severity
+from evaluation_engine.base_evaluator import BaseEvaluator
+from evaluation_engine.evaluation_models import AssetEvaluationResult, Severity
 
 
-class AssetRules(AdvisorBaseRules):
+class AssetEvaluator(BaseEvaluator):
 
     @classmethod
     def evaluate(cls, asset_analysis):
         return cls.build_result(
-            AssetAdvisorResult,
+            AssetEvaluationResult,
             symbol=asset_analysis["asset"]["symbol"],
             messages=cls.collect_messages(
                 cls.check_rsi(asset_analysis),
@@ -22,7 +22,7 @@ class AssetRules(AdvisorBaseRules):
         rsi = asset_analysis["indicators"].get("rsi")
 
         if rsi is None:
-            return messages
+            return None
 
         if rsi > 70:
             return cls.message(
