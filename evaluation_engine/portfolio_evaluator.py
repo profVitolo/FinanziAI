@@ -22,7 +22,7 @@ class PortfolioEvaluator(BaseEvaluator):
     
     @classmethod
     def check_concentration(cls, portfolio):
-        risk = portfolio.get("risk", {})
+        risk = portfolio.risk
         largest_weight = risk.get("largest_position_weight", 0)
 
         if largest_weight > 50:
@@ -51,7 +51,7 @@ class PortfolioEvaluator(BaseEvaluator):
     
     @classmethod
     def check_diversification(cls, portfolio):
-        positions = portfolio.get("positions", [])
+        positions = portfolio.positions
 
         if len(positions) < 3:
             return cls.message(
@@ -145,14 +145,14 @@ class PortfolioEvaluator(BaseEvaluator):
     
     @classmethod
     def check_market_cap_exposure(cls, portfolio):
-        portfolio_value = portfolio.get("portfolio_value", 0)
+        portfolio_value = portfolio.portfolio_value
 
         if portfolio_value <= 0:
             return None
 
         small_cap_value = 0
 
-        for position in portfolio.get("positions", []):
+        for position in portfolio.positions:
             market_cap = position.get("market_cap")
 
             if market_cap and market_cap < 2_000_000_000:
@@ -176,14 +176,14 @@ class PortfolioEvaluator(BaseEvaluator):
     
     @classmethod
     def check_portfolio_beta(cls, portfolio):
-        total_value = portfolio.get("portfolio_value", 0)
+        total_value = portfolio.portfolio_value
 
         if total_value <= 0:
             return None
 
         weighted_beta = 0
 
-        for position in portfolio.get("positions", []):
+        for position in portfolio.positions:
             beta = position.get("beta")
 
             if beta is None:
@@ -207,8 +207,8 @@ class PortfolioEvaluator(BaseEvaluator):
     
     @staticmethod
     def _aggregate_by_field(portfolio, field):
-        positions = portfolio.get("positions", [])
-        portfolio_value = portfolio.get("portfolio_value") or 0
+        positions = portfolio.positions
+        portfolio_value = portfolio.portfolio_value
 
         result = defaultdict(float)
 
