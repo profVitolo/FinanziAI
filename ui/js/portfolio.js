@@ -49,7 +49,7 @@ function handlePortfolioFilter()
     }
     else
     {
-        filteredPositions = portfolioPositions.filter(position => position.symbol.toUpperCase().includes(symbol));
+        filteredPositions = portfolioPositions.filter(position => position.asset.symbol.toUpperCase().includes(symbol));
     }
 
 	updateTable(renderPositions, filteredPositions, "positions-pagination",currentPage, pageSize);
@@ -69,7 +69,7 @@ function renderSummary(data)
     if (data.positions && data.positions.length > 0) 
 	{
         const sorted = [...data.positions].sort( (a, b) =>  b.market_value - a.market_value );
-        largestPosition =sorted[0].symbol;
+        largestPosition = sorted[0].asset.symbol;
     }
 
     document.getElementById("largest-position").textContent = largestPosition;
@@ -87,8 +87,8 @@ function renderPositions(positions)
 
         row.innerHTML = `
             <td>
-				<a href="asset.html?symbol=${position.symbol}">
-					${position.symbol}
+				<a href="asset.html?symbol=${position.asset.symbol}">
+					${position.asset.symbol}
 				</a>
 			</td>
             <td>${parseFloat(position.quantity.toFixed(6))}</td>
@@ -112,7 +112,7 @@ function renderPositionsChart(positions)
     positionsChart = new Chart(canvas, {
         type: "pie",
         data: {
-            labels: positions.map(p => p.symbol),
+            labels: positions.map(p => p.asset.symbol),
             datasets: [{
                 data: positions.map(p => Number(p.market_value))
             }]
@@ -148,7 +148,7 @@ function renderPnlChart(positions)
     pnlChart = new Chart(canvas, {
         type: "bar",
         data: {
-            labels: sortedPositions.map(p => p.symbol),
+            labels: sortedPositions.map(p => p.asset.symbol),
             datasets: [{
                 label: `P/L:`,
                 data: sortedPositions.map(p => Number(p.performance.pnl_base)),
@@ -192,7 +192,7 @@ function renderExposure(data)
 
     exposureList.innerHTML = "";
 
-    for (const [symbol, value] of Object.entries( data.exposure )) 
+    for (const [symbol, value] of Object.entries( data.exposure.by_symbol )) 
 	{
 		const li = document.createElement("li");
 
