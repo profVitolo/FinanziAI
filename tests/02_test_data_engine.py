@@ -3,7 +3,7 @@ import sys
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
-from api_test_utils import *
+from test_utils import *
 from data_engine.data_engine import DataEngine
 from database.database_manager import DatabaseManager
 

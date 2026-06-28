@@ -3,7 +3,7 @@ import sys
 import time
 import requests
 
-from api_test_utils import *
+from test_utils import *
 
 
 def test_endpoint(method, path):

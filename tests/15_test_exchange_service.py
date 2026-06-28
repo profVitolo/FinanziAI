@@ -6,7 +6,7 @@ sys.path.insert(0, str(ROOT_DIR))
 
 from database.database_manager import DatabaseManager
 from services.exchange_service import ExchangeService
-from api_test_utils import *
+from test_utils import *
 
 
 database = DatabaseManager()

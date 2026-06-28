@@ -1,7 +1,7 @@
 from pathlib import Path
 import requests
 import sys
-from api_test_utils import *
+from test_utils import *
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
