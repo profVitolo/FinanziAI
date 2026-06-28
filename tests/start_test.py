@@ -3,7 +3,7 @@ import shutil
 import subprocess
 import sys
 import os
-from api_test_utils import  *
+from test_utils import  *
 
 env = dict(os.environ)
 env["FINANZIAI_TEST_RUNNER"] = "1"
@@ -16,12 +16,9 @@ BACKUP_PATH = ROOT_DIR / "database" / "vault.db.bk"
 
 server = None
 
-tests = sorted(
-    [
-        f
-        for f in TEST_DIR.glob("*_test_*.py")
-        if f.name not in  ("start_test.py", "api_test_utils.py")
-    ]
+tests = sorted(f for f in TEST_DIR.glob("*_test_*.py")
+    if f.name != "start_test.py"
+    and not f.name.endswith("test_utils.py")
 )
 
 try:
