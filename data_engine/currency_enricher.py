@@ -1,33 +1,41 @@
+from dataclasses import replace
+
+from data_engine.data_engine_models import Performance, PortfolioPosition
 from services.exchange_service import ExchangeService
 
 
 class CurrencyEnricher:
     def __init__(self, exchange_service: ExchangeService):
         self.exchange_service = exchange_service
-        self.base_currency = self.exchange_service.base_currency
-    
-    def enrich_position(self, position):
-        result = position.copy()
+        self.base_currency = exchange_service.base_currency
 
-        currency = position["currency"]
+    def enrich_position(self, position: PortfolioPosition) -> PortfolioPosition:
+        return replace(
+            position,
+            performance=self._enrich_performance(
+                position.performance,
+                position.currency,
+            ),
+            market_value_base=self.convert(
+                position.market_value,
+                position.currency,
+            ),
+        )
 
-        result["performance"] = self._enrich_performance(position["performance"],currency)
-        result["market_value_base"] = self.convert(position["market_value"],currency)
-
-        return result
-
-    def enrich_positions(self, positions):
+    def enrich_positions(self, positions: list[PortfolioPosition]) -> list[PortfolioPosition]:
         return [self.enrich_position(position) for position in positions]
 
-    def _enrich_performance(self, performance, currency):
-        result = performance.copy()
+    def _enrich_performance(self, performance: Performance, currency: str) -> Performance:
+        return replace(
+            performance,
+            cost_basis_base=self.convert(performance.cost_basis, currency),
+            pnl_base=self.convert(performance.pnl,currency)
+        )
 
-        result["cost_basis_base"] = self.convert(performance["cost_basis"], currency)
-        result["pnl_base"] = self.convert(performance["pnl"], currency)
+    def convert(self, amount: float | None, from_currency: str) -> float | None:
+        if amount is None:
+            return None
 
-        return result
-
-    def convert(self, amount, from_currency):
         try:
             return self.exchange_service.convert(amount, from_currency)
         except ValueError:

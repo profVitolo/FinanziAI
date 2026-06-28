@@ -1,12 +1,12 @@
 from data_manager.asset_data_manager import AssetDataManager
 from data_manager.portfolio_data_manager import PortfolioDataManager
 from database.database_manager import DatabaseManager
+from data_engine.data_engine_models import AssetItem, PositionItem, PriceItem
 
 
 class DataSupplier:
     def __init__(self, database=None):
         self.database = database or DatabaseManager()
-
         self.asset_data_manager = AssetDataManager(self.database)
         self.portfolio_data_manager = PortfolioDataManager(self.database)
 
@@ -21,31 +21,41 @@ class DataSupplier:
         return self.get_asset_by_symbol(symbol)
 
     def get_asset_by_symbol(self, symbol):
-        return self.asset_data_manager.get_asset_by_symbol(symbol)
+        asset = self.asset_data_manager.get_asset_by_symbol(symbol)
+        return self._build_asset(asset)
 
     def get_asset_by_id(self, asset_id):
-        return self.asset_data_manager.get_asset_by_id(asset_id)
+        asset = self.asset_data_manager.get_asset_by_id(asset_id)
+        return self._build_asset(asset)
 
     # ------------------------------------------------------------------
     # Prices
     # ------------------------------------------------------------------
 
     def get_prices(self, asset_id, start_date=None, end_date=None):
-        return self.asset_data_manager.get_prices(asset_id, start_date, end_date)
-        
-    def get_last_close(self, prices):
-        if not prices:
-            return None
-
-        for row in reversed(prices):
-            if row["close"] is not None:
-                return row["close"]
-
-        return None
+        prices = self.asset_data_manager.get_prices(asset_id, start_date, end_date)
+        return [self._build_price(price) for price in prices]
 
     # ------------------------------------------------------------------
     # Portfolio
     # ------------------------------------------------------------------
 
     def get_portfolio_positions(self):
-        return self.portfolio_data_manager.get_all_positions()
+        positions = self.portfolio_data_manager.get_all_positions()
+        return [self._build_position(position) for position in positions]
+
+    # ------------------------------------------------------------------
+    # Builders
+    # ------------------------------------------------------------------
+
+    def _build_asset(self, asset):
+        if asset is None:
+            return None
+
+        return AssetItem.from_dict(asset)
+
+    def _build_position(self, position):
+        return PositionItem.from_dict(position)
+    
+    def _build_price(self, price):
+        return PriceItem.from_dict(price)

@@ -1,53 +1,37 @@
-from data_engine.portfolio_analysis import PortfolioAnalysis
-from data_engine.portfolio_models import PortfolioResult
+from data_engine.currency_enricher import CurrencyEnricher
+
+from data_engine.portfolio_calculator import PortfolioCalculator
+from data_engine.data_engine_models import (
+    PortfolioItem,
+    PortfolioPosition,
+    PortfolioExposure,
+    PortfolioResult,
+)
+
 
 class PortfolioAnalyzer:
-
-    def __init__(self, enricher):
-        self.analysis = PortfolioAnalysis()
+    def __init__(self, enricher: CurrencyEnricher, calculator: PortfolioCalculator | None = None):
         self.enricher = enricher
+        self.calculator = calculator or PortfolioCalculator()
 
-    def analyze(self, items):
+    def analyze(self, items: list[PortfolioItem]) -> PortfolioResult | None:
         if not items:
             return None
 
-        positions = [self._build_position(item) for item in items]
+        positions = [self.enricher.enrich_position(self._build_position(item)) for item in items]
 
-        portfolio_value = self.analysis.calculate_portfolio_value(positions)
-        exposure = self.analysis.calculate_exposure(positions)
-        risk = self.analysis.calculate_risk(positions)
-
-        return self._build_result(positions, portfolio_value, exposure, risk)
-
-    def _build_position(self, item):
-        market_value = self.analysis.calculate_position_value(item.quantity, item.market_price)
-        performance = self.analysis.calculate_performance(item.quantity, item.avg_price, item.market_price)
-
-        position = {
-            "asset_id": item.asset_id,
-            "symbol": item.symbol,
-            "name": item.name,
-            "type": item.type,
-            "sector": item.sector,
-            "industry": item.industry,
-            "country": item.country,
-            "market_cap": item.market_cap,
-            "beta": item.beta,
-            "quantity": item.quantity,
-            "currency": item.currency,
-            "avg_price": item.avg_price,
-            "market_price": item.market_price,
-            "market_value": market_value,
-            "performance": performance
-        }
-
-        return self.enricher.enrich_position(position)
-
-    def _build_result(self, positions,portfolio_value, exposure,risk):
         return PortfolioResult(
             base_currency=self.enricher.base_currency,
-            portfolio_value=portfolio_value,
+            portfolio_value=self.calculator.calculate_portfolio_value(positions),
             positions=positions,
-            exposure=exposure,
-            risk=risk
+            exposure=PortfolioExposure(
+                by_symbol=self.calculator.calculate_exposure(positions),
+            ),
+            risk=self.calculator.calculate_risk(positions)
         )
+
+    def _build_position(self, item: PortfolioItem) -> PortfolioPosition:
+        market_value = self.calculator.calculate_position_value(item.position.quantity, item.market_price)
+        performance = self.calculator.calculate_performance(item.position.quantity, item.position.avg_price, item.market_price)
+
+        return PortfolioPosition.from_item(item, market_value=market_value, performance=performance)
