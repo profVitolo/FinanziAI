@@ -1,10 +1,10 @@
 from collections import defaultdict
+
 from evaluation_engine.base_evaluator import BaseEvaluator
 from evaluation_engine.evaluation_models import PortfolioEvaluationResult, Severity
 
 
 class PortfolioEvaluator(BaseEvaluator):
-
     @classmethod
     def evaluate(cls, portfolio):
         return cls.build_result(
@@ -17,13 +17,12 @@ class PortfolioEvaluator(BaseEvaluator):
                 cls.check_currency_exposure(portfolio),
                 cls.check_market_cap_exposure(portfolio),
                 cls.check_portfolio_beta(portfolio),
-            )
+            ),
         )
-    
+
     @classmethod
     def check_concentration(cls, portfolio):
-        risk = portfolio.risk
-        largest_weight = risk.get("largest_position_weight", 0)
+        largest_weight = portfolio.risk.largest_position_weight
 
         if largest_weight > 50:
             return cls.message(
@@ -33,7 +32,7 @@ class PortfolioEvaluator(BaseEvaluator):
                 message=(
                     f"La posizione principale pesa "
                     f"{largest_weight:.2f}% del portafoglio."
-                )
+                ),
             )
 
         if largest_weight > 25:
@@ -44,46 +43,40 @@ class PortfolioEvaluator(BaseEvaluator):
                 message=(
                     f"La posizione principale pesa "
                     f"{largest_weight:.2f}% del portafoglio."
-                )
+                ),
             )
 
         return None
-    
+
     @classmethod
     def check_diversification(cls, portfolio):
-        positions = portfolio.positions
+        count = len(portfolio.positions)
 
-        if len(positions) < 3:
+        if count < 3:
             return cls.message(
                 code="PORTFOLIO_LOW_DIVERSIFICATION",
                 type="diversification",
                 severity=Severity.MEDIUM,
-                message=f"Il portafoglio contiene solo {len(positions)} asset."
+                message=f"Il portafoglio contiene solo {count} asset.",
             )
 
         return None
-    
+
     @classmethod
     def check_sector_exposure(cls, portfolio):
-        exposures = cls._aggregate_by_field(portfolio, "sector")
+        exposures = cls._aggregate_by_field(portfolio, lambda p: p.asset.sector,)
 
         if not exposures:
             return None
 
-        sector, weight = max(exposures.items(), key=lambda item: item[1])
-
-        if sector is None:
-            return None
+        sector, weight = max(exposures.items(), key=lambda x: x[1])
 
         if weight > 70:
             return cls.message(
                 code="PORTFOLIO_HIGH_SECTOR_EXPOSURE",
                 type="sector_exposure",
                 severity=Severity.HIGH,
-                message=(
-                    f"Il settore '{sector}' rappresenta "
-                    f"{weight:.2f}% del portafoglio."
-                )
+                message=f"Il settore '{sector}' rappresenta {weight:.2f}% del portafoglio.",
             )
 
         if weight > 50:
@@ -91,58 +84,49 @@ class PortfolioEvaluator(BaseEvaluator):
                 code="PORTFOLIO_MEDIUM_SECTOR_EXPOSURE",
                 type="sector_exposure",
                 severity=Severity.MEDIUM,
-                message=(
-                    f"Il settore '{sector}' rappresenta "
-                    f"{weight:.2f}% del portafoglio."
-                )
+                message=f"Il settore '{sector}' rappresenta {weight:.2f}% del portafoglio.",
             )
 
         return None
-        
+
     @classmethod
     def check_country_exposure(cls, portfolio):
-        exposures = cls._aggregate_by_field(portfolio, "country")
+        exposures = cls._aggregate_by_field(portfolio, lambda p: p.asset.country)
 
         if not exposures:
             return None
 
-        country, weight = max(exposures.items(), key=lambda item: item[1])
+        country, weight = max(exposures.items(), key=lambda x: x[1])
 
-        if country and weight > 80:
+        if weight > 80:
             return cls.message(
                 code="PORTFOLIO_COUNTRY_EXPOSURE",
                 type="country_exposure",
                 severity=Severity.MEDIUM,
-                message=(
-                    f"Il paese '{country}' rappresenta "
-                    f"{weight:.2f}% del portafoglio."
-                )
+                message=f"Il paese '{country}' rappresenta {weight:.2f}% del portafoglio.",
             )
 
         return None
-    
+
     @classmethod
     def check_currency_exposure(cls, portfolio):
-        exposures = cls._aggregate_by_field(portfolio, "currency")
+        exposures = cls._aggregate_by_field(portfolio, lambda p: p.currency)
 
         if not exposures:
             return None
 
-        currency, weight = max(exposures.items(), key=lambda item: item[1])
+        currency, weight = max(exposures.items(), key=lambda x: x[1])
 
-        if currency and weight > 80:
+        if weight > 80:
             return cls.message(
                 code="PORTFOLIO_CURRENCY_EXPOSURE",
                 type="currency_exposure",
                 severity=Severity.MEDIUM,
-                message=(
-                    f"La valuta '{currency}' rappresenta "
-                    f"{weight:.2f}% del portafoglio."
-                )
+                message=f"La valuta '{currency}' rappresenta {weight:.2f}% del portafoglio.",
             )
 
         return None
-    
+
     @classmethod
     def check_market_cap_exposure(cls, portfolio):
         portfolio_value = portfolio.portfolio_value
@@ -150,14 +134,11 @@ class PortfolioEvaluator(BaseEvaluator):
         if portfolio_value <= 0:
             return None
 
-        small_cap_value = 0
-
-        for position in portfolio.positions:
-            market_cap = position.get("market_cap")
-
-            if market_cap and market_cap < 2_000_000_000:
-                value = position.get("market_value_base") or 0
-                small_cap_value += value
+        small_cap_value = sum(
+            position.market_value_base or 0
+            for position in portfolio.positions
+            if (position.asset.market_cap is not None and position.asset.market_cap < 2_000_000_000)
+        )
 
         weight = small_cap_value / portfolio_value * 100
 
@@ -166,14 +147,11 @@ class PortfolioEvaluator(BaseEvaluator):
                 code="PORTFOLIO_SMALL_CAP_EXPOSURE",
                 type="small_cap_exposure",
                 severity=Severity.MEDIUM,
-                message=(
-                    f"Le small cap rappresentano "
-                    f"{weight:.2f}% del portafoglio."
-                )
+                message=f"Le small cap rappresentano {weight:.2f}% del portafoglio.",
             )
 
         return None
-    
+
     @classmethod
     def check_portfolio_beta(cls, portfolio):
         total_value = portfolio.portfolio_value
@@ -181,15 +159,15 @@ class PortfolioEvaluator(BaseEvaluator):
         if total_value <= 0:
             return None
 
-        weighted_beta = 0
+        weighted_beta = 0.0
 
         for position in portfolio.positions:
-            beta = position.get("beta")
+            beta = position.asset.beta
 
             if beta is None:
                 continue
 
-            weight = (position.get("market_value_base") or 0) / total_value
+            weight = (position.market_value_base or 0) / total_value
             weighted_beta += beta * weight
 
         if weighted_beta > 1.5:
@@ -197,31 +175,25 @@ class PortfolioEvaluator(BaseEvaluator):
                 code="PORTFOLIO_HIGH_BETA",
                 type="portfolio_beta",
                 severity=Severity.HIGH,
-                message=(
-                    f"Beta medio del portafoglio elevato "
-                    f"({weighted_beta:.2f})."
-                )
+                message=f"Beta medio del portafoglio elevato ({weighted_beta:.2f}).",
             )
 
         return None
-    
+
     @staticmethod
-    def _aggregate_by_field(portfolio, field):
-        positions = portfolio.positions
-        portfolio_value = portfolio.portfolio_value
+    def _aggregate_by_field(portfolio, key_fn):
+        if portfolio.portfolio_value <= 0:
+            return {}
 
         result = defaultdict(float)
 
-        if portfolio_value <= 0:
-            return result
-
-        for position in positions:
-            value = position.get("market_value_base") or 0
-            key = position.get(field)
+        for position in portfolio.positions:
+            key = key_fn(position)
 
             if key is None:
                 continue
 
-            result[key] += (value / portfolio_value) * 100
+            result[key] += ((position.market_value_base or 0) / portfolio.portfolio_value * 100)
 
         return dict(result)
+
