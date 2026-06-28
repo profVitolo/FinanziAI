@@ -8,6 +8,9 @@ import sqlite3
 
 BASE_URL = "http://127.0.0.1:8000"
 
+"""
+    SCRIPT FUNCTIONS
+"""
 
 def wait_for_server(timeout=10):
     start = time.time()
@@ -57,6 +60,11 @@ def stop_server(server):
 
     print("Server arrestato")
 
+
+"""
+    API FUNCTIONS
+"""
+
 def print_response(response):
     print(f"Status: {response.status_code}")
 
@@ -65,7 +73,10 @@ def print_response(response):
     except Exception:
         print(response.text)
         
-    
+"""
+    PRINTING FUNCS
+"""
+
 def print_title(title):
     str_len = len(title)
 
