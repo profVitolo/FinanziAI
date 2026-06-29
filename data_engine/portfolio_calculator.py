@@ -13,14 +13,48 @@ class PortfolioCalculator:
         performance = self._calculate_performance(item.position.quantity, item.position.avg_price, item.market_price)
 
         return PortfolioPosition.from_item(item, market_value=market_value, performance=performance)
-        
+    
+    def calculate_portfolio_value(self, positions: list[PortfolioPosition]) -> float:
+        return sum(position.market_value_base or 0 for position in positions)
+    
+    def calculate_exposure(self, positions: list[PortfolioPosition]) -> dict[str, float]:
+        portfolio_value = self.calculate_portfolio_value(positions)
+
+        return {
+            position.asset.symbol: self._calculate_weight(
+                position.market_value_base,
+                portfolio_value,
+            )
+            for position in positions
+        }
+    
+    def calculate_risk(self, positions: list[PortfolioPosition]) -> PortfolioRisk:
+        if not positions:
+            return self._empty_risk()
+
+        portfolio_value = self.calculate_portfolio_value(positions)
+
+        if portfolio_value <= 0:
+            return self._empty_risk()
+
+        largest_weight = max(
+            self._calculate_weight(
+                position.market_value_base,
+                portfolio_value
+            )
+            for position in positions
+        )
+
+        level = self._get_concentration_level(largest_weight)
+
+        return PortfolioRisk(largest_position_weight=largest_weight, concentration_level=level)
+    
+    # METODI PRIVATI
+    
     def _calculate_position_value(self, quantity: float | None, market_price: float | None) -> float:
         if quantity is None or market_price is None:
             return 0
         return quantity * market_price
-
-    def calculate_portfolio_value(self, positions: list[PortfolioPosition]) -> float:
-        return sum(position.market_value_base or 0 for position in positions)
 
     def _calculate_weight(self, part_value: float | None, whole_value: float) -> float:
         if (part_value is None or whole_value <= 0 or part_value <= 0 ):
@@ -52,17 +86,6 @@ class PortfolioCalculator:
             pnl_percent=pnl_percent
         )
 
-    def calculate_exposure(self, positions: list[PortfolioPosition]) -> dict[str, float]:
-        portfolio_value = self.calculate_portfolio_value(positions)
-
-        return {
-            position.asset.symbol: self._calculate_weight(
-                position.market_value_base,
-                portfolio_value,
-            )
-            for position in positions
-        }
-
     def _empty_risk(self) -> PortfolioRisk:
         return PortfolioRisk(largest_position_weight=0,concentration_level=ConcentrationLevel.LOW)
     
@@ -73,23 +96,3 @@ class PortfolioCalculator:
             return ConcentrationLevel.MEDIUM
         return ConcentrationLevel.LOW
         
-    def calculate_risk(self, positions: list[PortfolioPosition]) -> PortfolioRisk:
-        if not positions:
-            return self._empty_risk()
-
-        portfolio_value = self.calculate_portfolio_value(positions)
-
-        if portfolio_value <= 0:
-            return self._empty_risk()
-
-        largest_weight = max(
-            self._calculate_weight(
-                position.market_value_base,
-                portfolio_value
-            )
-            for position in positions
-        )
-
-        level = self._get_concentration_level(largest_weight)
-
-        return PortfolioRisk(largest_position_weight=largest_weight, concentration_level=level)
