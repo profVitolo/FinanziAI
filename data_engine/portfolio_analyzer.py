@@ -18,7 +18,7 @@ class PortfolioAnalyzer:
         if not items:
             return None
 
-        positions = [self.enricher.enrich_position(self._build_position(item)) for item in items]
+        positions = [self.enricher.enrich_position(self.calculator.build_position(item)) for item in items]
 
         return PortfolioResult(
             base_currency=self.enricher.base_currency,
@@ -30,8 +30,3 @@ class PortfolioAnalyzer:
             risk=self.calculator.calculate_risk(positions)
         )
 
-    def _build_position(self, item: PortfolioItem) -> PortfolioPosition:
-        market_value = self.calculator.calculate_position_value(item.position.quantity, item.market_price)
-        performance = self.calculator.calculate_performance(item.position.quantity, item.position.avg_price, item.market_price)
-
-        return PortfolioPosition.from_item(item, market_value=market_value, performance=performance)

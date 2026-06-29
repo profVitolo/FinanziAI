@@ -2,12 +2,19 @@ from data_engine.data_engine_models import (
     ConcentrationLevel,
     Performance,
     PortfolioRisk,
+    PortfolioItem,
     PortfolioPosition
 )
 
 
 class PortfolioCalculator:
-    def calculate_position_value(self, quantity: float | None, market_price: float | None) -> float:
+    def build_position(self, item: PortfolioItem) -> PortfolioPosition:
+        market_value = self._calculate_position_value(item.position.quantity, item.market_price)
+        performance = self._calculate_performance(item.position.quantity, item.position.avg_price, item.market_price)
+
+        return PortfolioPosition.from_item(item, market_value=market_value, performance=performance)
+        
+    def _calculate_position_value(self, quantity: float | None, market_price: float | None) -> float:
         if quantity is None or market_price is None:
             return 0
         return quantity * market_price
@@ -15,16 +22,13 @@ class PortfolioCalculator:
     def calculate_portfolio_value(self, positions: list[PortfolioPosition]) -> float:
         return sum(position.market_value_base or 0 for position in positions)
 
-    def calculate_weight(self, part_value: float | None, whole_value: float) -> float:
+    def _calculate_weight(self, part_value: float | None, whole_value: float) -> float:
         if (part_value is None or whole_value <= 0 or part_value <= 0 ):
             return 0
         return part_value / whole_value * 100
 
     def _cost_basis(self, quantity, avg_price) -> float:
         return quantity * avg_price
-
-    def _market_value(self, quantity, market_price) -> float:
-        return quantity * market_price
         
     def _pnl(self, cost_basis, market_value) -> float:
         return market_value - cost_basis
@@ -32,12 +36,12 @@ class PortfolioCalculator:
     def _pnl_percent(self, pnl, cost_basis) -> float:
         return (pnl / cost_basis) * 100 if cost_basis > 0 else 0
         
-    def calculate_performance(self, quantity: float | None, avg_price: float | None, market_price: float | None, ) -> Performance:
+    def _calculate_performance(self, quantity: float | None, avg_price: float | None, market_price: float | None, ) -> Performance:
         if (quantity is None or avg_price is None or market_price is None):
             return Performance(cost_basis=0, market_value=0, pnl=0, pnl_percent=0,)
 
         cost_basis = self._cost_basis(quantity, avg_price)
-        market_value = self._market_value(quantity, market_price)
+        market_value = self._calculate_position_value(quantity, market_price)
         pnl = self._pnl(cost_basis, market_value)
         pnl_percent = self._pnl_percent(pnl, cost_basis)
 
@@ -52,7 +56,7 @@ class PortfolioCalculator:
         portfolio_value = self.calculate_portfolio_value(positions)
 
         return {
-            position.asset.symbol: self.calculate_weight(
+            position.asset.symbol: self._calculate_weight(
                 position.market_value_base,
                 portfolio_value,
             )
@@ -79,7 +83,7 @@ class PortfolioCalculator:
             return self._empty_risk()
 
         largest_weight = max(
-            self.calculate_weight(
+            self._calculate_weight(
                 position.market_value_base,
                 portfolio_value
             )

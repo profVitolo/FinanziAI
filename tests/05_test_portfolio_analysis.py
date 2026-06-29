@@ -1,19 +1,35 @@
 from pathlib import Path
 import sys
+
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
 from test_utils import *
 from data_engine_test_utils import *
+
 from data_engine.portfolio_calculator import PortfolioCalculator
-from data_engine.data_engine_models import AssetItem, Performance, PortfolioPosition
+from data_engine.data_engine_models import PortfolioItem
 
-pa = PortfolioCalculator()
+pc = PortfolioCalculator()
 
-print_title("=== TEST PORTFOLIO ANALYSIS ===")
+portfolio_item = PortfolioItem(
+    position=make_position(
+        asset_id=1,
+        quantity=10,
+        avg_price=100,
+    ),
+    asset=make_asset(
+        id=1,
+        symbol="AAPL",
+        name="Apple Inc.",
+    ),
+    market_price=120,
+)
 
-print_result("POSITION VALUE", pa.calculate_position_value(quantity=10, market_price=120))
-print_result("PERFORMANCE", pa.calculate_performance(quantity=10, avg_price=100, market_price=120))
+print_title("=== TEST PORTFOLIO CALCULATOR ===")
+
+position = pc.build_position(portfolio_item)
+print_result("BUILD POSITION", position)
 
 positions = [
     make_portfolio_position(
@@ -36,6 +52,6 @@ positions = [
     ),
 ]
 
-print_result("PORTFOLIO VALUE", pa.calculate_portfolio_value(positions))
-print_result("EXPOSURE", pa.calculate_exposure(positions))
-print_result("RISK", pa.calculate_risk(positions))
+print_result("PORTFOLIO VALUE", pc.calculate_portfolio_value(positions))
+print_result("EXPOSURE", pc.calculate_exposure(positions))
+print_result("RISK", pc.calculate_risk(positions))
