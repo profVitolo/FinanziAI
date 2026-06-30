@@ -42,7 +42,6 @@ class DataEngine:
         return self.asset_analyzer.analyze(asset, prices)
 
     def analyze_assets(self, symbols) -> list[AssetResult]:
-
         return [analysis for symbol in symbols if (analysis := self.analyze_asset(symbol)) is not None]
 
     # ------------------------------------------------------------------
