@@ -4,6 +4,7 @@ from services.exchange_service import ExchangeService
 from data_engine.asset_analyzer import AssetAnalyzer
 from data_engine.currency_enricher import CurrencyEnricher
 from data_engine.data_supplier import DataSupplier
+from data_engine.portfolio_item_builder import PortfolioItemBuilder
 from data_engine.data_engine_models import (
     AssetResult,
     PortfolioItem,
@@ -49,11 +50,24 @@ class DataEngine:
     # ------------------------------------------------------------------
 
     def analyze_portfolio(self) -> PortfolioResult | None:
-        items = [
-            item
-            for position in self.supplier.get_portfolio_positions()
-            if (item := self._build_portfolio_item(position)) is not None
-        ]
+        positions = self.supplier.get_portfolio_positions()
+
+        assets = {
+            asset.id: asset
+            for asset in (
+                self.supplier.get_asset_by_id(position.asset_id)
+                for position in positions
+            )
+            if asset is not None
+        }
+
+        prices = {
+            asset_id: history[-1].close
+            for asset_id in assets
+            if (history := self.supplier.get_prices(asset_id))
+        }
+
+        items = PortfolioItemBuilder.build_portfolio(positions=positions, assets=assets,prices=prices)
 
         return self.portfolio_analyzer.analyze(items)
 
@@ -70,21 +84,3 @@ class DataEngine:
             ),
         }
 
-    # ------------------------------------------------------------------
-    # Builders
-    # ------------------------------------------------------------------
-
-    def _build_portfolio_item(self, position) -> PortfolioItem | None:
-        asset = self.supplier.get_asset_by_id(position.asset_id)
-        if asset is None:
-            return None
-
-        prices = self.supplier.get_prices(asset.id)
-        if not prices:
-            return None
-
-        return PortfolioItem(
-            position=position,
-            asset=asset,
-            market_price=prices[-1].close,
-        )
