@@ -1,5 +1,5 @@
 from evaluation_engine.base_evaluator import BaseEvaluator
-from evaluation_engine.evaluation_models import AssetEvaluationResult, Severity
+from evaluation_engine.evaluation_models import AssetEvaluationResult, Severity, EvaluationType, EvaluationCode
 from data_engine.data_engine_models import AssetResult, VolatilityLevel, Trend
 
 class AssetEvaluator(BaseEvaluator):
@@ -25,16 +25,16 @@ class AssetEvaluator(BaseEvaluator):
 
         if rsi > 70:
             return cls.message(
-                code="ASSET_RSI_OVERBOUGHT",
-                type="rsi",
+                code=EvaluationCode.ASSET_RSI_OVERBOUGHT,
+                type=EvaluationType.RSI,
                 severity=Severity.MEDIUM,
                 message=f"RSI a {rsi:.1f}: possibile ipercomprato."
             )
 
         if rsi < 30:
             return cls.message(
-                code="ASSET_RSI_OVERSOLD",
-                type="rsi",
+                code=EvaluationCode.ASSET_RSI_OVERBOUGHT,
+                type=EvaluationType.RSI,
                 severity=Severity.MEDIUM,
                 message=f"RSI a {rsi:.1f}: possibile ipervenduto."
             )
@@ -45,8 +45,8 @@ class AssetEvaluator(BaseEvaluator):
     def check_volatility(cls, asset_analysis: AssetResult):
         if asset_analysis.analysis.volatility_level == VolatilityLevel.HIGH:
             return cls.message(
-                code="ASSET_HIGH_VOLATILITY",
-                type="volatility",
+                code=EvaluationCode.ASSET_HIGH_VOLATILITY,
+                type=EvaluationType.VOLATILITY,
                 severity=Severity.MEDIUM,
                 message="L'asset presenta volatilità elevata."
             )
@@ -59,16 +59,16 @@ class AssetEvaluator(BaseEvaluator):
 
         if trend == Trend.BULLISH:
             return cls.message(
-                code="ASSET_BULLISH_TREND",
-                type="trend",
+                code=EvaluationCode.ASSET_BULLISH_TREND,
+                type=EvaluationType.TREND,
                 severity=Severity.LOW,
                 message="Trend positivo."
             )
 
         if trend == Trend.BEARISH:
             return cls.message(
-                code="ASSET_BEARISH_TREND",
-                type="trend",
+                code=EvaluationCode.ASSET_BEARISH_TREND,
+                type=EvaluationType.TREND,
                 severity=Severity.MEDIUM,
                 message="Trend negativo."
             )
@@ -84,16 +84,16 @@ class AssetEvaluator(BaseEvaluator):
 
         if beta > 1.5:
             return cls.message(
-                code="ASSET_HIGH_BETA",
-                type="beta",
+                code=EvaluationCode.ASSET_HIGH_BETA,
+                type=EvaluationType.BETA,
                 severity=Severity.MEDIUM,
                 message=f"Beta elevato ({beta:.2f})."
             )
 
         if beta < 0.7:
             return cls.message(
-                code="ASSET_LOW_BETA",
-                type="beta",
+                code=EvaluationCode.ASSET_LOW_BETA,
+                type=EvaluationType.BETA,
                 severity=Severity.LOW,
                 message=f"Beta contenuto ({beta:.2f})."
             )

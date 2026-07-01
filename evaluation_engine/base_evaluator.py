@@ -1,4 +1,10 @@
-from evaluation_engine.evaluation_models import Severity, EvaluationSummary, EvaluationMessage
+from evaluation_engine.evaluation_models import (
+    EvaluationSummary,
+    EvaluationCode,
+    EvaluationType,
+    EvaluationMessage,
+    Severity,
+)
 
 
 class BaseEvaluator:
@@ -30,7 +36,7 @@ class BaseEvaluator:
         return [message for message in messages if message is not None]
     
     @classmethod
-    def message(cls, code, type, severity, message):
+    def message(cls, *, code: EvaluationCode, type: EvaluationType, severity: Severity, message: str,):
         return EvaluationMessage(
             code=code,
             type=type,

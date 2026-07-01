@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from evaluation_engine.base_evaluator import BaseEvaluator
-from evaluation_engine.evaluation_models import PortfolioEvaluationResult, Severity
+from evaluation_engine.evaluation_models import PortfolioEvaluationResult, Severity, EvaluationType, EvaluationCode
 
 
 class PortfolioEvaluator(BaseEvaluator):
@@ -26,8 +26,8 @@ class PortfolioEvaluator(BaseEvaluator):
 
         if largest_weight > 50:
             return cls.message(
-                code="PORTFOLIO_HIGH_CONCENTRATION",
-                type="concentration",
+                code=EvaluationCode.PORTFOLIO_HIGH_CONCENTRATION,
+                type=EvaluationType.CONCENTRATION,
                 severity=Severity.HIGH,
                 message=(
                     f"La posizione principale pesa "
@@ -37,8 +37,8 @@ class PortfolioEvaluator(BaseEvaluator):
 
         if largest_weight > 25:
             return cls.message(
-                code="PORTFOLIO_MEDIUM_CONCENTRATION",
-                type="concentration",
+                code=EvaluationCode.PORTFOLIO_MEDIUM_CONCENTRATION,
+                type=EvaluationType.CONCENTRATION,
                 severity=Severity.MEDIUM,
                 message=(
                     f"La posizione principale pesa "
@@ -54,8 +54,8 @@ class PortfolioEvaluator(BaseEvaluator):
 
         if count < 3:
             return cls.message(
-                code="PORTFOLIO_LOW_DIVERSIFICATION",
-                type="diversification",
+                code=EvaluationCode.PORTFOLIO_LOW_DIVERSIFICATION,
+                type=EvaluationType.DIVERSIFICATION,
                 severity=Severity.MEDIUM,
                 message=f"Il portafoglio contiene solo {count} asset.",
             )
@@ -73,16 +73,16 @@ class PortfolioEvaluator(BaseEvaluator):
 
         if weight > 70:
             return cls.message(
-                code="PORTFOLIO_HIGH_SECTOR_EXPOSURE",
-                type="sector_exposure",
+                code=EvaluationCode.PORTFOLIO_HIGH_SECTOR_EXPOSURE,
+                type=EvaluationType.SECTOR_EXPOSURE,
                 severity=Severity.HIGH,
                 message=f"Il settore '{sector}' rappresenta {weight:.2f}% del portafoglio.",
             )
 
         if weight > 50:
             return cls.message(
-                code="PORTFOLIO_MEDIUM_SECTOR_EXPOSURE",
-                type="sector_exposure",
+                code=EvaluationCode.PORTFOLIO_MEDIUM_SECTOR_EXPOSURE,
+                type=EvaluationType.SECTOR_EXPOSURE,
                 severity=Severity.MEDIUM,
                 message=f"Il settore '{sector}' rappresenta {weight:.2f}% del portafoglio.",
             )
@@ -100,8 +100,8 @@ class PortfolioEvaluator(BaseEvaluator):
 
         if weight > 80:
             return cls.message(
-                code="PORTFOLIO_COUNTRY_EXPOSURE",
-                type="country_exposure",
+                code=EvaluationCode.PORTFOLIO_COUNTRY_EXPOSURE,
+                type=EvaluationType.COUNTRY_EXPOSURE,
                 severity=Severity.MEDIUM,
                 message=f"Il paese '{country}' rappresenta {weight:.2f}% del portafoglio.",
             )
@@ -119,8 +119,8 @@ class PortfolioEvaluator(BaseEvaluator):
 
         if weight > 80:
             return cls.message(
-                code="PORTFOLIO_CURRENCY_EXPOSURE",
-                type="currency_exposure",
+                code=EvaluationCode.PORTFOLIO_CURRENCY_EXPOSURE,
+                type=EvaluationType.CURRENCY_EXPOSURE,
                 severity=Severity.MEDIUM,
                 message=f"La valuta '{currency}' rappresenta {weight:.2f}% del portafoglio.",
             )
@@ -144,8 +144,8 @@ class PortfolioEvaluator(BaseEvaluator):
 
         if weight > 50:
             return cls.message(
-                code="PORTFOLIO_SMALL_CAP_EXPOSURE",
-                type="small_cap_exposure",
+                code=EvaluationCode.PORTFOLIO_SMALL_CAP_EXPOSURE,
+                type=EvaluationType.SMALL_CAP_EXPOSURE,
                 severity=Severity.MEDIUM,
                 message=f"Le small cap rappresentano {weight:.2f}% del portafoglio.",
             )
@@ -172,8 +172,8 @@ class PortfolioEvaluator(BaseEvaluator):
 
         if weighted_beta > 1.5:
             return cls.message(
-                code="PORTFOLIO_HIGH_BETA",
-                type="portfolio_beta",
+                code=EvaluationCode.PORTFOLIO_HIGH_BETA,
+                type=EvaluationType.PORTFOLIO_BETA,
                 severity=Severity.HIGH,
                 message=f"Beta medio del portafoglio elevato ({weighted_beta:.2f}).",
             )
