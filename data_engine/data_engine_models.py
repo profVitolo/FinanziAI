@@ -225,6 +225,9 @@ class PortfolioRisk:
 @dataclass(frozen=True)
 class PortfolioExposure:
     by_symbol: dict[str, float]
+    by_sector: dict[str, float]
+    by_country: dict[str, float]
+    by_currency: dict[str, float]
 
 
 @dataclass(frozen=True)

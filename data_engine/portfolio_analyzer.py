@@ -25,7 +25,10 @@ class PortfolioAnalyzer:
             portfolio_value=self.calculator.calculate_portfolio_value(positions),
             positions=positions,
             exposure=PortfolioExposure(
-                by_symbol=self.calculator.calculate_exposure(positions),
+                by_symbol=self.calculator.calculate_symbol_exposure(positions),
+                by_sector=self.calculator.calculate_sector_exposure(positions),
+                by_country=self.calculator.calculate_country_exposure(positions),
+                by_currency=self.calculator.calculate_currency_exposure(positions),
             ),
             risk=self.calculator.calculate_risk(positions)
         )
