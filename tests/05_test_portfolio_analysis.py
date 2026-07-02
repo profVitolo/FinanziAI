@@ -53,5 +53,12 @@ positions = [
 ]
 
 print_result("PORTFOLIO VALUE", pc.calculate_portfolio_value(positions))
-print_result("EXPOSURE", pc.calculate_exposure(positions))
+exposure = PortfolioExposure(
+    by_symbol=pc.calculate_symbol_exposure(positions),
+    by_sector=pc.calculate_sector_exposure(positions),
+    by_country=pc.calculate_country_exposure(positions),
+    by_currency=pc.calculate_currency_exposure(positions),
+)
+
+print_result("EXPOSURE", exposure)
 print_result("RISK", pc.calculate_risk(positions))

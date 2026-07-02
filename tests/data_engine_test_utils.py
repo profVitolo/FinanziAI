@@ -132,7 +132,12 @@ def make_portfolio_result(*, positions=None, base_currency="EUR"):
         base_currency=base_currency,
         portfolio_value=portfolio_value,
         positions=positions,
-        exposure=PortfolioExposure(by_symbol=calculator.calculate_exposure(positions)),
+        exposure=PortfolioExposure(
+            by_symbol=calculator.calculate_symbol_exposure(positions),
+            by_sector=calculator.calculate_sector_exposure(positions),
+            by_country=calculator.calculate_country_exposure(positions),
+            by_currency=calculator.calculate_currency_exposure(positions),
+        ),
         risk=calculator.calculate_risk(positions)
     )
 
