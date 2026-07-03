@@ -8,6 +8,7 @@ from api.routes.watchlist import router as watchlist_router
 from api.routes.info import router as info_router
 from api.routes.transactions import router as transaction_router
 from api.routes.exchange import router as exchange_router
+from api.routes.evaluation import router as evaluation_router
 
 from config import TITLE, DESCRIPTION, VERSION
 
@@ -23,6 +24,7 @@ app.include_router(watchlist_router)
 app.include_router(info_router)
 app.include_router(transaction_router)
 app.include_router(exchange_router)
+app.include_router(evaluation_router)
 
 app.add_middleware(
     CORSMiddleware,
