@@ -580,7 +580,7 @@ Garantire coerenza, aggiornamento e manutenzione dei dati prima dell'introduzion
 - ~Valutazione deterministica degli asset~
 - ~Valutazione deterministica del portafoglio~
 - ~Produzione di motivazioni strutturate~
-- Integrazione completa nella UI
+- ~Integrazione completa nella UI~
 
 ---
 
