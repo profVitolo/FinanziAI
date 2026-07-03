@@ -29,15 +29,15 @@ Costruire un sistema modulare, locale e controllabile che:
 ---
 
 ## 🏗️ Architettura
-L’applicazione è strutturata in **componenti modulari indipendenti**, organizzati su più livelli logici.
+L'applicazione è strutturata in componenti modulari indipendenti, organizzati in livelli logici.
+Ogni livello ha una responsabilità ben definita:
+- acquisizione e persistenza dei dati;
+- analisi quantitativa;
+- valutazione deterministica;
+- consulenza tramite AI;
+- presentazione all'utente.
 
-L’obiettivo è separare chiaramente:
-- accesso ai dati
-- elaborazione
-- interpretazione
-- presentazione
-
-Il sistema è completamente **locale**, senza server e senza database remoto.
+L'intero sistema è progettato per funzionare localmente, utilizzando un database SQLite e modelli LLM eseguibili in locale.
 
 ---
 
@@ -164,44 +164,76 @@ Trasformare dati grezzi in informazioni utilizzabili dai livelli superiori.
 
 ---
 
-### 5. **Advisor (Logica decisionale / AI)**
-**Ruolo:**  
-Interpretare le analisi prodotte dal DataEngine e generare valutazioni comprensibili.
-
-**Componenti interni:**
-- `rules_engine.py`
-- `llm_engine.py`
-- `explanation.py`
+### 5. **EvaluationEngine (Valutazione deterministica)**
+**Ruolo:**
+Interpretare le analisi prodotte dal DataEngine trasformandole in valutazioni strutturate.
 
 **Responsabilità:**
-- applicare regole decisionali
-- produrre valutazioni e suggerimenti
-- integrare modelli AI/LLM
-- generare spiegazioni in linguaggio naturale
+- valutare i singoli asset;
+- valutare il portafoglio;
+- applicare regole finanziarie deterministiche;
+- produrre motivazioni comprensibili;
+- classificare criticità e punti di forza.
 
 **Quando interviene:**
-- dopo il DataEngine
+- dopo il DataEngine;
+- prima dell'Advisor.
 
 **Output:**
-- suggerimenti operativi
-- spiegazioni testuali
-- motivazioni delle valutazioni
+- `AssetEvaluationResult`
+- `PortfolioEvaluationResult`
 
 **Nota:**
-L'Advisor non accede direttamente alle sorgenti dati esterne.
+L'EvaluationEngine non suggerisce acquisti o vendite.
+Produce esclusivamente valutazioni oggettive e riproducibili che verranno successivamente interpretate dall'Advisor.
 
 ---
 
-### 6. **UI (Frontend)**
+### 6. **AdvisorEngine (AI Assistant)**
+**Ruolo:**
+Interpretare il contesto finanziario completo tramite un Large Language Model (LLM) e produrre suggerimenti personalizzati.
+
+**Responsabilità:**
+- analizzare il portafoglio;
+- interpretare le valutazioni prodotte dall'EvaluationEngine;
+- confrontare il portafoglio con la watchlist;
+- proporre miglioramenti;
+- spiegare le motivazioni;
+- adattare i suggerimenti al profilo dell'investitore.
+
+**Input:**
+- Portfolio
+- PortfolioResult
+- AssetResult del portafoglio
+- PortfolioEvaluationResult
+- AssetEvaluationResult
+- Watchlist
+- AssetResult della watchlist
+- Profilo dell'investitore
+
+**Output:**
+- osservazioni;
+- punti di forza;
+- criticità;
+- suggerimenti;
+- motivazioni.
+
+**Nota:**
+L'AdvisorEngine non contiene regole finanziarie.
+La logica deterministica appartiene esclusivamente all'EvaluationEngine.
+
+---
+
+### 7. **UI (Frontend)**
 **Ruolo:**  
 Interfaccia utente dell'applicazione.
 
 **Responsabilità:**
-- visualizzare dati di mercato
-- visualizzare indicatori e analisi
-- mostrare il portafoglio
-- presentare i suggerimenti dell'Advisor
-- raccogliere input dell'utente
+- visualizzare dati;
+- mostrare analisi quantitative;
+- mostrare valutazioni dell'EvaluationEngine;
+- presentare i suggerimenti dell'AdvisorEngine;
+- raccogliere input dell'utente.
 
 **Tecnologie previste:**
 - HTML
@@ -216,7 +248,6 @@ La UI non contiene logica finanziaria; si limita a presentare informazioni e rac
 
 ---
 
-## 🔄 Flusso applicativo
 ## 🔄 Flusso logico
 
 ```text
@@ -232,7 +263,9 @@ Database SQLite
         ↓
 DataEngine
         ↓
-Advisor
+EvaluationEngine
+        ↓
+AdvisorEngine
         ↓
 UI
 ```
@@ -277,10 +310,19 @@ FinanziAI/
 │   ├── market_analysis.py
 │   └── portfolio_analysis.py
 │
-├── advisor/
-│   ├── rules_engine.py
-│   ├── llm_engine.py
-│   └── explanation.py
+├── evaluation_engine/
+│   ├── evaluation_engine.py
+│   ├── asset_evaluator.py
+│   ├── portfolio_evaluator.py
+│   ├── evaluation_models.py
+│   └── evaluators/
+│
+├── advisor_engine/
+│   ├── advisor_engine.py
+│   ├── llm_provider.py
+│   ├── prompt_builder.py
+│   ├── advisor_models.py
+│   └── prompts/
 │
 ├── ui/
 │   ├── index.html
@@ -312,10 +354,12 @@ FinanziAI/
 
 ## 🧠 Principi architetturali
 - Separazione delle responsabilità
-- Nessun componente “tuttofare”
+- Nessun componente "tuttofare"
 - SQL confinato nei DataManager
-- Logica separata dai dati
-- Sistema estendibile (LLM, strategie, simulazioni)
+- Analisi quantitative separate dalle valutazioni
+- Valutazioni deterministiche separate dai suggerimenti AI
+- L'AI interpreta i risultati ma non sostituisce la logica finanziaria
+- Sistema completamente modulare ed estendibile
 
 ---
 
@@ -328,8 +372,10 @@ FinanziAI/
 - yfinance (download dati finanziari)
 
 ### AI / Analisi
-- Rule-based engine (fase iniziale)
-- LLM locali o API (fase futura)
+- EvaluationEngine completamente deterministico
+- llama.cpp (modelli locali)
+- Modelli OpenAI compatibili (opzionale)
+- Prompt personalizzabili
 
 ### Frontend
 - HTML5
@@ -401,9 +447,7 @@ sequenceDiagram
 ---
 
 ## 🧪 Test Suite
-
 Il progetto include una suite di test manuali organizzata per livelli funzionali.
-
 I test seguono l'evoluzione dell'architettura e permettono di verificare in modo progressivo:
 - acquisizione dati
 - persistenza nel database
@@ -421,6 +465,7 @@ tests/
 ├── 04_test_portfolio_data_manager.py
 ├── 05_test_portfolio_analysis.py
 ├── 06_test_portfolio_integration.py
+├── ...
 └── start_test.py
 ```
 
@@ -530,30 +575,31 @@ Garantire coerenza, aggiornamento e manutenzione dei dati prima dell'introduzion
 
 ---
 
-### Fase 6 — Advisor (logica decisionale)
-- Implementazione rules_engine
-- Suggerimenti rule-based
-- Raccomandazioni semplici
-- Produzione output testuale leggibile
-- Prime spiegazioni human-friendly
+### Fase 6 — Evaluation Engine
+- ~Implementazione EvaluationEngine~
+- ~Valutazione deterministica degli asset~
+- ~Valutazione deterministica del portafoglio~
+- ~Produzione di motivazioni strutturate~
+- Integrazione completa nella UI
 
 ---
 
-### Fase 7 — Integrazione AI / LLM
-- Introduzione `llm_engine`
-- Integrazione con modelli locali o API
-- Miglioramento qualità delle spiegazioni
-- Analisi contestuali
-- Sitnesi automatica del portafoglio
+### Fase 7 — Advisor Engine (LLM)
+- Implementazione AdvisorEngine
+- Integrazione llama.cpp
+- Costruzione automatica del prompt
+- Definizione dei profili investitore
+- Analisi contestuale del portafoglio
+- Confronto con la watchlist
+- Produzione di suggerimenti motivati
 
 ---
 
 ### Fase 8 — Evoluzione avanzata
+- Memoria conversazionale dell'Advisor
+- Personalizzazione dei prompt
 - Backtesting
-- Simulazioni
-- Ottimizzazione strategie
-- Analisi rischio avanzata
-- Fiscal tracking (plus/minusvalenze)
+- Fiscal tracking
 - Report esportabili
-- Caching e ottimizzazioni performance
+- Ottimizzazione delle performance
 
