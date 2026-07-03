@@ -285,3 +285,67 @@ function formatFinancialNumber(value)
 
     return value.toLocaleString();
 }
+
+function severityIcon(severity)
+{
+    switch (severity)
+    {
+        case "high":
+            return "🔴";
+
+        case "medium":
+            return "🟡";
+
+        case "low":
+            return "🟢";
+
+        default:
+            return "⚪";
+    }
+}
+
+function severityClass(severity)
+{
+    switch ((severity ?? "").toLowerCase())
+    {
+        case "high":
+            return "severity-high";
+
+        case "medium":
+            return "severity-medium";
+
+        case "low":
+            return "severity-low";
+
+        default:
+            return "";
+    }
+}
+
+function renderEvaluation(summaryId, countId, listId, evaluation)
+{
+    document.getElementById(countId).textContent = evaluation.summary.message_count;
+	document.getElementById(summaryId).innerHTML = `
+        <span class="${severityClass(evaluation.summary.highest_severity)}">
+            ${severityIcon(evaluation.summary.highest_severity)}
+            ${evaluation.summary.highest_severity}
+        </span>
+    `;
+
+    const list = document.getElementById(listId);
+    list.innerHTML = "";
+
+    for (const message of evaluation.messages)
+    {
+        const li = document.createElement("li");
+
+        li.innerHTML = `
+            <span class="${severityClass(message.severity)}">
+                ${severityIcon(message.severity)}
+            </span>
+            ${message.message}
+        `;
+
+        list.appendChild(li);
+    }
+}

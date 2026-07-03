@@ -64,6 +64,34 @@ async function checkHealth()
     }
 }
 
+async function loadPortfolioEvaluation()
+{
+    try
+    {
+        const response = await fetch(`${API_BASE}/evaluation/portfolio`);
+
+        if (!response.ok)
+            throw new Error();
+
+        const evaluation = await response.json();
+
+		document.getElementById("dashboard-evaluation-count").innerHTML = `
+			<a href="portfolio.html">${evaluation.summary.message_count}</a>`;
+			
+        document.getElementById("dashboard-evaluation-severity").innerHTML = `
+            <span class="${severityClass(evaluation.summary.highest_severity)}">
+                ${severityIcon(evaluation.summary.highest_severity)}
+                ${evaluation.summary.highest_severity}
+            </span>
+        `;
+    }
+    catch
+    {
+        document.getElementById("dashboard-evaluation-severity").textContent = "-";
+        document.getElementById("dashboard-evaluation-count").textContent = "-";
+    }
+}
+
 async function loadPortfolioSummary()
 {
     try
@@ -246,6 +274,7 @@ async function init()
         await Promise.all([
 			syncTrackedAssets(),
 			loadPortfolioSummary(),
+			loadPortfolioEvaluation(),
 			loadWatchlist(),
 			loadVaults()
 		]);

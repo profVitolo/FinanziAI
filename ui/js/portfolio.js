@@ -13,6 +13,21 @@ let pageSize = setupPageSize(
 	refreshTableTransactions
 );
 
+let portfolioEvaluation = null;
+
+async function loadPortfolioEvaluation()
+{
+    const response = await fetch(`${API_BASE}/evaluation/portfolio`);
+
+    if (response.status === 404)
+        return null;
+
+    if (!response.ok)
+        throw new Error("Errore caricamento valutazione");
+
+    portfolioEvaluation = await response.json();
+}
+
 async function loadPortfolioAnalysis()
 {
     const response = await fetch(`${API_BASE}/portfolio/analysis`);
@@ -227,8 +242,13 @@ async function init()
 	generateMenu();
     try 
 	{
-		await loadAppInfo();
-        await refreshPortfolio();
+		await Promise.all([
+			loadAppInfo(),
+			refreshPortfolio(),
+			loadPortfolioEvaluation()
+		]);
+
+		renderEvaluation("evaluation-severity", "evaluation-count", "portfolio-evaluation-list", portfolioEvaluation);
     }
     catch (error) 
 	{

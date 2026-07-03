@@ -23,7 +23,8 @@ async function updateAsset(symbol)
     return await response.json();
 }
 
-async function syncAsset(symbol, startDate, endDate = null) {
+async function syncAsset(symbol, startDate, endDate = null) 
+{
     const response = await fetch(
         `${API_BASE}/assets/${symbol}/sync`,
         {
@@ -38,6 +39,16 @@ async function syncAsset(symbol, startDate, endDate = null) {
 
     if (!response.ok)
         throw new Error("Errore sincronizzazione asset");
+
+    return await response.json();
+}
+
+async function loadEvaluation(symbol)
+{
+    const response = await fetch(`${API_BASE}/evaluation/assets/${symbol}`);
+
+    if (!response.ok)
+        throw new Error("Errore caricamento valutazione");
 
     return await response.json();
 }
@@ -68,6 +79,8 @@ async function removeFromWatchlist(symbol)
 
     alert(`${symbol} rimosso dalla watchlist`);
 }
+
+
 
 function renderAnalysis(data) 
 {
@@ -134,9 +147,14 @@ async function init()
     try 
 	{
         await updateAsset(symbol);
-        const analysis = await loadAnalysis(symbol);
+        const [analysis, evaluation] = await Promise.all([
+			loadAnalysis(symbol),
+			loadEvaluation(symbol)
+		]);
 
-        renderAnalysis(analysis);
+		renderAnalysis(analysis);
+
+		renderEvaluation("evaluation-severity", "evaluation-count", "asset-evaluation-list", evaluation);
 
         document.getElementById("sync-btn").addEventListener(
 			"click",

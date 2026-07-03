@@ -26,7 +26,8 @@ async function loadAssetDetails()
     );
 
     renderAssetInfo(assetDetails.asset);
-	//console.log("LoadAssetDetails:", pageSize);
+	await getAssetEvaluation(symbol);
+	
     refreshTableTransactions(pageSize);
 	
 	renderAssetPriceChart(assetDetails.prices);
@@ -200,6 +201,14 @@ function renderAssetInfo(asset)
                 }
             </td>
         </tr>
+		<tr>
+            <td>Valutazione</td>
+            <td id="asset-evaluation-severity">-</td>
+        </tr>
+        <tr>
+            <td>Messaggi</td>
+            <td id="asset-evaluation-count">-</td>
+        </tr>
     `;
 }
 
@@ -234,6 +243,36 @@ async function loadAssets()
         throw new Error("Errore caricamento asset");
 
     return await response.json();
+}
+
+async function getAssetEvaluation(symbol)
+{
+    try
+    {
+        const response = await fetch(`${API_BASE}/evaluation/assets/${symbol}`);
+
+        if (!response.ok)
+            throw new Error("Errore caricamento valutazione");
+
+        const evaluation = await response.json();
+
+        document.getElementById("asset-evaluation-count").innerHTML= `
+			<a href="asset.html?symbol=${symbol}">${evaluation.summary.message_count}</a>
+        `;
+		document.getElementById("asset-evaluation-severity").innerHTML = `
+            <span class="${severityClass(evaluation.summary.highest_severity)}">
+                ${severityIcon(evaluation.summary.highest_severity)}
+                ${evaluation.summary.highest_severity}
+            </span>
+        `;
+    }
+    catch (error)
+    {
+        console.error(error);
+
+        document.getElementById("asset-evaluation-severity").textContent = "-";
+        document.getElementById("asset-evaluation-count").textContent = "-";
+    }
 }
 
 async function getAssetDetails(symbol, startDate = "", endDate = "")
