@@ -1,6 +1,7 @@
 from typing import Optional
 from fastapi import APIRouter, HTTPException
 
+from data_engine.data_engine import DataEngine
 from services.data_service import DataService
 from services.portfolio_service import PortfolioService
 from api.schemas import AssetSync, AssetUpdate
