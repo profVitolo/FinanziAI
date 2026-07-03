@@ -1,313 +1,171 @@
-let assets = [];
-let assetDetails = null;
 
-let currentPage = 1;
-let pageSize = setupPageSize(
-	"page-size-input",
-	"app.assets.pageSize",
-	10,
-	refreshTableTransactions
-);
-
-async function loadAssetDetails()
+function getSymbol() 
 {
-    const symbol = document.getElementById("asset-select").value;
+    const params = new URLSearchParams(window.location.search);
 
-    if (!symbol)
+    return params.get("symbol")?.toUpperCase();
+}
+
+async function updateAsset(symbol) 
+{
+	const today = new Date().toISOString().split('T')[0];
+  
+    const response = await fetch(`${API_BASE}/assets/${symbol}/update`, 
+		{
+			method: "POST",
+			headers: { "Content-Type": "application/json"},
+			body: JSON.stringify({inital_days: 365})
+		}
+	);
+	
+    if (!response.ok) throw new Error("Errore recupero asset");
+    
+    return await response.json();
+}
+
+async function syncAsset(symbol, startDate, endDate = null) {
+    const response = await fetch(
+        `${API_BASE}/assets/${symbol}/sync`,
+        {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                start_date: startDate,
+                end_date: endDate
+            })
+        }
+    );
+
+    if (!response.ok)
+        throw new Error("Errore sincronizzazione asset");
+
+    return await response.json();
+}
+
+async function loadAnalysis(symbol) 
+{
+    const response = await fetch(`${API_BASE}/assets/${symbol}/analysis`);
+	
+    if (!response.ok) throw new Error("Errore caricamento analisi");
+
+    return await response.json();
+}
+
+async function addToWatchlist(symbol) 
+{
+    const response = await fetch(`${API_BASE}/watchlist/${symbol}`, {method: "POST"});
+
+    if (!response.ok) throw new Error("Errore aggiunta watchlist");
+
+    alert(`${symbol} aggiunto alla watchlist`);
+}
+
+async function removeFromWatchlist(symbol) 
+{
+    const response = await fetch(`${API_BASE}/watchlist/${symbol}`, {method: "DELETE"});
+
+    if (!response.ok) throw new Error("Errore rimozione dalla watchlist");
+
+    alert(`${symbol} rimosso dalla watchlist`);
+}
+
+function renderAnalysis(data) 
+{
+    document.getElementById("asset-name").textContent = data.asset.name ?? "-";
+    document.getElementById("asset-symbol-info").textContent = data.asset.symbol ?? "-";
+    document.getElementById("asset-type").textContent = data.asset.type ?? "-";
+    document.getElementById("asset-currency").textContent = data.asset.currency ?? "-";
+    document.getElementById("asset-exchange").textContent = data.asset.exchange ?? "-";
+	
+	document.getElementById("asset-sector").textContent = data.asset.sector ?? "-";
+	document.getElementById("asset-industry").textContent = data.asset.industry ?? "-";
+	document.getElementById("asset-country").textContent = data.asset.country ?? "-";
+	document.getElementById("asset-market-cap").textContent = formatFinancialNumber(data.asset.market_cap);
+	document.getElementById("asset-beta").textContent = data.asset.beta?.toFixed(2) ?? "-";
+	document.getElementById("asset-website").innerHTML = data.asset.website
+			? `<a href="${data.asset.website}" target="_blank">${data.asset.website}</a>`
+			: "-";
+	
+    document.getElementById("market-price").textContent = data.market_data.last_close.toFixed(2) ?? "-";
+    document.getElementById("last-update").textContent = data.period.end ?? "-";
+
+    document.getElementById("rsi").textContent =  data.indicators.rsi?.toFixed(2) ?? "-";
+    document.getElementById("sma20").textContent = data.indicators.sma20?.toFixed(2) ?? "-";
+    document.getElementById( "sma50").textContent = data.indicators.sma50?.toFixed(5) ?? "-";
+    document.getElementById("volatility").textContent = data.indicators.annualized_volatility?.toFixed(2) ?? "-";
+    document.getElementById("trend").textContent = data.analysis.trend ?? "-";
+    document.getElementById("volatility-class").textContent = data.analysis.volatility_level ?? "-";
+}
+
+async function deleteAsset(symbol)
+{
+    const confirmed = confirm(
+		`Vuoi davvero cancellare ${symbol}?\n\n` +
+		"• Verranno eliminati tutti i prezzi storici\n" +
+		"• Verrà rimosso dalla watchlist\n" +
+		"• Se esistono transazioni la cancellazione verrà bloccata"
+	);
+
+    if (!confirmed)
         return;
 
-    const startDate = document.getElementById("filter-start-date").value;
-    const endDate = document.getElementById("filter-end-date").value;
+    const response = await fetch(`${API_BASE}/assets/${symbol}`, {method: "DELETE"});
 
-    assetDetails = await getAssetDetails(
-        symbol,
-        startDate,
-        endDate
-    );
-
-    renderAssetInfo(assetDetails.asset);
-	//console.log("LoadAssetDetails:", pageSize);
-    refreshTableTransactions(pageSize);
-	
-	renderAssetPriceChart(assetDetails.prices);
-	renderAssetVolumeChart(assetDetails.prices);
-}
-
-function refreshTableTransactions(page_size)
-{
-	pageSize = page_size;
-	updateTable(
-        renderPrices,
-        assetDetails.prices,
-        "prices-pagination",
-        currentPage,
-        pageSize
-    );
-}
-
-async function handleFilters()
-{
-    currentPage = 1;
-    await loadAssetDetails();
-}
-
-function resetFilters()
-{
-    document.getElementById("filter-start-date").value = "";
-    document.getElementById("filter-end-date").value = "";
-
-    handleFilters();
-}
-
-function renderAssetPriceChart(prices)
-{
-    const container = document.getElementById("asset-price-chart");
-    container.innerHTML = "";
-
-    const chart = LightweightCharts.createChart(
-        container,
-        {
-            width: container.clientWidth || 1000,
-            height: container.clientHeight ||400,
-            layout: {
-                background: { color: "#ffffff" },
-                textColor: "#333"
-            },
-            grid: {
-                vertLines: { color: "#f0f0f0" },
-                horzLines: { color: "#f0f0f0" }
-            }
-        }
-    );
-
-    const series = chart.addCandlestickSeries({
-		upColor: "#22c55e",
-		downColor: "#ef4444",
-
-		borderUpColor: "#22c55e",
-		borderDownColor: "#ef4444",
-
-		wickUpColor: "#3b82f6",
-		wickDownColor: "#3b82f6"
-	});
-	
-    const data = [...prices]
-        .sort((a, b) => a.date.localeCompare(b.date))
-        .map(price => ({
-            time: price.date,
-            open: Number(price.open),
-            high: Number(price.high),
-            low: Number(price.low),
-            close: Number(price.close)
-        }));
-
-    series.setData(data);
-
-    chart.timeScale().fitContent();
-	
-	chart.subscribeCrosshairMove(param => {
-		if (!param.point || !param.time)
-		{
-			document.getElementById("chart-legend").innerHTML = "&nbsp;";
-			return;
-		}
-		
-		const data = param.seriesData.get(series);
-
-		if (!data)
-			return;
-
-		document.getElementById("chart-legend").innerHTML =
-			`O: ${data.open.toFixed(2)}
-			 H: ${data.high.toFixed(2)}
-			 L: ${data.low.toFixed(2)}
-			 C: ${data.close.toFixed(2)}`;
-	});
-}
-
-function renderAssetVolumeChart(prices)
-{
-    const container = document.getElementById("asset-volume-chart");
-    container.innerHTML = "";
-
-    const chart = LightweightCharts.createChart(
-        container,
-        {
-            width: container.clientWidth || 1000,
-            height: container.clientHeight || 400,
-            layout: {
-                background: { color: "#ffffff" },
-                textColor: "#333"
-            },
-            grid: {
-                vertLines: { color: "#f0f0f0" },
-                horzLines: { color: "#f0f0f0" }
-            }
-        }
-    );
-
-    const series = chart.addHistogramSeries({color: "#26a69a"});
-
-    const data = [...prices]
-        .sort((a, b) => a.date.localeCompare(b.date))
-        .map(price => ({
-            time: price.date,
-            value: Number(price.volume),
-            color: Number(price.close) >= Number(price.open) ? "#26a69a" : "#ef5350"
-        }));
-
-    series.setData(data);
-
-    chart.timeScale().fitContent();
-
-    return chart;
-}
-
-function renderAssetInfo(asset)
-{
-    const table = document.getElementById("asset-info");
-
-    table.innerHTML = `
-        <tr>
-            <td>Symbol</td>
-            <td>
-                <a href="asset.html?symbol=${asset.symbol}">
-                    ${asset.symbol}
-                </a>
-            </td>
-        </tr>
-
-        <tr><td>Name</td><td>${asset.name ?? "-"}</td></tr>
-        <tr><td>Type</td><td>${asset.type ?? "-"}</td></tr>
-        <tr><td>Currency</td><td>${asset.currency ?? "-"}</td></tr>
-        <tr><td>Exchange</td><td>${asset.exchange ?? "-"}</td></tr>
-
-        <tr><td>Sector</td><td>${asset.sector ?? "-"}</td></tr>
-        <tr><td>Industry</td><td>${asset.industry ?? "-"}</td></tr>
-        <tr><td>Country</td><td>${asset.country ?? "-"}</td></tr>
-
-        <tr><td>Market Cap</td><td>${formatFinancialNumber(asset.market_cap)}</td></tr>
-
-        <tr><td>Beta</td><td>${asset.beta?.toFixed(2) ?? "-"}</td></tr>
-
-        <tr>
-            <td>Website</td>
-            <td>
-                ${
-                    asset.website
-                        ? `<a href="${asset.website}" target="_blank">${asset.website}</a>`
-                        : "-"
-                }
-            </td>
-        </tr>
-    `;
-}
-
-function renderPrices(prices)
-{
-    const table = document.getElementById("prices-table");
-
-    table.innerHTML = "";
-
-    for (const price of prices)
-    {
-        const row = document.createElement("tr");
-
-        row.innerHTML = `
-            <td>${price.date}</td>
-            <td>${Number(price.open).toFixed(2)}</td>
-            <td>${Number(price.high).toFixed(2)}</td>
-            <td>${Number(price.low).toFixed(2)}</td>
-            <td>${Number(price.close).toFixed(2)}</td>
-            <td>${price.volume}</td>
-        `;
-
-        table.appendChild(row);
-    }
-}
-
-async function loadAssets()
-{
-    const response = await fetch("/assets/");
+    const result = await response.json();
 
     if (!response.ok)
-        throw new Error("Errore caricamento asset");
+        throw new Error(result.detail || "Errore cancellazione asset");
 
-    return await response.json();
+    alert(`${symbol} cancellato`);
+    window.location.href = "assets.html";
 }
 
-async function getAssetDetails(symbol, startDate = "", endDate = "")
+async function init() 
 {
-    const params = new URLSearchParams();
-
-    if (startDate)
-        params.append("start_date", startDate);
-
-    if (endDate)
-        params.append("end_date", endDate);
-
-    const query = params.toString() ? `?${params.toString()}` : "";
-
-    const response = await fetch(`/assets/${symbol}/details${query}`);
-
-    if (!response.ok)
-        throw new Error("Errore caricamento dettagli asset");
-
-    return await response.json();
-}
-
-function populateAssetSelect(selectId, assets)
-{
-    const select = document.getElementById(selectId);
-
-    select.innerHTML = "";
+	generateMenu();
+    const symbol = getSymbol();
 	
-	if (assets.length == 0)
+    if (!symbol) 
 	{
-		alert("Still no asset in db");
-		return;
-	}
-	
-    for (const asset of assets)
-    {
-        const option = document.createElement("option");
-
-        option.value = asset.symbol;
-        option.textContent = `${asset.symbol} - ${asset.name}`;
-
-        select.appendChild(option);
+        alert("Simbolo non specificato"  );
+        return;
     }
-	
+
+    try 
+	{
+        await updateAsset(symbol);
+        const analysis = await loadAnalysis(symbol);
+
+        renderAnalysis(analysis);
+
+        document.getElementById("sync-btn").addEventListener(
+			"click",
+			async () => 
+			{
+				const _5YearsAgo = new Date();
+				_5YearsAgo.setFullYear(_5YearsAgo.getFullYear() - 5);
+				const endDate =  _5YearsAgo.toJSON().slice(0, 10);//5 anni fa
+				const startDate = prompt("Scarica lo storico a partire da (YYYY-MM-DD):", endDate);
+				
+				if (!startDate)
+					return;
+				
+				await syncAsset(symbol, startDate);
+				const analysis =  await loadAnalysis(symbol);
+				renderAnalysis(analysis);
+			}
+		);
+
+        document.getElementById("watchlist-add-btn").addEventListener("click", () => addToWatchlist(symbol));
+		document.getElementById("watchlist-del-btn").addEventListener("click", () => removeFromWatchlist(symbol));
+    	document.getElementById("del-btn").addEventListener("click", () => deleteAsset(symbol));
+	} 
+	catch (error) 
+	{
+        console.error(error);
+        alert( "Errore caricamento asset");
+    }
 }
 
-async function init()
-{
-    generateMenu();
-
-    assets = await loadAssets();
-
-    populateAssetSelect("asset-select",assets);
-
-    const params = getQueryParams();
-
-    if (params.asset)
-        document.getElementById("asset-select").value = params.asset;
-
-    if (params.start_date)
-        document.getElementById("filter-start-date").value = params.start_date;
-
-    if (params.end_date)
-        document.getElementById("filter-end-date").value = params.end_date;
-
-    if (!params.asset && assets.length > 0)
-        document.getElementById("asset-select").value = assets[0].symbol;
-
-    await loadAssetDetails();
-}
 
 document.addEventListener("DOMContentLoaded", init);
-
-/*
-pageSize = 25;
-setSetting("app.assets.pageSize", pageSize);
-*/

@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, HTTPException
 
 from services.data_service import DataService
@@ -37,6 +38,19 @@ def sync_tracked_assets():
     finally:
         data_service.close()
         portfolio_service.close()
+
+@router.get("/{symbol}/analysis")
+def analyze_asset(symbol: str, start_date: Optional[str] = None, end_date: Optional[str] = None):
+    data_engine = DataEngine()
+    try:
+        result = data_engine.analyze_asset(symbol.upper(), start_date=start_date, end_date=end_date)
+
+        if result is None:
+            raise HTTPException(status_code=404, detail="Asset not found or no price data available")
+
+        return result
+    finally:
+        data_engine.close()
         
 @router.get("/{symbol}/details")
 def get_asset_details(symbol: str, start_date: str | None = None, end_date: str | None = None):
