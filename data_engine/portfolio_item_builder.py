@@ -1,4 +1,4 @@
-from data_engine.data_engine_models import AssetItem, PortfolioItem, PositionItem
+from data_engine.data_engine_models import AssetItem, AssetResult, PortfolioItem, PositionItem
 
 
 class PortfolioItemBuilder:
@@ -9,7 +9,19 @@ class PortfolioItemBuilder:
             for position in positions
             if (item := cls._build_portfolio_item(position, assets, prices)   ) is not None
         ]
-
+    
+    @classmethod
+    def from_asset_result(cls, asset: AssetResult,q uantity: float = 0.0) -> PortfolioItem:
+        return PortfolioItem(
+            position=PositionItem(
+                asset_id=asset.asset.id,
+                quantity=quantity,
+                avg_price=asset.market_price,
+            ),
+            asset=asset.asset,
+            market_price=asset.market_price,
+        )
+            
     @staticmethod
     def _build_portfolio_item(position: PositionItem, assets: dict[int, AssetItem], prices: dict[int, float]) -> PortfolioItem | None:
         asset = assets.get(position.asset_id)
