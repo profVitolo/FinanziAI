@@ -11,7 +11,7 @@ class PortfolioItemBuilder:
         ]
     
     @classmethod
-    def from_asset_result(cls, asset: AssetResult,q uantity: float = 0.0) -> PortfolioItem:
+    def from_asset_result(cls, asset: AssetResult, quantity: float = 0.0) -> PortfolioItem:
         return PortfolioItem(
             position=PositionItem(
                 asset_id=asset.asset.id,
