@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from api.routes.assets import router as assets_router
-from api.routes.analysis import router as analysis_router
 from api.routes.portfolio import router as portfolio_router
 from api.routes.watchlist import router as watchlist_router
 from api.routes.info import router as info_router
@@ -19,7 +18,6 @@ app = FastAPI(
 )
 
 app.include_router(assets_router)
-app.include_router(analysis_router)
 app.include_router(portfolio_router)
 app.include_router(watchlist_router)
 app.include_router(info_router)
