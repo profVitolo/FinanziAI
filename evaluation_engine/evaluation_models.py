@@ -70,8 +70,9 @@ class AssetEvaluationResult(EvaluationResult):
 class PortfolioEvaluationResult(EvaluationResult):
     pass
 
-
+"""
 @dataclass(slots=True)
 class EvaluationReport:
     portfolio: PortfolioEvaluationResult
     assets: list[AssetEvaluationResult] = field(default_factory=list)
+"""
