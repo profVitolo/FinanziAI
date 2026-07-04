@@ -10,3 +10,18 @@ SCHEMA_PATH = (ROOT_DIR / "database" / "init_db.sql" )
 
 BASE_CURRENCY = "EUR"
 BOOTSTRAP_DAYS = 90
+
+# Advisor Engine
+LLM_MODEL = "Qwen3-8B-Q4_K_M.gguf"
+LLM_MODEL_REPO = "Qwen/Qwen3-8B-GGUF"
+
+LLM_MODEL_PATH = ROOT_DIR / "advisor_engine" / "models" / LLM_MODEL
+
+LLM_CONTEXT_SIZE = 4096
+LLM_MAX_TOKENS = 512
+LLM_TEMPERATURE = 0.2
+LLM_TOP_P = 0.95
+LLM_REPEAT_PENALTY = 1.1
+
+LLM_GPU_LAYERS = -1   # >0 se vuoi usare CUDA/Metal
+LLM_THREADS = None
