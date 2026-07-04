@@ -1,0 +1,104 @@
+from pathlib import Path
+from llama_cpp import Llama
+from llama_cpp import llama_print_system_info
+
+from config import (
+    LLM_MODEL_PATH,
+    LLM_CONTEXT_SIZE,
+    LLM_MAX_TOKENS,
+    LLM_TEMPERATURE,
+    LLM_TOP_P,
+    LLM_REPEAT_PENALTY,
+    LLM_GPU_LAYERS,
+    LLM_THREADS,
+)
+from advisor_engine.advisor_models import AdvisorResponse
+
+
+class LlamaProvider:
+    """
+    Wrapper minimale di llama-cpp-python.
+
+    Responsabilità:
+        - verificare la presenza del modello locale
+        - caricare il modello una sola volta
+        - inviare un prompt
+        - restituire un AdvisorResponse
+    """
+
+    def __init__(self):
+        model_path = Path(LLM_MODEL_PATH)
+
+        if not model_path.exists():
+            raise FileNotFoundError(f"LLM model not found: {model_path}")
+        self._model_path = model_path
+        # print(llama_print_system_info())
+        self._llm = Llama(
+            model_path=str(model_path),
+            n_ctx=LLM_CONTEXT_SIZE,
+            n_threads=LLM_THREADS,
+            n_gpu_layers=LLM_GPU_LAYERS,
+            verbose=False,
+            chat_format="chatml",
+        )
+
+    @property
+    def model_name(self) -> str:
+        return self._model_path.name
+
+    def generate(
+        self,
+        prompt: str,
+        *,
+        thinking: bool = False,
+        max_tokens: int = LLM_MAX_TOKENS,
+        temperature: float = LLM_TEMPERATURE,
+        top_p: float = LLM_TOP_P,
+        repeat_penalty: float = LLM_REPEAT_PENALTY,
+    ) -> AdvisorResponse:
+        system_prompt = (
+            "Sei FinanziAI-BOT, un esperto consulente finanziario.\n"
+            "Fornisci sempre risposte concise ed accurate.\n"
+        )
+
+        if thinking:
+            system_prompt += "/think"
+        else:
+            system_prompt += "/no_think"
+            
+        response = self._llm.create_chat_completion(
+             messages=[
+                {
+                    "role": "system",
+                    "content": system_prompt,
+                },
+                {
+                    "role": "user",
+                    "content": prompt,
+                },
+            ],
+            max_tokens=max_tokens,
+            temperature=temperature,
+            top_p=top_p,
+            repeat_penalty=repeat_penalty,
+        )
+
+        usage = response.get("usage", {})
+        choice = response["choices"][0]
+
+        return AdvisorResponse(
+            answer=choice["message"]["content"].strip(),
+            model=self.model_name,
+            prompt_tokens=usage.get("prompt_tokens"),
+            completion_tokens=usage.get("completion_tokens"),
+            total_tokens=usage.get("total_tokens"),
+        )
+        
+    # Metodo stupido per i test
+    def health_check(self) -> AdvisorResponse:
+        return self.generate(
+            "Rispondi solo con la parola OK.",
+            thinking=False,
+            max_tokens=8,
+            temperature=0.0,
+        )
