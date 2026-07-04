@@ -25,3 +25,7 @@ class EvaluationEngine:
     def evaluate_asset(asset):
         return AssetEvaluator.evaluate(asset)
     
+    ## Usata dall'advisor per processare la watchlist
+    @staticmethod
+    def evaluate_assets(assets: list[AssetResult]) -> list[AssetEvaluationResult]:
+        return [AssetEvaluator.evaluate(asset) for asset in assets]
