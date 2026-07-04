@@ -6,5 +6,6 @@ pydantic
 yfinance
 pandas
 numpy
+## Per sistemi senza GPU NVIDIA - LLM will run on CPU
 llama-cpp-python
 huggingface_hub
