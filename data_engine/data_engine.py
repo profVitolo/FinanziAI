@@ -9,6 +9,7 @@ from data_engine.data_engine_models import (
     AssetResult,
     PortfolioItem,
     PortfolioResult,
+    PortfolioAnalysisResult,
 )
 from data_engine.portfolio_analyzer import PortfolioAnalyzer
 
@@ -75,11 +76,19 @@ class DataEngine:
         if portfolio is None:
             return None
 
-        return {
-            "portfolio": portfolio,
-            "assets": self.analyze_assets(
+        return PortfolioAnalysisResult(
+            portfolio=portfolio,
+            assets=self.analyze_assets(
                 position.asset.symbol
                 for position in portfolio.positions
             ),
-        }
+        )
+    
+    # ------------------------------------------------------------------
+    # Watchlist
+    # ------------------------------------------------------------------
+
+    def analyze_watchlist(self) -> list[AssetResult]:
+        assets = self.supplier.get_watchlist()
+        return self.analyze_assets(asset.symbol for asset in assets)
 
