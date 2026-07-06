@@ -1,0 +1,14 @@
+{{context}}
+
+==============================
+DOMANDA DELL'UTENTE
+==============================
+
+{{user_prompt}}
+
+==============================
+ISTRUZIONI
+==============================
+
+Rispondi utilizzando esclusivamente i dati forniti sopra.
+Non inventare informazioni mancanti.
