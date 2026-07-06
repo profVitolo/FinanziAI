@@ -72,7 +72,7 @@ class AdvisorEngine:
 
 ---
 
-## AdvisorContext
+## AdvisorContextBuidler
 
 ### Responsabilità
 Recupera tutte le informazioni necessarie dagli engine esistenti.
