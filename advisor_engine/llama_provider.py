@@ -31,8 +31,8 @@ class LlamaProvider:
 
         if not model_path.exists():
             raise FileNotFoundError(f"LLM model not found: {model_path}")
+        
         self._model_path = model_path
-        # print(llama_print_system_info())
         self._llm = Llama(
             model_path=str(model_path),
             n_ctx=LLM_CONTEXT_SIZE,
@@ -48,24 +48,20 @@ class LlamaProvider:
 
     def generate(
         self,
-        prompt: str,
         *,
-        thinking: bool = False,
+        user_prompt: str,
+        system_prompt: str,
         max_tokens: int = LLM_MAX_TOKENS,
         temperature: float = LLM_TEMPERATURE,
         top_p: float = LLM_TOP_P,
-        repeat_penalty: float = LLM_REPEAT_PENALTY,
+        repeat_penalty: float = LLM_REPEAT_PENALTY
     ) -> AdvisorResponse:
-        system_prompt = (
-            "Sei FinanziAI-BOT, un esperto consulente finanziario.\n"
-            "Fornisci sempre risposte concise ed accurate.\n"
-        )
-
+        """
         if thinking:
             system_prompt += "/think"
         else:
             system_prompt += "/no_think"
-            
+        """    
         response = self._llm.create_chat_completion(
              messages=[
                 {
@@ -74,7 +70,7 @@ class LlamaProvider:
                 },
                 {
                     "role": "user",
-                    "content": prompt,
+                    "content": user_prompt,
                 },
             ],
             max_tokens=max_tokens,
@@ -97,8 +93,8 @@ class LlamaProvider:
     # Metodo stupido per i test
     def health_check(self) -> AdvisorResponse:
         return self.generate(
-            "Rispondi solo con la parola OK.",
-            thinking=False,
+            system_prompt="Sei un assistente.",
+            user_prompt="Rispondi esclusivamente con la parola OK.",
             max_tokens=8,
             temperature=0.0,
         )
