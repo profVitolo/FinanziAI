@@ -3,7 +3,7 @@ async function loadWatchlist()
 {
     try 
 	{
-        const response = await fetch(`${API_BASE}/watchlist/`);
+        const response = await fetch(`${API_BASE}/watchlist`);
         const data = await response.json();
         const list = document.getElementById("watchlist");
 
