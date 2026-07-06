@@ -1,6 +1,10 @@
 from evaluation_engine.asset_evaluator import AssetEvaluator
 from evaluation_engine.portfolio_evaluator import PortfolioEvaluator
-from evaluation_engine.evaluation_models import EvaluationReport
+from data_engine.data_engine_models import AssetResult
+from evaluation_engine.evaluation_models import (
+    AssetEvaluationResult,
+    #EvaluationReport,
+)
 
 
 class EvaluationEngine:
