@@ -12,7 +12,7 @@ print_title("=== TEST WATCHLIST API ===")
 try:
     print("\n=== WATCHLIST ADD ===")
 
-    response = requests.post(f"{BASE_URL}/portfolio/watchlist/AAPL")
+    response = requests.post(f"{BASE_URL}/watchlist/AAPL")
 
     print_response(response)
     if response.status_code >= 400:
@@ -20,7 +20,7 @@ try:
 
     print("\n=== WATCHLIST GET ===")
 
-    response = requests.get(f"{BASE_URL}/portfolio/watchlist")
+    response = requests.get(f"{BASE_URL}/watchlist")
 
     print_response(response)
     if response.status_code >= 400:
@@ -28,7 +28,7 @@ try:
 
     print("\n=== WATCHLIST DELETE ===")
 
-    response = requests.delete(f"{BASE_URL}/portfolio/watchlist/AAPL")
+    response = requests.delete(f"{BASE_URL}/watchlist/AAPL")
 
     print_response(response)
     if response.status_code >= 400:

@@ -14,7 +14,7 @@ try:
     
     print("\n=== GET ANALYSIS ===")
 
-    response = requests.get(f"{BASE_URL}/analysis/AAPL")
+    response = requests.get(f"{BASE_URL}/assets/AAPL")
 
     print_response(response)
     if response.status_code >= 400:

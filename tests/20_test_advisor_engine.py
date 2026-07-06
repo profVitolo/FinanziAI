@@ -5,64 +5,71 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
 from test_utils import *
-
 from advisor_engine.llama_provider import LlamaProvider
+
+
+SYSTEM_PROMPT = """
+Sei FinanziAI-BOT.
+
+Rispondi sempre in italiano.
+Fornisci risposte concise e accurate.
+"""
 
 
 print_title("=== TEST ADVISOR ENGINE ===")
 
 print("Loading LLM...")
-
 provider = LlamaProvider()
 
-print_result("Loaded model: ", provider.model_name)
+print_result("Loaded model:", provider.model_name)
 
+print("\nHealth Check")
 
-print("Health Check")
 response = provider.health_check()
 
 print(response.answer)
-print(response.prompt_tokens)
-print(response.completion_tokens)
+print(f"Prompt tokens     : {response.prompt_tokens}")
+print(f"Completion tokens : {response.completion_tokens}")
 
 
 tests = [
     (
         "Simple reply",
-        "Reply only with the word OK."
+        "Reply only with the word OK.",
     ),
     (
         "Capitale Italiana",
-        "Qual è la capitale d'Italia? Rispondi con una sola parola."
+        "Qual è la capitale d'Italia? Rispondi con una sola parola.",
     ),
     (
         "Financial reasoning",
         """
-        Sei un consulente finanziario, FinaziAI-BOT.
+Sei un consulente finanziario.
 
-        Asset:
-        - NVIDIA
-        - Beta: 1.8
-        - Trend: Bullish
-        - Volatility: High
+Asset:
+- NVIDIA
+- Beta: 1.8
+- Trend: Bullish
+- Volatility: High
 
-        Scrivi una breve valutazione in massimo due frasi.
-        """
+Scrivi una breve valutazione in massimo due frasi.
+""",
     ),
 ]
 
-i = 0
 
-for title, prompt in tests:
+for title, user_prompt in tests:
 
     print_title(title)
 
     print("PROMPT")
     print("-" * 60)
-    print(prompt.strip())
-    
-    shouldThink = True if i > 1 else False
-    response = provider.generate(prompt, thinking=shouldThink)
+    print(user_prompt.strip())
+
+    response = provider.generate(
+        system_prompt=SYSTEM_PROMPT,
+        user_prompt=user_prompt,
+    )
 
     print("\nANSWER")
     print("-" * 60)
@@ -73,6 +80,5 @@ for title, prompt in tests:
     print(f"Prompt      : {response.prompt_tokens}")
     print(f"Completion  : {response.completion_tokens}")
     print(f"Total       : {response.total_tokens}")
-    i += 1
-    
+
 print_title("=== TEST COMPLETED ===")
