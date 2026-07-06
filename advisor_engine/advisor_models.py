@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from enum import StrEnum
+from datetime import date
 
 from data_engine.data_engine_models import (
     PortfolioResult,
@@ -39,6 +40,7 @@ class AdvisorContext:
 
     # Profilo investitore
     investor_profile: InvestorProfile = InvestorProfile.BALANCED
+    current_date: date = field(default_factory=date.today)
 
 
 @dataclass(slots=True)
@@ -49,6 +51,12 @@ class AdvisorRequest:
 
     prompt: str
     investor_profile: InvestorProfile = InvestorProfile.BALANCED
+
+
+@dataclass(slots=True)
+class Prompt:
+    system_prompt: str
+    user_prompt: str
 
 
 @dataclass(slots=True)
