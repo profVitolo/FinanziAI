@@ -1,14 +1,61 @@
-{{context}}
+==============================
+DATA
+==============================
+{{ context.current_date }}
+
+==============================
+PROFILO INVESTITORE
+==============================
+{{ context.investor_profile.value }}
+
+==============================
+PORTAFOGLIO
+==============================
+Valore: {{ "%.2f"|format(context.portfolio.portfolio_value) }} {{ context.portfolio.base_currency }}
+Numero posizioni: {{ context.portfolio.positions|length }}
+
+==============================
+VALUTAZIONE PORTAFOGLIO
+==============================
+{{ context.portfolio_evaluation }}
+
+{% if context.portfolio_asset_evaluations %}
+==============================
+ASSET DEL PORTAFOGLIO
+==============================
+{% for evaluation in context.portfolio_asset_evaluations %}
+{{ evaluation }}
+
+{% endfor %}
+{% endif %}
+
+{% if context.watchlist %}
+==============================
+WATCHLIST
+==============================
+{% for asset in context.watchlist %}
+{{ asset }}
+
+{% endfor %}
+{% endif %}
+
+{% if context.watchlist_evaluations %}
+==============================
+VALUTAZIONE WATCHLIST
+==============================
+{% for evaluation in context.watchlist_evaluations %}
+{{ evaluation }}
+
+{% endfor %}
+{% endif %}
 
 ==============================
 DOMANDA DELL'UTENTE
 ==============================
-
-{{user_prompt}}
+{{ user_prompt }}
 
 ==============================
 ISTRUZIONI
 ==============================
-
 Rispondi utilizzando esclusivamente i dati forniti sopra.
 Non inventare informazioni mancanti.
