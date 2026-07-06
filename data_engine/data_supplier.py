@@ -1,7 +1,7 @@
 from data_manager.asset_data_manager import AssetDataManager
 from data_manager.portfolio_data_manager import PortfolioDataManager
 from database.database_manager import DatabaseManager
-from data_engine.data_engine_models import AssetItem, PositionItem, PriceItem
+from data_engine.data_engine_models import AssetItem, PositionItem, PriceItem, WatchlistItem
 
 
 class DataSupplier:
@@ -44,6 +44,24 @@ class DataSupplier:
         positions = self.portfolio_data_manager.get_all_positions()
         return [self._build_position(position) for position in positions]
 
+    # ------------------------------------------------------------------
+    # Watchlist
+    # ------------------------------------------------------------------
+
+    def get_watchlist(self):
+        watchlist = [
+            WatchlistItem.from_dict(row)
+            for row in self.portfolio_data_manager.get_watchlist()
+        ]
+
+        assets = []
+        for item in watchlist:
+            asset = self.get_asset_by_id(item.asset_id)
+            if asset is not None:
+                assets.append(asset)
+
+        return assets
+        
     # ------------------------------------------------------------------
     # Builders
     # ------------------------------------------------------------------
