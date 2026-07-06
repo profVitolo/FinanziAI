@@ -9,7 +9,7 @@ from api.schemas import TransactionCreate
 router = APIRouter(prefix="/watchlist", tags=["watchlist"])
 
 
-@router.get("/")
+@router.get("")
 def get_watchlist():
     portfolio_service = PortfolioService()
     data_service = DataService()
