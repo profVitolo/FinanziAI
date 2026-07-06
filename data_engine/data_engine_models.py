@@ -238,3 +238,15 @@ class PortfolioResult:
     exposure: PortfolioExposure
     risk: PortfolioRisk
 
+@dataclass(slots=True)
+class PortfolioAnalysisResult:
+    portfolio: PortfolioResult
+    assets: list[AssetResult]
+    
+@dataclass(frozen=True)
+class WatchlistItem:
+    asset_id: int
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(asset_id=data["asset_id"])
