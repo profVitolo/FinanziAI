@@ -35,11 +35,11 @@ def evaluate_portfolio_full():
 
         return {
             "portfolio": EvaluationEngine.evaluate_portfolio(
-                analysis["portfolio"]
+                analysis.portfolio
             ),
             "assets": [
                 EvaluationEngine.evaluate_asset(asset)
-                for asset in analysis["assets"]
+                for asset in analysis.assets
             ]
         }
     finally:

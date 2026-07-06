@@ -325,7 +325,7 @@ try:
     analysis = engine.analyze_portfolio_full()
     pprint(analysis, sort_dicts=False)
 
-    call_evaluation([ asset for asset in analysis["assets"] ], analysis["portfolio"])
+    call_evaluation([ asset for asset in analysis.assets ], analysis.portfolio)
 
 finally:
     engine.close()
