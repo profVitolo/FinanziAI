@@ -6,7 +6,9 @@ sys.path.insert(0, str(ROOT_DIR))
 
 from test_utils import *
 from advisor_engine.llama_provider import LlamaProvider
-
+from advisor_engine.advisor_context_builder import AdvisorContextBuilder
+from advisor_engine.advisor_models import InvestorProfile
+from pprint import pprint
 
 SYSTEM_PROMPT = """
 Sei FinanziAI-BOT.
@@ -81,4 +83,43 @@ for title, user_prompt in tests:
     print(f"Completion  : {response.completion_tokens}")
     print(f"Total       : {response.total_tokens}")
 
+print_title("AdvisorContextBuilder")
+
+builder = AdvisorContextBuilder()
+
+context = builder.build(
+    InvestorProfile.BALANCED
+)
+
+print("Investor profile")
+print("-" * 60)
+print(context.investor_profile)
+
+print("\nCurrent date")
+print("-" * 60)
+print(context.current_date)
+
+print("\nPortfolio")
+print("-" * 60)
+pprint(context.portfolio)
+
+print("\nPortfolio evaluation")
+print("-" * 60)
+pprint(context.portfolio_evaluation)
+
+print("\nPortfolio asset evaluations")
+print("-" * 60)
+for evaluation in context.portfolio_asset_evaluations:
+    pprint(evaluation)
+
+print("\nWatchlist")
+print("-" * 60)
+for asset in context.watchlist:
+    pprint(asset)
+
+print("\nWatchlist evaluations")
+print("-" * 60)
+for evaluation in context.watchlist_evaluations:
+    pprint(evaluation)
+    
 print_title("=== TEST COMPLETED ===")
