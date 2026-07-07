@@ -1,6 +1,6 @@
 # AdvisorEngine
 
-## Responsabilità
+## Descrizione
 L'AdvisorEngine rappresenta il livello più alto dell'architettura di FinanziAI.
 Il suo compito **non è eseguire analisi finanziarie**, ma trasformare le informazioni già prodotte dal sistema in una consulenza comprensibile e contestualizzata.
 
@@ -9,7 +9,7 @@ L'AdvisorEngine utilizza esclusivamente:
 - `EvaluationEngine`
 - un LLM locale tramite `llama-cpp-python`
 
-L'LLM non calcola indicatori tecnici, non accede al database e non prende decisioni autonome sulla base di formule matematiche.
+L'LLM non rappresenta la fonte della verità del sistema. Tutte le informazioni numeriche, gli indicatori, le valutazioni e i dati di mercato sono prodotti dai moduli deterministici (DataEngine ed EvaluationEngine). Il modello linguistico ha esclusivamente il compito di interpretare tali informazioni e comunicarle in linguaggio naturale.
 
 Riceve esclusivamente dati già elaborati e produce:
 - spiegazioni
@@ -25,16 +25,14 @@ Riceve esclusivamente dati già elaborati e produce:
 advisor_engine/
 │
 ├── advisor_engine.py          # Facade principale
-├── advisor_context.py         # Raccolta dati da DataEngine/EvaluationEngine
+├── advisor_context_builder.py # Raccolta dati da DataEngine/EvaluationEngine
 ├── prompt_builder.py          # Costruzione automatica del prompt
 ├── llama_provider.py          # Wrapper llama-cpp-python
-│
 ├── advisor_models.py          # DTO interni
-├── investor_profile.py        # Profili investitore
 │
 ├── prompts/
 │   ├── system_prompt.txt
-│   └── advisor_prompt.txt
+│   └── user_prompt.txt
 │
 └── models/
     └── model.gguf
@@ -72,7 +70,7 @@ class AdvisorEngine:
 
 ---
 
-## AdvisorContextBuidler
+## AdvisorContextBuilder
 
 ### Responsabilità
 Recupera tutte le informazioni necessarie dagli engine esistenti.
@@ -142,7 +140,7 @@ class PromptBuilder:
         self,
         context: AdvisorContext,
         user_prompt: str
-    ) -> str:
+    ) -> Prompt:
         ...
 ```
 
@@ -167,9 +165,10 @@ Risposta del modello
 class LlamaProvider:
 
     def generate(
-        self,
-        prompt: str
-    ) -> str:
+		*,
+		system_prompt: str,
+		user_prompt: str,
+    ) -> AdvisorResponse:
         ...
 ```
 
@@ -211,13 +210,13 @@ Ad esempio:
 ```text
 AdvisorContext
 
+AdvisorRequest
+
+Prompt
+
 AdvisorResponse
 
-AdvisorSuggestion
-
-AdvisorRisk
-
-AdvisorBenefit
+InvestorProfile
 ```
 
 Nessuna logica.
