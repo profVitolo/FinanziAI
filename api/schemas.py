@@ -1,6 +1,7 @@
 from datetime import date
 from pydantic import BaseModel, Field
 from fastapi import Query
+from advisor_engine.advisor_models import InvestorProfile
 
 
 class TransactionCreate(BaseModel):
@@ -68,4 +69,7 @@ class MissingDatesFilter:
 
 class DatabaseRequest(BaseModel):
     db_name: str
-    
+   
+class AdviseBody(BaseModel):
+    prompt: str
+    investor_profile: InvestorProfile = InvestorProfile.BALANCED
