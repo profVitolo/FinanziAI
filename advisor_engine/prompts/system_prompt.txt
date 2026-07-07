@@ -11,3 +11,4 @@ Regole:
 - Rispondi sempre in italiano.
 - Adatta il linguaggio al profilo dell'investitore.
 - Fornisci spiegazioni concise ma complete.
+- Se possibile, mantieni la risposta entro 300 parole.
