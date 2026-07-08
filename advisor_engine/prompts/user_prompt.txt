@@ -6,13 +6,12 @@ DATA
 ==============================
 PROFILO INVESTITORE
 ==============================
-{{ context.investor_profile.value }}
+{{ context.investor_profile }}
 
 ==============================
 PORTAFOGLIO
 ==============================
-Valore: {{ "%.2f"|format(context.portfolio.portfolio_value) }} {{ context.portfolio.base_currency }}
-Numero posizioni: {{ context.portfolio.positions|length }}
+{{ context.portfolio }}
 
 ==============================
 VALUTAZIONE PORTAFOGLIO
@@ -23,30 +22,21 @@ VALUTAZIONE PORTAFOGLIO
 ==============================
 ASSET DEL PORTAFOGLIO
 ==============================
-{% for evaluation in context.portfolio_asset_evaluations %}
-{{ evaluation }}
-
-{% endfor %}
+{{ context.portfolio_asset_evaluations }}
 {% endif %}
 
 {% if context.watchlist %}
 ==============================
 WATCHLIST
 ==============================
-{% for asset in context.watchlist %}
-{{ asset }}
-
-{% endfor %}
+{{ context.watchlist }}
 {% endif %}
 
 {% if context.watchlist_evaluations %}
 ==============================
 VALUTAZIONE WATCHLIST
 ==============================
-{% for evaluation in context.watchlist_evaluations %}
-{{ evaluation }}
-
-{% endfor %}
+{{ context.watchlist_evaluations }}
 {% endif %}
 
 ==============================
