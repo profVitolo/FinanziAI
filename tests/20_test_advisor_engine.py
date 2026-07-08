@@ -37,11 +37,11 @@ print(f"Completion tokens : {response.completion_tokens}")
 tests = [
     (
         "Simple reply",
-        "Reply only with the word OK.",
+        "Reply only with the word OK. /no_think",
     ),
     (
         "Capitale Italiana",
-        "Qual è la capitale d'Italia? Rispondi con una sola parola.",
+        "Qual è la capitale d'Italia? Rispondi con una sola parola. /no_think",
     ),
     (
         "Financial reasoning",
