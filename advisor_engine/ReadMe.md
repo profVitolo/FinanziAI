@@ -117,9 +117,9 @@ class AdvisorContextBuilder:
 
 ### Responsabilità
 Trasforma l'intero contesto in un prompt ottimizzato per il modello.
-Si occupa esclusivamente della costruzione del prompt.
+Internamente utilizza un ```PromptFormatter``` per convertire i DTO dell'applicazione in una rappresentazione testuale semplice e compatta, eliminando dettagli implementativi inutili e riducendo il numero di token.
+Successivamente inserisce il contesto formattato nei template Jinja e costruisce il prompt finale.
 Non dialoga con il modello.
-Può utilizzare template esterni.
 
 ### Input
 ```python
