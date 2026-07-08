@@ -25,3 +25,5 @@ LLM_MAX_TOKENS = 2048
 
 LLM_GPU_LAYERS = -1   # >0 oppure -1 se vuoi usare CUDA/Metal
 LLM_THREADS = None
+
+MAX_MEMORY_TURNS = 8
