@@ -39,6 +39,13 @@ VALUTAZIONE WATCHLIST
 {{ context.watchlist_evaluations }}
 {% endif %}
 
+{% if memory %}
+==============================
+MEMORIA CONVERSAZIONALE
+==============================
+{{ memory }}
+{% endif %}
+
 ==============================
 DOMANDA DELL'UTENTE
 ==============================
