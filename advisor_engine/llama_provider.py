@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 from llama_cpp import Llama
 from llama_cpp import llama_print_system_info
@@ -81,20 +82,34 @@ class LlamaProvider:
 
         usage = response.get("usage", {})
         choice = response["choices"][0]
+        
+        choice = response["choices"][0]
+
+        raw_answer = choice["message"]["content"].strip()
+        answer = self._extract_answer(raw_answer)
 
         return AdvisorResponse(
-            answer=choice["message"]["content"].strip(),
+            raw_answer=raw_answer,
+            answer=answer,
             model=self.model_name,
             prompt_tokens=usage.get("prompt_tokens"),
             completion_tokens=usage.get("completion_tokens"),
             total_tokens=usage.get("total_tokens"),
         )
-        
+    
     # Metodo stupido per i test
     def health_check(self) -> AdvisorResponse:
         return self.generate(
             system_prompt="Sei un assistente.",
-            user_prompt="Rispondi esclusivamente con la parola OK.",
+            user_prompt="Rispondi esclusivamente con la parola OK. /no_think",
             max_tokens=8,
             temperature=0.0,
         )
+    
+    def _extract_answer(self, text: str) -> str:
+        """
+        Rimuove l'eventuale blocco <think>...</think>
+        prodotto dal modello reasoning (qwen).
+        """
+        return re.sub(r"<think>.*?</think>\s*", "", text, flags=re.DOTALL).strip()
+
