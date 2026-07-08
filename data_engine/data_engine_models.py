@@ -137,7 +137,7 @@ class PriceItem:
     @classmethod
     def from_dict(cls, data: dict) -> "PriceItem":
         return cls(
-            date=data["date"],
+            date=date.fromisoformat(data["date"]),
             open=data["open"],
             high=data["high"],
             low=data["low"],
@@ -215,11 +215,6 @@ class PortfolioPosition:
             market_value_base=None,
             performance=performance
         )
-
-@dataclass(frozen=True)
-class PortfolioRisk:
-    largest_position_weight: float
-    concentration_level: str
 
 
 @dataclass(frozen=True)
