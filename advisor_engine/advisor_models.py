@@ -74,6 +74,7 @@ class AdvisorResponse:
     Risposta prodotta dall'AdvisorEngine.
     """
 
+    raw_answer: str
     answer: str
 
     # Informazioni sul modello utilizzato
