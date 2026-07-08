@@ -30,6 +30,17 @@ advisor_engine/
 ├── llama_provider.py          # Wrapper llama-cpp-python
 ├── advisor_models.py          # DTO interni
 │
+├── formatters/
+│   ├── data_formatter.py
+│   ├── evaluation_formatter.py
+│   ├── prompt_formatter.py
+│   └── utils.py
+│
+├── memory/
+│   ├── memory_manager.py
+│   ├── memory_models.py
+│   └── conversation_store.py
+│
 ├── prompts/
 │   ├── system_prompt.txt
 │   └── user_prompt.txt
@@ -117,8 +128,12 @@ class AdvisorContextBuilder:
 
 ### Responsabilità
 Trasforma l'intero contesto in un prompt ottimizzato per il modello.
-Internamente utilizza un ```PromptFormatter``` per convertire i DTO dell'applicazione in una rappresentazione testuale semplice e compatta, eliminando dettagli implementativi inutili e riducendo il numero di token.
-Successivamente inserisce il contesto formattato nei template Jinja e costruisce il prompt finale.
+Internamente:
+- utilizza `PromptFormatter` per convertire i DTO applicativi in una rappresentazione testuale semplice e compatta;
+- recupera la memoria conversazionale dal `MemoryManager`;
+- inserisce entrambe le informazioni nei template Jinja;
+- costruisce il prompt finale.
+
 Non dialoga con il modello.
 
 ### Input
@@ -126,6 +141,11 @@ Non dialoga con il modello.
 AdvisorContext
 user_prompt
 ```
+
+### Dipendenze
+- PromptFormatter
+- MemoryManager
+
 
 ### Output
 ```text
@@ -141,6 +161,49 @@ class PromptBuilder:
         context: AdvisorContext,
         user_prompt: str
     ) -> Prompt:
+        ...
+```
+
+---
+
+## MemoryManager
+
+### Responsabilità
+Gestisce la memoria conversazionale dell'Advisor.
+L'obiettivo è fornire al modello il contesto delle interazioni precedenti senza modificare il dominio applicativo (`AdvisorContext`) e senza introdurre dipendenze tra la memoria e gli engine finanziari.
+Il `MemoryManager` è completamente indipendente dal processo di raccolta dei dati di portafoglio e viene interrogato esclusivamente dal `PromptBuilder` durante la costruzione del prompt.
+Attualmente il componente mantiene una finestra configurabile degli ultimi turni della conversazione (utente ↔ assistente) e restituisce una rappresentazione testuale pronta per essere inserita nel prompt.
+In futuro lo stesso componente potrà evolvere mantenendo invariata l'interfaccia pubblica, diventando il punto centralizzato per la gestione della memoria dell'Advisor, ad esempio introducendo:
+- riassunti automatici delle conversazioni più vecchie;
+- preferenze espresse dall'utente;
+- decisioni prese durante la sessione;
+- eventi significativi dell'applicazione;
+- memoria persistente tra più sessioni.
+
+L'architettura è volutamente progettata affinché tali evoluzioni non richiedano modifiche né al `PromptBuilder` né agli altri componenti dell'AdvisorEngine.
+
+### Input
+- messaggio dell'utente
+- risposta dell'assistente
+
+### Output
+Una rappresentazione testuale della memoria conversazionale pronta per essere inserita nel prompt.
+
+### Possibile interfaccia
+```python
+class MemoryManager:
+
+    def add_turn(
+        self,
+        user_message: str,
+        assistant_message: str,
+    ) -> None:
+        ...
+
+    def build_memory(self) -> str:
+        ...
+
+    def clear(self) -> None:
         ...
 ```
 
@@ -238,19 +301,26 @@ C --> E[EvaluationEngine]
 D --> C
 E --> C
 
-C --> F[PromptBuilder]
+B --> F[PromptBuilder]
 
-F --> G[LlamaProvider]
+F --> G[PromptFormatter]
+G --> F
 
-G --> H[LLM Locale<br/>llama.cpp]
+F --> M[MemoryManager]
+M --> F
 
-H --> G
+F --> H[LlamaProvider]
 
-G --> I[AdvisorResponse]
+H --> I[LLM Locale<br/>llama.cpp]
+I --> H
 
-I --> B
+H --> J[AdvisorResponse]
 
-B --> J[HTTP Response]
+J --> M
+
+J --> B
+
+B --> K[HTTP Response]
 ```
 
 ---
@@ -262,20 +332,24 @@ B --> J[HTTP Response]
 2. L'AdvisorEngine riceve la richiesta.
 
 3. AdvisorContextBuilder recupera:
-
-   • portfolio
+   • portafoglio
    • asset
    • watchlist
    • valutazioni
    • profilo investitore
 
-4. PromptBuilder costruisce il prompt.
+4. PromptBuilder:
+   • formatta il contesto applicativo
+   • recupera la memoria conversazionale dal MemoryManager
+   • costruisce il prompt completo
 
 5. LlamaProvider invia il prompt al modello locale.
 
 6. Il modello produce una risposta.
 
-7. L'AdvisorEngine restituisce la risposta all'utente.
+7. Il MemoryManager registra il nuovo turno della conversazione.
+
+8. L'AdvisorEngine restituisce la risposta all'utente.
 ```
 
 ---
@@ -286,11 +360,13 @@ Ogni componente ha una singola responsabilità.
 | Componente | Responsabilità |
 |------------|----------------|
 | DataEngine | Produce dati quantitativi |
-| EvaluationEngine | Interpreta i dati con regole deterministiche |
-| AdvisorContextBuilder | Recupera e aggrega tutte le informazioni |
-| PromptBuilder | Costruisce il prompt per l'LLM |
+| EvaluationEngine | Interpreta i dati tramite regole deterministiche |
+| AdvisorContextBuilder | Aggrega il contesto finanziario corrente |
+| PromptFormatter | Converte il contesto applicativo in testo |
+| MemoryManager | Gestisce la memoria conversazionale della sessione |
+| PromptBuilder | Costruisce il prompt completo per il modello |
 | LlamaProvider | Comunica con il modello locale |
-| AdvisorEngine | Orchestration dell'intero processo |
+| AdvisorEngine | Orchestra l'intero flusso |
 
 ---
 
@@ -301,6 +377,9 @@ Ogni componente ha una singola responsabilità.
 - Prompt centralizzato e facilmente migliorabile.
 - Architettura facilmente testabile tramite mock.
 - Nessuna logica finanziaria delegata al modello.
+- Gestione della memoria completamente disaccoppiata dal dominio finanziario.
+- Possibilità di evolvere la memoria senza modificare AdvisorContext o PromptFormatter.
+- Interfaccia stabile del MemoryManager indipendentemente dalla strategia di memorizzazione adottata.
 
 ---
 
@@ -323,5 +402,11 @@ Ogni componente ha una singola responsabilità.
 - spiegazione dei rischi
 - spiegazione dei benefici
 - risposta alle domande dell'utente
-- conversazione contestuale
-- memoria della sessione (eventuale evoluzione futura)
+- memoria conversazionale della sessione
+
+## Fase 4 — Evoluzione della memoria
+- riassunto automatico delle conversazioni meno recenti
+- memoria persistente tra più sessioni
+- preferenze dell'utente
+- eventi applicativi significativi
+- personalizzazione progressiva dell'Advisor
