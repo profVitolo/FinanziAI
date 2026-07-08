@@ -58,6 +58,15 @@ class Prompt:
     system_prompt: str
     user_prompt: str
 
+@dataclass(slots=True)
+class PromptContext:
+    current_date: str
+    investor_profile: str
+    portfolio: str
+    portfolio_evaluation: str
+    portfolio_asset_evaluations: str
+    watchlist: str
+    watchlist_evaluations: str
 
 @dataclass(slots=True)
 class AdvisorResponse:
