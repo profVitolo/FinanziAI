@@ -30,8 +30,7 @@ def ensure_model() -> Path:
     downloaded = hf_hub_download(
         repo_id=LLM_MODEL_REPO,
         filename=LLM_MODEL,
-        local_dir=LLM_MODEL_PATH.parent,
-        local_dir_use_symlinks=False,
+        local_dir=LLM_MODEL_PATH.parent
     )
 
     print("Download completed.")
