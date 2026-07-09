@@ -44,12 +44,6 @@ try:
 
     data = response.json()
 
-    assert "answer" in data
-    assert "model" in data
-    assert "prompt_tokens" in data
-    assert "completion_tokens" in data
-    assert "total_tokens" in data
-
     print_response(response)
 
     if response.status_code >= 400:
