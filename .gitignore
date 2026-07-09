@@ -24,3 +24,6 @@ venv/
 # LLM models
 *.gguf
 *.ggml
+
+# Project exclusions
+conversations.json
