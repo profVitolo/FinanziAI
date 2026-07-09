@@ -26,4 +26,4 @@ venv/
 *.ggml
 
 # Project exclusions
-conversations.json
+advisor_engine/memory/conversations.json
