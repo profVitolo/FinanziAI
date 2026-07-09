@@ -6,7 +6,8 @@ T = TypeVar("T")
 
 
 class AdvisorBusyError(RuntimeError):
-    pass
+    def __init__(self):
+        super().__init__("AdvisorEngine is already processing another request.")
 
 
 class AdvisorExecutor:
@@ -19,7 +20,7 @@ class AdvisorExecutor:
 
     def execute(self, operation: Callable[..., T], *args, **kwargs,) -> T:
         if not self._lock.acquire(blocking=False):
-            raise AdvisorBusyError("AdvisorEngine is already processing another request.")
+            raise AdvisorBusyError()
 
         try:
             return operation(*args, **kwargs)
