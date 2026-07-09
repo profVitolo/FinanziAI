@@ -1,10 +1,13 @@
 from fastapi import APIRouter
 from advisor_engine.advisor_engine import AdvisorEngine
+from advisor_engine.advisor_executor import AdvisorExecutor
 from advisor_engine.advisor_models import AdvisorRequest, InvestorProfile
 from api.schemas import AdviseBody
 
 router = APIRouter(prefix="/advisor", tags=["Advisor"])
 
+executor = AdvisorExecutor()    
+engine = AdvisorEngine()
 
 @router.get("/investor-profiles")
 def get_investor_profiles():
@@ -19,11 +22,6 @@ def get_investor_profiles():
 
 @router.post("/advise")
 def advise(body: AdviseBody):
-    engine = AdvisorEngine()
+    request = AdvisorRequest(prompt=body.prompt, investor_profile=body.investor_profile)
 
-    request = AdvisorRequest(
-        prompt=body.prompt,
-        investor_profile=body.investor_profile,
-    )
-
-    return engine.advise(request)
+    return executor.execute(engine.advise, request)
