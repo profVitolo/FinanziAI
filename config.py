@@ -2,7 +2,7 @@ from pathlib import Path
 
 TITLE = "FinanziAI",
 DESCRIPTION = "AI-Assisted Investment Analysis",
-VERSION = "0.1.2"
+VERSION = "0.1.3"
     
 ROOT_DIR = Path(__file__).resolve().parent
 DB_PATH = ( ROOT_DIR / "database" / "vault.db" )
