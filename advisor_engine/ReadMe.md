@@ -24,7 +24,8 @@ Riceve esclusivamente dati già elaborati e produce:
 ```text
 advisor_engine/
 │
-├── advisor_engine.py          # Facade principale
+├── advisor_executor.py        # Boundary di esecuzione concorrente
+├── advisor_engine.py          # Orchestrazione della consulenza
 ├── advisor_context_builder.py # Raccolta dati da DataEngine/EvaluationEngine
 ├── prompt_builder.py          # Costruzione automatica del prompt
 ├── llama_provider.py          # Wrapper llama-cpp-python
@@ -56,7 +57,8 @@ advisor_engine/
 ## AdvisorEngine
 
 ### Responsabilità
-È la facade dell'intero modulo.
+Contiene l'intera logica di orchestrazione della consulenza finanziaria.
+Assume che l'esecuzione sia già stata autorizzata dall'AdvisorExecutor e non gestisce aspetti concorrenti o sincronizzazione.
 Orchestra tutte le operazioni necessarie per ottenere una consulenza.
 Non contiene logica di costruzione del prompt né di accesso al modello.
 
@@ -76,6 +78,46 @@ class AdvisorEngine:
         user_prompt: str,
         investor_profile: InvestorProfile
     ) -> AdvisorResponse:
+        ...
+```
+
+---
+
+## AdvisorExecutor
+
+### Responsabilità
+Rappresenta il punto di ingresso concorrente dell'Advisor.
+Il suo compito è garantire che una sola richiesta venga elaborata per volta, evitando che più invocazioni simultanee saturino il modello LLM locale o producano uno stato inconsistente della memoria conversazionale.
+L'implementazione iniziale utilizza una strategia estremamente semplice:
+- una sola elaborazione attiva;
+- eventuali richieste concorrenti vengono immediatamente rifiutate.
+
+Questa scelta privilegia prevedibilità, semplicità e protezione delle risorse rispetto al throughput.
+In futuro il componente potrà evolvere senza modificare l'AdvisorEngine introducendo, ad esempio:
+- coda FIFO;
+- priorità delle richieste;
+- code indipendenti per utente;
+- timeout;
+- cancellazione delle richieste;
+- metriche di utilizzo.
+
+### Input
+```python
+AdvisorRequest
+```
+
+### Output
+```python
+AdvisorResponse
+```
+
+oppure un errore applicativo indicante che è già presente un'elaborazione in corso.
+
+### Possibile interfaccia
+```python
+class AdvisorExecutor:
+
+    def execute(self, request: AdvisorRequest) -> AdvisorResponse:
         ...
 ```
 
@@ -291,27 +333,37 @@ Nessuna logica.
 flowchart LR
 
 A[Endpoint HTTP]
-    --> B[AdvisorEngine]
+
+--> X[AdvisorExecutor]
+
+X -->|busy| Y[Errore<br/>Advisor già occupato]
+
+X -->|accepted| B[AdvisorEngine]
 
 B --> C[AdvisorContextBuilder]
 
 C --> D[DataEngine]
+
 C --> E[EvaluationEngine]
 
 D --> C
+
 E --> C
 
 B --> F[PromptBuilder]
 
 F --> G[PromptFormatter]
+
 G --> F
 
 F --> M[MemoryManager]
+
 M --> F
 
 F --> H[LlamaProvider]
 
 H --> I[LLM Locale<br/>llama.cpp]
+
 I --> H
 
 H --> J[AdvisorResponse]
@@ -320,7 +372,9 @@ J --> M
 
 J --> B
 
-B --> K[HTTP Response]
+B --> X
+
+X --> K[HTTP Response]
 ```
 
 ---
@@ -328,28 +382,24 @@ B --> K[HTTP Response]
 # Sequenza delle operazioni
 ```text
 1. L'utente invia una richiesta.
-
-2. L'AdvisorEngine riceve la richiesta.
-
-3. AdvisorContextBuilder recupera:
+2. AdvisorExecutor verifica che non sia già presente un'elaborazione attiva.
+3. Se il sistema è occupato la richiesta viene rifiutata.
+4. AdvisorEngine riceve la richiesta.
+5. AdvisorContextBuilder recupera:
    • portafoglio
    • asset
    • watchlist
    • valutazioni
    • profilo investitore
-
-4. PromptBuilder:
+6. PromptBuilder:
    • formatta il contesto applicativo
-   • recupera la memoria conversazionale dal MemoryManager
+   • recupera la memoria conversazionale
    • costruisce il prompt completo
-
-5. LlamaProvider invia il prompt al modello locale.
-
-6. Il modello produce una risposta.
-
-7. Il MemoryManager registra il nuovo turno della conversazione.
-
-8. L'AdvisorEngine restituisce la risposta all'utente.
+7. LlamaProvider invia il prompt al modello locale.
+8. Il modello produce una risposta.
+9. MemoryManager registra il nuovo turno della conversazione.
+10. AdvisorEngine restituisce la risposta.
+11. AdvisorExecutor libera il lock di esecuzione.
 ```
 
 ---
@@ -359,6 +409,7 @@ Ogni componente ha una singola responsabilità.
 
 | Componente | Responsabilità |
 |------------|----------------|
+| AdvisorExecutor | Controlla l'accesso concorrente all'AdvisorEngine garantendo una sola elaborazione alla volta |
 | DataEngine | Produce dati quantitativi |
 | EvaluationEngine | Interpreta i dati tramite regole deterministiche |
 | AdvisorContextBuilder | Aggrega il contesto finanziario corrente |
@@ -366,7 +417,7 @@ Ogni componente ha una singola responsabilità.
 | MemoryManager | Gestisce la memoria conversazionale della sessione |
 | PromptBuilder | Costruisce il prompt completo per il modello |
 | LlamaProvider | Comunica con il modello locale |
-| AdvisorEngine | Orchestra l'intero flusso |
+| AdvisorEngine | Orchestra l'intero flusso di consulenza |
 
 ---
 
@@ -380,6 +431,9 @@ Ogni componente ha una singola responsabilità.
 - Gestione della memoria completamente disaccoppiata dal dominio finanziario.
 - Possibilità di evolvere la memoria senza modificare AdvisorContext o PromptFormatter.
 - Interfaccia stabile del MemoryManager indipendentemente dalla strategia di memorizzazione adottata.
+- Protezione del modello LLM da richieste concorrenti.
+- Punto unico per la gestione della concorrenza e delle future code di esecuzione.
+- AdvisorEngine completamente ignaro delle problematiche di sincronizzazione.
 
 ---
 
