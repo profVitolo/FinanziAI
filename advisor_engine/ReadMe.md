@@ -24,12 +24,13 @@ Riceve esclusivamente dati già elaborati e produce:
 ```text
 advisor_engine/
 │
-├── advisor_executor.py        # Boundary di esecuzione concorrente
-├── advisor_engine.py          # Orchestrazione della consulenza
-├── advisor_context_builder.py # Raccolta dati da DataEngine/EvaluationEngine
-├── prompt_builder.py          # Costruzione automatica del prompt
-├── llama_provider.py          # Wrapper llama-cpp-python
-├── advisor_models.py          # DTO interni
+├── ai_provider.py				# Interfaccia comune dei provider AI
+├── advisor_executor.py			# Boundary di esecuzione concorrente
+├── advisor_engine.py			# Orchestrazione della consulenza
+├── advisor_context_builder.py	# Raccolta dati da DataEngine/EvaluationEngine
+├── prompt_builder.py			# Costruzione automatica del prompt
+├── llama_provider.py			# Implementazione locale tramite llama-cpp
+├── advisor_models.py			# DTO interni
 │
 ├── formatters/
 │   ├── data_formatter.py
@@ -172,7 +173,7 @@ class AdvisorContextBuilder:
 Trasforma l'intero contesto in un prompt ottimizzato per il modello.
 Internamente:
 - utilizza `PromptFormatter` per convertire i DTO applicativi in una rappresentazione testuale semplice e compatta;
-- recupera la memoria conversazionale dal `MemoryManager`;
+- recupera dal MemoryManager una finestra della conversazione compatibile con il budget di token del modello.
 - inserisce entrambe le informazioni nei template Jinja;
 - costruisce il prompt finale.
 
@@ -212,17 +213,9 @@ class PromptBuilder:
 
 ### Responsabilità
 Gestisce la memoria conversazionale dell'Advisor.
-L'obiettivo è fornire al modello il contesto delle interazioni precedenti senza modificare il dominio applicativo (`AdvisorContext`) e senza introdurre dipendenze tra la memoria e gli engine finanziari.
-Il `MemoryManager` è completamente indipendente dal processo di raccolta dei dati di portafoglio e viene interrogato esclusivamente dal `PromptBuilder` durante la costruzione del prompt.
-Attualmente il componente mantiene una finestra configurabile degli ultimi turni della conversazione (utente ↔ assistente) e restituisce una rappresentazione testuale pronta per essere inserita nel prompt.
-In futuro lo stesso componente potrà evolvere mantenendo invariata l'interfaccia pubblica, diventando il punto centralizzato per la gestione della memoria dell'Advisor, ad esempio introducendo:
-- riassunti automatici delle conversazioni più vecchie;
-- preferenze espresse dall'utente;
-- decisioni prese durante la sessione;
-- eventi significativi dell'applicazione;
-- memoria persistente tra più sessioni.
-
-L'architettura è volutamente progettata affinché tali evoluzioni non richiedano modifiche né al `PromptBuilder` né agli altri componenti dell'AdvisorEngine.
+Il componente conserva gli ultimi turni della conversazione e, durante la costruzione del prompt, ricostruisce dinamicamente una finestra di memoria compatibile con il budget massimo di token configurato (`MAX_MEMORY_TOKENS`).
+Quando disponibile utilizza il tokenizer esposto dal provider AI per stimare con precisione il numero di token; in assenza di un tokenizer utilizza una stima approssimata basata sulla lunghezza del testo.
+Il `MemoryManager` rimane completamente indipendente dall'implementazione del modello linguistico e degrada automaticamente su una strategia generica.
 
 ### Input
 - messaggio dell'utente
@@ -234,20 +227,43 @@ Una rappresentazione testuale della memoria conversazionale pronta per essere in
 ### Possibile interfaccia
 ```python
 class MemoryManager:
-
-    def add_turn(
-        self,
-        user_message: str,
-        assistant_message: str,
-    ) -> None:
+    def add_turn(...) -> None:
         ...
 
     def build_memory(self) -> str:
         ...
 
+    def get_history(self) -> ConversationHistory:
+        ...
+
     def clear(self) -> None:
         ...
 ```
+
+---
+
+## AIProvider
+
+### Responsabilità
+Definisce l'interfaccia comune che ogni backend AI deve implementare.
+Permette di sostituire il modello linguistico senza modificare il resto dell'AdvisorEngine.
+
+### Interfaccia
+```python
+class AIProvider(ABC):
+
+    @property
+    def model_name(self) -> str:
+        ...
+
+    def generate(...) -> AdvisorResponse:
+        ...
+
+    def count_tokens(text: str) -> int:
+        ...
+```
+
+`LlamaProvider` rappresenta l'attuale implementazione locale basata su `llama-cpp-python`.
 
 ---
 
@@ -257,6 +273,7 @@ class MemoryManager:
 Incapsula completamente `llama-cpp-python`.
 Il resto dell'applicazione non conosce il modello utilizzato.
 Permette in futuro di sostituire il backend con altri provider.
+Oltre alla generazione delle risposte espone il conteggio dei token del modello tramite `count_tokens()`, utilizzato dal `MemoryManager` per costruire una finestra di memoria compatibile con il contesto disponibile.
 
 ### Input
 Prompt
@@ -265,7 +282,6 @@ Prompt
 Risposta del modello
 
 ### Possibile interfaccia
-
 ```python
 class LlamaProvider:
 
@@ -414,9 +430,10 @@ Ogni componente ha una singola responsabilità.
 | EvaluationEngine | Interpreta i dati tramite regole deterministiche |
 | AdvisorContextBuilder | Aggrega il contesto finanziario corrente |
 | PromptFormatter | Converte il contesto applicativo in testo |
-| MemoryManager | Gestisce la memoria conversazionale della sessione |
+| MemoryManager | Gestisce la memoria conversazionale rispettando il budget di token |
 | PromptBuilder | Costruisce il prompt completo per il modello |
-| LlamaProvider | Comunica con il modello locale |
+| AIProvider | Definisce l'interfaccia comune dei provider AI |
+| LlamaProvider | Implementazione locale dell'AIProvider tramite llama.cpp |
 | AdvisorEngine | Orchestra l'intero flusso di consulenza |
 
 ---
@@ -434,6 +451,9 @@ Ogni componente ha una singola responsabilità.
 - Protezione del modello LLM da richieste concorrenti.
 - Punto unico per la gestione della concorrenza e delle future code di esecuzione.
 - AdvisorEngine completamente ignaro delle problematiche di sincronizzazione.
+- I provider AI sono completamente intercambiabili tramite l'interfaccia `AIProvider`.
+- La memoria conversazionale utilizza il budget di token del modello invece di un semplice numero di messaggi.
+- Il conteggio dei token è preciso quando il provider lo supporta e dispone di un fallback indipendente dal modello.
 
 ---
 
