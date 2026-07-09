@@ -27,3 +27,4 @@ venv/
 
 # Project exclusions
 advisor_engine/memory/conversations.json
+.cache
