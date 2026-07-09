@@ -42,14 +42,22 @@ try:
         },
     )
 
-    data = response.json()
-
     print_response(response)
 
     if response.status_code >= 400:
         raise Exception("Advisor fallito")
 
 
+    print("\n=== GET HISTORY ===")
+
+    response = requests.get(f"{BASE_URL}/advisor/history")
+    print_response(response)
+    
+    print("\n=== CLEAR HISTORY ===")
+
+    response = requests.delete(f"{BASE_URL}/advisor/history")
+    print_response(response)
+    
     print("\n=== TEST API ADVISOR COMPLETATO ===")
 
 finally:
