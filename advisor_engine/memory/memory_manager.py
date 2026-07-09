@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from config import MAX_MEMORY_TURNS, MAX_MEMORY_TOKENS
+from config import MAX_MEMORY_TURNS, MAX_MEMORY_TOKENS, TITLE
 from advisor_engine.ai_provider import AIProvider
 from advisor_engine.memory.conversation_store import ConversationStore
 from advisor_engine.memory.memory_models import ConversationHistory, ConversationTurn
@@ -24,7 +24,7 @@ class MemoryManager:
             section = (
                 f"Utente:\n"
                 f"{turn.user_message}\n\n"
-                f"Assistente:\n"
+                f"Assistente {TITLE}:\n"
                 f"{turn.assistant_message}\n\n"
             )
 
