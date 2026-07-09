@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter,Response, status
 from fastapi.responses import JSONResponse
 from advisor_engine.advisor_engine import AdvisorEngine
 from advisor_engine.advisor_executor import AdvisorExecutor, AdvisorBusyError
@@ -37,3 +37,12 @@ def advise(body: AdviseBody):
                 "detail": str(ex)
             },
         )
+
+@router.get("/history")
+def get_history():
+    return engine.get_history()
+
+@router.delete("/history")
+def clear_history():
+    engine.clear_history()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
