@@ -264,6 +264,109 @@ function setupVaultSelector()
     document.getElementById("delete-vault-btn").addEventListener("click", deleteVault);
 }
 
+//AI Functions
+function renderHistory(history)
+{
+    const container = document.getElementById("advisor-history");
+    container.innerHTML = "";
+
+    history.turns.forEach(turn =>
+    {
+        const user = document.createElement("div");
+        user.className = "advisor-user";
+        user.textContent = turn.user_message;
+
+        const assistant = document.createElement("div");
+        assistant.className = "advisor-assistant";
+        assistant.textContent = turn.assistant_message;
+
+        container.appendChild(user);
+        container.appendChild(assistant);
+    });
+
+    container.scrollTop = container.scrollHeight;
+}
+
+async function loadAdvisorHistory()
+{
+    try
+    {
+        const response = await fetch(`${API_BASE}/advisor/history`);
+        if (!response.ok)
+            throw new Error();
+
+        const history = await response.json();
+        renderHistory(history);
+    }
+    catch (error)
+    {
+        console.error("Errore caricamento history advisor:", error);
+    }
+}
+
+async function sendAdvisorMessage()
+{
+    const textarea = document.getElementById("advisor-prompt");
+	const button = document.getElementById("advisor-send-btn");
+    const prompt = textarea.value.trim();
+
+    if (!prompt)
+        return;
+
+	button.disabled = true;
+    textarea.disabled = true;
+	
+    try
+    {
+        const response = await fetch(
+            `${API_BASE}/advisor/advise`,
+            {
+                method: "POST",
+                headers:
+                {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(
+                {
+                    prompt: prompt,
+                    investor_profile: "balanced"
+                })
+            });
+
+        if (!response.ok)
+        {
+            const error = await response.json();
+            alert(error.detail);
+            return;
+        }
+
+        textarea.value = "";
+
+        await loadAdvisorHistory();
+    }
+    catch (error)
+    {
+        console.error("Errore advisor:", error);
+    }
+	finally
+    {
+        button.disabled = false;
+        textarea.disabled = false;
+        textarea.focus();
+    }
+}
+
+function resetAdvisorInput()
+{
+    document.getElementById("advisor-prompt").value = "";
+}
+
+function setupAdvisor()
+{
+    document.getElementById("advisor-send-btn").addEventListener("click", sendAdvisorMessage);
+    document.getElementById("advisor-reset-btn").addEventListener("click", resetAdvisorInput);
+}
+
 async function init() 
 {
     generateMenu();
@@ -276,10 +379,12 @@ async function init()
 			loadPortfolioSummary(),
 			loadPortfolioEvaluation(),
 			loadWatchlist(),
-			loadVaults()
+			loadVaults(),
+			loadAdvisorHistory()
 		]);
 		
 		setupVaultSelector();
+		setupAdvisor();
     } catch (error) {
         console.error("Init failed:", error);
     }
