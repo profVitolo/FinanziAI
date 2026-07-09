@@ -14,9 +14,10 @@ from config import (
     LLM_THREADS,
 )
 from advisor_engine.advisor_models import AdvisorResponse
+from advisor_engine.ai_provider import AIProvider
 
 
-class LlamaProvider:
+class LlamaProvider(AIProvider):
     """
     Wrapper minimale di llama-cpp-python.
 
@@ -83,8 +84,6 @@ class LlamaProvider:
         usage = response.get("usage", {})
         choice = response["choices"][0]
         
-        choice = response["choices"][0]
-
         raw_answer = choice["message"]["content"].strip()
         answer = self._extract_answer(raw_answer)
 
@@ -97,7 +96,9 @@ class LlamaProvider:
             total_tokens=usage.get("total_tokens"),
         )
     
-    # Metodo stupido per i test
+    def count_tokens(self, text: str) -> int:
+        return len(self._llm.tokenize(text.encode("utf-8")))
+    
     def health_check(self) -> AdvisorResponse:
         return self.generate(
             system_prompt="Sei un assistente.",
