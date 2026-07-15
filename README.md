@@ -585,18 +585,18 @@ Garantire coerenza, aggiornamento e manutenzione dei dati prima dell'introduzion
 ---
 
 ### Fase 7 — Advisor Engine (LLM)
-- Implementazione AdvisorEngine
-- Integrazione llama.cpp
-- Costruzione automatica del prompt
-- Definizione dei profili investitore
-- Analisi contestuale del portafoglio
-- Confronto con la watchlist
-- Produzione di suggerimenti motivati
+- ~Implementazione AdvisorEngine~
+- ~Integrazione llama.cpp~
+- ~Costruzione automatica del prompt~
+- ~Definizione dei profili investitore~
+- ~Analisi contestuale del portafoglio~
+- ~Confronto con la watchlist~
+- ~Produzione di suggerimenti motivati~
 
 ---
 
 ### Fase 8 — Evoluzione avanzata
-- Memoria conversazionale dell'Advisor
+- ~Memoria conversazionale dell'Advisor~
 - Personalizzazione dei prompt
 - Backtesting
 - Fiscal tracking
