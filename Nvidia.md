@@ -27,7 +27,7 @@ Se hai già installato le dipendenze del progetto, puoi reinstallarlo completame
 ```bash
 pip uninstall llama-cpp-python
 pip cache purge
-pip install --only-binary=:all: --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu125 llama-cpp-python
+pip install --only-binary=:all: --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu125 llama-cpp-python "llama-cpp-python==0.3.22"
 ```
 
 ---
