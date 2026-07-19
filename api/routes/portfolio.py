@@ -24,7 +24,7 @@ def analyze_portfolio():
     data_engine = DataEngine()
     try:
         result = (data_engine.analyze_portfolio())
-
+        
         if result is None:
             raise HTTPException(status_code=404, detail="Portfolio is empty")
 
