@@ -338,12 +338,14 @@ async function sendAdvisorMessage()
     const textarea = document.getElementById("advisor-prompt");
 	const button = document.getElementById("advisor-send-btn");
     const prompt = textarea.value.trim();
-
+	const profileSelect = document.getElementById("investor-profile");
+	
     if (!prompt)
         return;
 
 	button.disabled = true;
     textarea.disabled = true;
+	const selectedProfile = profileSelect ? profileSelect.value : "balanced";
 	
     try
     {
@@ -358,7 +360,7 @@ async function sendAdvisorMessage()
                 body: JSON.stringify(
                 {
                     prompt: prompt,
-                    investor_profile: "balanced"
+                    investor_profile: selectedProfile
                 })
             });
 
@@ -394,6 +396,37 @@ function setupAdvisor()
 {
     document.getElementById("advisor-send-btn").addEventListener("click", sendAdvisorMessage);
     document.getElementById("advisor-reset-btn").addEventListener("click", resetAdvisorInput);
+
+}
+
+async function loadInvestorProfiles() 
+{
+    const selectElement = document.getElementById('investor-profile');
+
+    try 
+	{
+        const response = await fetch('/advisor/investor-profiles');
+        
+        if (!response.ok) 
+            throw new Error(`Errore HTTP: ${response.status}`);
+
+        const profiles = await response.json();
+        
+        selectElement.innerHTML = '';
+
+        profiles.forEach(profile => 
+		{
+            const option = document.createElement('option');
+            option.value = profile.value;
+            option.textContent = profile.label;
+            selectElement.appendChild(option);
+        });
+
+    } 
+	catch (error) 
+	{
+        console.error('Impossibile caricare i profili investitore:', error);
+    }
 }
 
 async function init() 
@@ -403,6 +436,7 @@ async function init()
 	await checkHealth();
 	await Promise.all([
 		syncTrackedAssets(),
+		loadInvestorProfiles(),
 		loadPortfolioSummary()
 	]);
 	await Promise.all([
