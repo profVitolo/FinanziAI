@@ -2,6 +2,7 @@
 *.db
 *-journal
 *.bk
+database/last_used.txt
 
 # Config files
 *.conf
