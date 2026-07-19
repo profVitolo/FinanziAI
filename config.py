@@ -6,6 +6,7 @@ VERSION = "0.1.3"
     
 ROOT_DIR = Path(__file__).resolve().parent
 DB_PATH = ( ROOT_DIR / "database" / "vault.db" )
+LAST_USED = ( ROOT_DIR / "database" / "last_used.txt" )
 SCHEMA_PATH = (ROOT_DIR / "database" / "init_db.sql" )
 
 BASE_CURRENCY = "EUR"
