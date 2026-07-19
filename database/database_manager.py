@@ -1,11 +1,17 @@
 import sqlite3
 from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent.parent
-from config import DB_PATH, SCHEMA_PATH
+from config import DB_PATH, SCHEMA_PATH, LAST_USED
 
 class DatabaseManager:
     
-    current_db_path = DB_PATH
+    if LAST_USED.exists() and LAST_USED.stat().st_size > 0:
+        try:
+            current_db_path = Path(LAST_USED.read_text(encoding="utf-8").strip())
+        except Exception:
+            current_db_path = DB_PATH
+    else:
+        current_db_path = DB_PATH
 
     def __init__(self, db_path=None, schema_path=SCHEMA_PATH):
         self.db_path = db_path or DatabaseManager.current_db_path
@@ -58,6 +64,12 @@ class DatabaseManager:
     @classmethod
     def set_database(cls, db_path):
         cls.current_db_path = Path(db_path)
+        
+        try:
+            LAST_USED.parent.mkdir(parents=True, exist_ok=True)
+            LAST_USED.write_text(str(cls.current_db_path.resolve()), encoding="utf-8")
+        except Exception as e:
+            print(f"Errore durante la scrittura di last_used.txt: {e}")
     
     @classmethod
     def get_database(cls):
