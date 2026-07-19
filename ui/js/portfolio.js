@@ -14,26 +14,36 @@ let pageSize = setupPageSize(
 );
 
 let portfolioEvaluation = null;
+let portfolioLoadingError = null;
 
 async function loadPortfolioEvaluation()
 {
     const response = await fetch(`${API_BASE}/evaluation/portfolio`);
-
-    if (response.status === 404)
-        return null;
-
-    if (!response.ok)
-        throw new Error("Errore caricamento valutazione");
-
+	portfolioLoadingError = null;
+	
     portfolioEvaluation = await response.json();
+	
+    if (response.status === 404)
+	{
+		portfolioLoadingError = {status: response.status, detail: portfolioEvaluation.detail};
+        return null;
+	}
+
+	if (!response.ok)
+        throw new Error("Errore generico caricamento valutazione");
 }
 
 async function loadPortfolioAnalysis()
 {
     const response = await fetch(`${API_BASE}/portfolio/analysis`);
-
+	const data = await response.json();
+	
+	portfolioLoadingError = null;
+	
     if (response.status === 404)
     {
+		portfolioLoadingError = {status: response.status, detail: data.detail};
+		
         return {
             portfolio_value: 0,
             positions: [],
@@ -42,11 +52,9 @@ async function loadPortfolioAnalysis()
             risk: null
         };
     }
-
-    if (!response.ok)
-        throw new Error("Errore caricamento portfolio");
-
-	const data = await response.json();
+	
+	if (!response.ok)
+        throw new Error("Errore generico caricamento portfolio");
 	
     portfolioPositions = data.positions;
     filteredPositions = portfolioPositions;
@@ -234,7 +242,10 @@ function refreshTableTransactions(page_size)
 async function refreshPortfolio() 
 {
     const data = await loadPortfolioAnalysis();
-    renderPortfolio(data);
+	if (portfolioLoadingError != null)
+		alert(portfolioLoadingError.detail);
+	else
+		renderPortfolio(data);
 }
 
 async function init() 
@@ -247,8 +258,9 @@ async function init()
 			refreshPortfolio(),
 			loadPortfolioEvaluation()
 		]);
-
-		renderEvaluation("evaluation-severity", "evaluation-count", "portfolio-evaluation-list", portfolioEvaluation);
+		
+		if (portfolioLoadingError === null)
+			renderEvaluation("evaluation-severity", "evaluation-count", "portfolio-evaluation-list", portfolioEvaluation);
     }
     catch (error) 
 	{

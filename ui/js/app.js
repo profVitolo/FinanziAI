@@ -1,3 +1,4 @@
+let portfolioLoadingError = null;
 
 async function loadWatchlist() 
 {
@@ -50,8 +51,7 @@ function setupSearch()
 
 async function checkHealth()
 {
-    const statusElement =
-        document.getElementById("api-status");
+    const statusElement = document.getElementById("api-status");
 
     try
     {
@@ -60,44 +60,58 @@ async function checkHealth()
     }
     catch
     {
-        statusElement.textContent = "Server non raggiungibile";
+		const msg = "Server non raggiungibile";
+        statusElement.textContent = msg;
+		console.error(msg);
     }
 }
 
 async function loadPortfolioEvaluation()
 {
-    try
-    {
-        const response = await fetch(`${API_BASE}/evaluation/portfolio`);
+	if( portfolioLoadingError == null)
+	{
+		try
+		{
+			const response = await fetch(`${API_BASE}/evaluation/portfolio`);
 
-        if (!response.ok)
-            throw new Error();
+			if (!response.ok)
+				throw new Error();
 
-        const evaluation = await response.json();
+			const evaluation = await response.json();
 
-		document.getElementById("dashboard-evaluation-count").innerHTML = `
-			<a href="portfolio.html">${evaluation.summary.message_count}</a>`;
-			
-        document.getElementById("dashboard-evaluation-severity").innerHTML = `
-            <span class="${severityClass(evaluation.summary.highest_severity)}">
-                ${severityIcon(evaluation.summary.highest_severity)}
-                ${evaluation.summary.highest_severity}
-            </span>
-        `;
-    }
-    catch
-    {
-        document.getElementById("dashboard-evaluation-severity").textContent = "-";
-        document.getElementById("dashboard-evaluation-count").textContent = "-";
-    }
+			document.getElementById("dashboard-evaluation-count").innerHTML = `
+				<a href="portfolio.html">${evaluation.summary.message_count}</a>`;
+				
+			document.getElementById("dashboard-evaluation-severity").innerHTML = `
+				<span class="${severityClass(evaluation.summary.highest_severity)}">
+					${severityIcon(evaluation.summary.highest_severity)}
+					${evaluation.summary.highest_severity}
+				</span>
+			`;
+		}
+		catch
+		{
+			document.getElementById("dashboard-evaluation-severity").textContent = "-";
+			document.getElementById("dashboard-evaluation-count").textContent = "-";
+		}
+	}
 }
 
 async function loadPortfolioSummary()
 {
+	let response;
     try
     {
-        const response = await fetch(`${API_BASE}/portfolio/analysis`);
-
+        response = await fetch(`${API_BASE}/portfolio/analysis`);
+		portfolioLoadingError = null;
+		
+		if (response.status === 404)
+		{
+			const portfolioAnalysis = await response.json();
+			portfolioLoadingError = {status: response.status, detail: portfolioAnalysis.detail};
+			throw new Error();
+		}
+		
         if (!response.ok)
             throw new Error();
 
@@ -111,6 +125,7 @@ async function loadPortfolioSummary()
     }
     catch
     {
+		portfolioLoadingError = {status: response.status, detail: "Errore generico caricamento portfolio" };
         document.getElementById("portfolio-value").textContent = "-";
         document.getElementById("positions-count").textContent = "-";
     }
@@ -137,27 +152,34 @@ async function syncTrackedAssets()
 
 async function loadVaults()
 {
-    const response = await fetch(`${API_BASE}/info/databases`);
+	try
+	{
+		const response = await fetch(`${API_BASE}/info/databases`);
 
-    if (!response.ok)
-        throw new Error("Errore caricamento vault");
+		if (!response.ok)
+			throw new Error("Errore caricamento vault");
 
-    const data = await response.json();
+		const data = await response.json();
 
-    const select = document.getElementById("databases");
-    select.innerHTML = "";
+		const select = document.getElementById("databases");
+		select.innerHTML = "";
 
-    data.databases.forEach(db =>
-    {
-        const option = document.createElement("option");
-        option.value = db;
-        option.textContent = db;
+		data.databases.forEach(db =>
+		{
+			const option = document.createElement("option");
+			option.value = db;
+			option.textContent = db;
 
-        if (db === data.selected)
-            option.selected = true;
+			if (db === data.selected)
+				option.selected = true;
 
-        select.appendChild(option);
-    });
+			select.appendChild(option);
+		});
+	}
+	catch(e)
+	{
+		console.error(e.message);
+	}
 }
 
 async function createVault()
@@ -248,17 +270,21 @@ function setupVaultSelector()
 		async function()
         {
             const dbName = this.value;
+			try
+			{
+				if (!confirm(`Passare al vault ${dbName}?`))
+				{
+					await loadVaults();
+					return;
+				}
 
-            if (!confirm(`Passare al vault ${dbName}?`))
-            {
-                await loadVaults();
-                return;
-            }
-
-            await selectVault(dbName);
-            alert(`Vault attivo: ${dbName}`);
-            location.reload();
-        });
+				await selectVault(dbName);
+				alert(`Vault attivo: ${dbName}`);
+				location.reload();
+			}
+			catch (error) { console.error("Vault change error:", error);}
+        }
+	);
 
     document.getElementById("new-vault-btn").addEventListener("click", createVault);
     document.getElementById("delete-vault-btn").addEventListener("click", deleteVault);
@@ -289,19 +315,22 @@ function renderHistory(history)
 
 async function loadAdvisorHistory()
 {
-    try
-    {
-        const response = await fetch(`${API_BASE}/advisor/history`);
-        if (!response.ok)
-            throw new Error();
+	if( portfolioLoadingError == null)
+	{
+		try
+		{
+			const response = await fetch(`${API_BASE}/advisor/history`);
+			if (!response.ok)
+				throw new Error();
 
-        const history = await response.json();
-        renderHistory(history);
-    }
-    catch (error)
-    {
-        console.error("Errore caricamento history advisor:", error);
-    }
+			const history = await response.json();
+			renderHistory(history);
+		}
+		catch (error)
+		{
+			console.error("Errore caricamento history advisor:", error);
+		}
+	}
 }
 
 async function sendAdvisorMessage()
@@ -371,23 +400,20 @@ async function init()
 {
     generateMenu();
 
-    try 
-	{
-        await checkHealth();
-        await Promise.all([
-			syncTrackedAssets(),
-			loadPortfolioSummary(),
-			loadPortfolioEvaluation(),
-			loadWatchlist(),
-			loadVaults(),
-			loadAdvisorHistory()
-		]);
-		
-		setupVaultSelector();
-		setupAdvisor();
-    } catch (error) {
-        console.error("Init failed:", error);
-    }
+	await checkHealth();
+	await Promise.all([
+		syncTrackedAssets(),
+		loadPortfolioSummary()
+	]);
+	await Promise.all([
+		loadPortfolioEvaluation(),
+		loadWatchlist(),
+		loadVaults(),
+		loadAdvisorHistory()
+	]);
+	
+	setupVaultSelector();
+	setupAdvisor();
 	
 	setupSearch();
 }
