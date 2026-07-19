@@ -8,7 +8,6 @@ from api.schemas import AdviseBody
 router = APIRouter(prefix="/advisor", tags=["Advisor"])
 
 executor = AdvisorExecutor()    
-engine = AdvisorEngine()
 
 @router.get("/investor-profiles")
 def get_investor_profiles():
@@ -23,6 +22,7 @@ def get_investor_profiles():
 
 @router.post("/advise")
 def advise(body: AdviseBody):
+    engine = AdvisorEngine()
     request = AdvisorRequest(prompt=body.prompt, investor_profile=body.investor_profile)
     
     try:
@@ -40,9 +40,11 @@ def advise(body: AdviseBody):
 
 @router.get("/history")
 def get_history():
+    engine = AdvisorEngine()
     return engine.get_history()
 
 @router.delete("/history")
 def clear_history():
+    engine = AdvisorEngine()
     engine.clear_history()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
