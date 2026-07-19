@@ -6,6 +6,9 @@ pydantic
 yfinance
 pandas
 numpy
-## Per sistemi senza GPU NVIDIA - LLM will run on CPU
-llama-cpp-python
 huggingface_hub
+
+## NO GPU NVIDIA - LLM will run on CPU - binary version
+--only-binary=:all:
+--extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+llama-cpp-python==0.3.22
